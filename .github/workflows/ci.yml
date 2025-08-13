@@ -169,11 +169,16 @@ jobs:
     
     - name: Build Frontend Docker image
       run: |
-        cat > apps/web/Dockerfile << 'EOF'
+        # Create a temporary package.json without workspace dependencies
+        cd apps/web
+        cat package.json | sed 's/"@validahub\/shared": "workspace:\*",//' > package.json.tmp
+        mv package.json.tmp package.json
+        
+        cat > Dockerfile << 'EOF'
         FROM node:20-alpine AS deps
         RUN apk add --no-cache libc6-compat
         WORKDIR /app
-        COPY package.json ./
+        COPY package*.json ./
         RUN npm install
         
         FROM node:20-alpine AS builder
@@ -184,14 +189,14 @@ jobs:
         
         FROM node:20-alpine AS runner
         WORKDIR /app
-        ENV NODE_ENV production
+        ENV NODE_ENV=production
         COPY --from=builder /app/.next ./.next
         COPY --from=builder /app/public ./public
         COPY --from=builder /app/package.json ./
         COPY --from=deps /app/node_modules ./node_modules
         CMD ["npm", "start"]
         EOF
-        docker build -t validahub-web:test ./apps/web
+        docker build -t validahub-web:test .
 
   # ========== CODE QUALITY ==========
   code-quality:
