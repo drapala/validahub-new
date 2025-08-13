@@ -16,7 +16,6 @@
     "check": "npm run lint && npm run typecheck && npm run test:ci"
   },
   "dependencies": {
-    "@validahub/shared": "workspace:*",
     "@hookform/resolvers": "^3.3.2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-select": "^2.2.5",
@@ -24,6 +23,7 @@
     "@radix-ui/react-toast": "^1.2.14",
     "@tanstack/react-query": "^5.51.1",
     "@tanstack/react-virtual": "^3.1.0",
+    "@validahub/shared": "workspace:*",
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -45,7 +45,7 @@
     "@types/node": "^20.14.12",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
-    "eslint": "^8.57.0",
+    "eslint": "^8.57.1",
     "eslint-config-next": "14.2.30",
     "typescript": "^5.5.3"
   },
