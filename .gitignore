@@ -75,7 +75,6 @@ dist/
 # Monorepo
 node_modules/
 .turbo/
-pnpm-lock.yaml
 
 # Next.js platform-specific files (large binaries)
 .next/cache/compiled/@next+swc*

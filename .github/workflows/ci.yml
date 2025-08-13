@@ -42,8 +42,6 @@ jobs:
     
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
-      with:
-        version: 9
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -59,7 +57,7 @@ jobs:
         cache-dependency-path: apps/api/requirements.txt
     
     - name: Install Node dependencies
-      run: pnpm install --frozen-lockfile
+      run: pnpm install
     
     - name: Install Python dependencies
       working-directory: ./apps/api
@@ -135,8 +133,6 @@ jobs:
     
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
-      with:
-        version: 9
     
     - name: Check Python dependencies (safety)
       working-directory: ./apps/api
@@ -178,8 +174,8 @@ jobs:
         RUN apk add --no-cache libc6-compat
         WORKDIR /app
         RUN corepack enable && corepack prepare pnpm@latest --activate
-        COPY package.json pnpm-lock.yaml ./
-        RUN pnpm install --frozen-lockfile
+        COPY package.json ./
+        RUN npm install -g pnpm && pnpm install
         
         FROM node:20-alpine AS builder
         WORKDIR /app
