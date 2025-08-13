@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+// const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
 import { API_BASE, MOCK } from "./env";
 
@@ -64,7 +64,7 @@ export type ValidationResult = {
 
 
 export const api = {
-  login: async (password: string) => {
+  login: async (email: string, password: string) => {
     if (MOCK) {
       console.log("Login mockado com sucesso");
       return Promise.resolve({ token: "mock-token" });
@@ -154,15 +154,14 @@ export const api = {
     }
   },
 
-  getJob: async (jobId: string) => {
+  getJob: async (jobId: string): Promise<JobResponse> => {
     if (MOCK) {
       console.log(`Buscando job mockado: ${jobId}`);
       return Promise.resolve({
-        job_id: jobId,
-        status: "completed",
-        marketplace: "MOCKPLACE",
-        category: "MOCKATEGORY",
-        created_at: new Date().toISOString(),
+        id: jobId,
+        status: "done",
+        eta: "2 minutos",
+        logs: ["Iniciando processamento...", "Validando arquivo...", "Concluído!"],
         links: {
           corrected: "/mock-corrected.csv",
           rejected: "/mock-rejected.csv",
@@ -173,7 +172,7 @@ export const api = {
     return http<JobResponse>(`/jobs/${jobId}`);
   },
 
-  getRuleset: (marketplace: string, category: string) => {
+  getRuleset: (_marketplace: string, _category: string) => {
     return http<any>("/rulesets", { method: "GET" });
   },
 
