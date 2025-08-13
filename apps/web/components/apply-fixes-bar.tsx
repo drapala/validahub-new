@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 
-export function ApplyFixesBar({ results }: { results: any }) {
+export function ApplyFixesBar({ }: { results?: any }) {
   const handlePreview = () => {
     toast.info("Preview de correções (em breve)");
   };

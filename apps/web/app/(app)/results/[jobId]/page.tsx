@@ -29,7 +29,11 @@ export default function ResultsJobPage() {
         {isError && <div className="text-red-400">Erro ao consultar job.</div>}
         {data && (
           <>
-            <JobProgress status={data.status} eta={data.eta} logs={data.logs} />
+            <JobProgress 
+              status={data.status as "done" | "queued" | "processing" | "failed"} 
+              eta={'eta' in data ? data.eta : undefined} 
+              logs={'logs' in data ? data.logs : undefined} 
+            />
             {data.status === "done" && (
               <div className="mt-4 flex flex-wrap gap-3">
                 {data.links?.corrected && (
