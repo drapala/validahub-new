@@ -190,6 +190,9 @@ jobs:
         COPY . .
         # Fix tsconfig path for Docker context (tsconfig.base.json is now in same directory)
         RUN sed -i 's/"extends": "\.\.\/\.\.\/tsconfig\.base\.json"/"extends": ".\/tsconfig.base.json"/' tsconfig.json
+        # Build with mock mode enabled
+        ENV NEXT_PUBLIC_MOCK=1
+        ENV NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
         RUN npm run build
         
         FROM node:20-alpine AS runner
