@@ -1,4 +1,9 @@
-# ValidaHub (Frontend)
+# ValidaHub
+
+![CI/CD](https://github.com/drapala/validahub-new/workflows/CI%2FCD%20Pipeline/badge.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
+![Node](https://img.shields.io/badge/node-20-green.svg)
+[![codecov](https://codecov.io/gh/drapala/validahub-new/branch/main/graph/badge.svg)](https://codecov.io/gh/drapala/validahub-new)
 
 App web dark-first para validar e corrigir CSV/Sheets por marketplace×categoria.
 
