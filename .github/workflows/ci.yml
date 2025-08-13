@@ -93,7 +93,7 @@ jobs:
         NEXT_PUBLIC_MOCK: "1"
       run: |
         pnpm run test:ci
-        cd apps/api && pytest -v --cov=src --cov-report=xml --cov-report=term-missing
+        cd apps/api && pip install pytest-cov && pytest -v --cov=src --cov-report=xml --cov-report=term-missing
     
     - name: Build applications
       env:
@@ -199,9 +199,11 @@ jobs:
         WORKDIR /app
         ENV NODE_ENV=production
         COPY --from=builder /app/.next ./.next
-        COPY --from=builder /app/public ./public
         COPY --from=builder /app/package.json ./
         COPY --from=deps /app/node_modules ./node_modules
+        # Copy public dir if it exists
+        RUN mkdir -p public
+        COPY --from=builder /app/public* ./public/ || true
         CMD ["npm", "start"]
         EOF
         docker build -t validahub-web:test .
