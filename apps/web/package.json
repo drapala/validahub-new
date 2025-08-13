@@ -1,8 +1,8 @@
 {
-  "name": "validahub",
+  "name": "@validahub/web",
   "version": "0.1.0",
   "private": true,
-  "description": "ValidaHub — validação e correção de CSV/Sheets por marketplace×categoria",
+  "description": "ValidaHub Web Application",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -16,6 +16,7 @@
     "check": "npm run lint && npm run typecheck && npm run test:ci"
   },
   "dependencies": {
+    "@validahub/shared": "workspace:*",
     "@hookform/resolvers": "^3.3.2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-select": "^2.2.5",

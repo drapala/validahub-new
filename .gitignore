@@ -47,14 +47,17 @@ CLAUDE.md
 .claude/
 
 # Python
-backend/venv/
-backend/__pycache__/
-backend/**/__pycache__/
+**/venv/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
 .pytest_cache/
 htmlcov/
+.mypy_cache/
+.ruff_cache/
+dist/
+*.egg-info/
 
 # Environment
 .env
@@ -68,3 +71,11 @@ htmlcov/
 *.tmp
 *.temp
 .cache/
+
+# Monorepo
+node_modules/
+.turbo/
+pnpm-lock.yaml
+
+# Next.js platform-specific files (large binaries)
+.next/cache/compiled/@next+swc*
