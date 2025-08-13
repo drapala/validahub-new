@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import logging
 
 from src.config import settings
-from src.db.base import engine, Base
+# from src.db.base import engine, Base  # Commented for testing
 from src.api import validate
 
 logging.basicConfig(level=logging.INFO)
