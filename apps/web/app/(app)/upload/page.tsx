@@ -103,7 +103,12 @@ export default function UploadPage() {
             <div className="space-y-4">
               <ResultSummary results={results} />
               <ResultsTable results={results} />
-              <ApplyFixesBar results={results} />
+              <ApplyFixesBar 
+                results={results} 
+                file={file}
+                marketplace={marketplace}
+                category={category}
+              />
             </div>
           )}
         </div>
