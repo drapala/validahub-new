@@ -5,6 +5,7 @@ import logging
 
 from src.config import settings
 from src.db.base import engine, Base
+from src.api import validate
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,6 +34,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(validate.router)
 
 
 @app.get("/status")
