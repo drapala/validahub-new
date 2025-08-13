@@ -90,13 +90,16 @@ export const api = {
       // Simula um pequeno delay de rede
       await new Promise(resolve => setTimeout(resolve, 500));
       return Promise.resolve<ValidationResult>({
-        ruleset_version: "2025-01-15.1.0",
-        source_url: "https://example.com/rules",
-        items: [
-          { sku: "SKU-1001", field: "title", code: "TITLE_TOO_LONG", message: "Título com mais de 200 caracteres", severity: "error", suggestion: "Cortar para 200" },
-          { sku: "SKU-1002", field: "description", code: "MISSING_FIELD", message: "Descrição está faltando", severity: "error", suggestion: "Adicionar descrição" },
-          { sku: "SKU-1003", field: "price", code: "INVALID_PRICE", message: "Preço parece baixo demais", severity: "warning", suggestion: "Verificar preço" },
+        total_rows: 10,
+        valid_rows: 7,
+        error_rows: 3,
+        errors: [
+          { row: 2, column: "title", error: "Título com mais de 200 caracteres", value: "Produto com título muito longo...", suggestion: "Cortar para 200", severity: "error" },
+          { row: 5, column: "price", error: "Preço inválido", value: "0", suggestion: "Adicionar preço válido", severity: "error" },
+          { row: 8, column: "stock", error: "Estoque negativo", value: "-5", suggestion: "Corrigir estoque", severity: "warning" },
         ],
+        warnings_count: 1,
+        processing_time_ms: 123
       });
     }
     const qs = new URLSearchParams({ 

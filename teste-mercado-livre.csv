@@ -1,0 +1,8 @@
+sku,title,price,available_quantity,condition,brand,category
+ML001,Samsung Galaxy S24 Ultra 512GB,5999.99,15,new,Samsung,Celulares
+ML002,iPhone 15 Pro Max - Produto com título muito longo que excede o limite de 60 caracteres permitido pelo Mercado Livre para listagem,7999.99,8,new,Apple,Celulares
+ML003,Notebook Dell Inspiron,-1500,5,new,Dell,Computadores
+ML004,Monitor LG 27 polegadas,0,10,new,LG,Monitores
+ML005,Mouse Gamer Logitech,199.99,-3,new,Logitech,Acessórios
+,Teclado Mecânico RGB,299.99,20,new,Razer,Acessórios
+ML007,Fone de Ouvido Sony,899.99,abc,new,Sony,Audio
