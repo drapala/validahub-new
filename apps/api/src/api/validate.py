@@ -161,7 +161,7 @@ async def correction_preview(
         )
         
         # Apply corrections (in memory)
-        corrector = CSVCorrector()
+        corrector = CSVCorrectorV2()
         corrected_csv, summary = corrector.apply_corrections(
             csv_content=csv_content,
             validation_result=validation_result,
