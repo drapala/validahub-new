@@ -173,9 +173,8 @@ jobs:
         FROM node:20-alpine AS deps
         RUN apk add --no-cache libc6-compat
         WORKDIR /app
-        RUN corepack enable && corepack prepare pnpm@latest --activate
         COPY package.json ./
-        RUN npm install -g pnpm && pnpm install
+        RUN npm install
         
         FROM node:20-alpine AS builder
         WORKDIR /app
