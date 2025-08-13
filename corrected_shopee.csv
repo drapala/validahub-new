@@ -1,0 +1,1 @@
+{"detail":"Error correcting CSV: Can't instantiate abstract class ShopeeRuleProvider without an implementation for abstract method 'get_rule_by_id'"}

@@ -10,7 +10,7 @@ from src.schemas.validate import (
     Category,
 )
 from src.services.validator import csv_validator
-from src.services.corrector import CSVCorrector
+from src.services.corrector_v2 import CSVCorrectorV2
 
 router = APIRouter(prefix="/api/v1", tags=["validation"])
 
@@ -96,7 +96,7 @@ async def correct_csv(
         )
         
         # Apply corrections
-        corrector = CSVCorrector()
+        corrector = CSVCorrectorV2()
         corrected_csv, summary = corrector.apply_corrections(
             csv_content=csv_content,
             validation_result=validation_result,
@@ -183,3 +183,4 @@ async def correction_preview(
             status_code=500,
             detail=f"Error generating correction preview: {str(e)}",
         )
+
