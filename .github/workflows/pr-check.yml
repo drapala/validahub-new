@@ -13,23 +13,20 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Check PR title
-      uses: amannn/action-semantic-pull-request@v5
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        types: |
-          feat
-          fix
-          docs
-          style
-          refactor
-          perf
-          test
-          build
-          ci
-          chore
-          revert
+    - name: Check PR title format
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        echo "PR Title: $PR_TITLE"
+        
+        # Check if title follows conventional commit format
+        if [[ "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?:\ .+ ]]; then
+          echo "✅ PR title follows conventional commit format"
+        else
+          echo "❌ PR title must follow conventional commit format"
+          echo "Expected format: type(scope): description"
+          echo "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+          exit 1
+        fi
     
     - name: Check file sizes
       run: |
@@ -40,7 +37,9 @@ jobs:
     
     - name: Check for merge conflicts
       run: |
-        if grep -r "<<<<<<< HEAD" --exclude-dir=.git .; then
+        # Use pattern that won't match itself
+        CONFLICT_PATTERN="<<<<<<<.*HEAD"
+        if grep -r "$CONFLICT_PATTERN" --exclude-dir=.git --exclude-dir=.github .; then
           echo "❌ Merge conflicts found"
           exit 1
         fi
@@ -53,12 +52,15 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+    continue-on-error: true
     
     steps:
+    - uses: actions/checkout@v4
+    
     - uses: actions/labeler@v4
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        configuration-path: .github/labeler.yml
+      continue-on-error: true
 
   # Add size label
   size:

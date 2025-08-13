@@ -41,6 +41,11 @@ next-env.d.ts
 .vscode/
 .idea/
 
+# Claude-specific files (DO NOT COMMIT)
+CLAUDE.md
+*claude*.md
+.claude/
+
 # Python
 backend/venv/
 backend/__pycache__/
