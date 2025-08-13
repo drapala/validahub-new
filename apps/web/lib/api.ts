@@ -48,18 +48,21 @@ export type JobResponse = {
   links?: { corrected?: string; rejected?: string; report?: string };
 };
 
-// Tipo ValidationResult adicionado
+// Tipo ValidationResult - matching backend response
 export type ValidationResult = {
-  items: Array<{
-    sku: string;
-    field: string;
-    code: string;
-    message: string;
+  total_rows: number;
+  valid_rows: number;
+  error_rows: number;
+  errors: Array<{
+    row: number;
+    column: string;
+    error: string;
+    value?: string | null;
     suggestion?: string;
     severity: "error" | "warning" | "info";
   }>;
-  ruleset_version?: string;
-  source_url?: string;
+  warnings_count: number;
+  processing_time_ms: number;
 };
 
 
@@ -87,22 +90,25 @@ export const api = {
       // Simula um pequeno delay de rede
       await new Promise(resolve => setTimeout(resolve, 500));
       return Promise.resolve<ValidationResult>({
-        ruleset_version: "2025-01-15.1.0",
-        source_url: "https://example.com/rules",
-        items: [
-          { sku: "SKU-1001", field: "title", code: "TITLE_TOO_LONG", message: "Título com mais de 200 caracteres", severity: "error", suggestion: "Cortar para 200" },
-          { sku: "SKU-1002", field: "description", code: "MISSING_FIELD", message: "Descrição está faltando", severity: "error", suggestion: "Adicionar descrição" },
-          { sku: "SKU-1003", field: "price", code: "INVALID_PRICE", message: "Preço parece baixo demais", severity: "warning", suggestion: "Verificar preço" },
+        total_rows: 10,
+        valid_rows: 7,
+        error_rows: 3,
+        errors: [
+          { row: 2, column: "title", error: "Título com mais de 200 caracteres", value: "Produto com título muito longo...", suggestion: "Cortar para 200", severity: "error" },
+          { row: 5, column: "price", error: "Preço inválido", value: "0", suggestion: "Adicionar preço válido", severity: "error" },
+          { row: 8, column: "stock", error: "Estoque negativo", value: "-5", suggestion: "Corrigir estoque", severity: "warning" },
         ],
+        warnings_count: 1,
+        processing_time_ms: 123
       });
     }
     const qs = new URLSearchParams({ 
-      marketplace: params.marketplace.toUpperCase(), 
-      category: params.category.toUpperCase() 
+      marketplace: params.marketplace, 
+      category: params.category 
     });
     const form = new FormData();
     form.append("file", file);
-    return http<ValidationResult>(`/validate_csv?${qs.toString()}`, {
+    return http<ValidationResult>(`/api/v1/validate_csv?${qs.toString()}`, {
       method: "POST",
       body: form,
     });
@@ -135,16 +141,16 @@ export const api = {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           upload_ref: req.upload_ref,
-          marketplace: req.marketplace.toUpperCase(),
-          category: req.category.toUpperCase()
+          marketplace: req.marketplace,
+          category: req.category
         }),
       });
     } else if (req.file) {
       // Fallback com multipart/form-data
       const form = new FormData();
       form.append("file", req.file);
-      form.append("marketplace", req.marketplace.toUpperCase());
-      form.append("category", req.category.toUpperCase());
+      form.append("marketplace", req.marketplace);
+      form.append("category", req.category);
       return http<CreateJobResponse>("/jobs", {
         method: "POST",
         body: form,

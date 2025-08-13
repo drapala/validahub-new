@@ -17,9 +17,11 @@ export function CategoryPicker({
         onChange={(e) => onChange(e.target.value, category)}
       >
         <option value="">Selecione o marketplace</option>
-        <option value="amazon">Amazon</option>
-        <option value="mercadolivre">Mercado Livre</option>
-        <option value="magalu">Magalu</option>
+        <option value="MERCADO_LIVRE">Mercado Livre</option>
+        <option value="SHOPEE">Shopee</option>
+        <option value="AMAZON">Amazon</option>
+        <option value="MAGALU">Magalu</option>
+        <option value="AMERICANAS">Americanas</option>
       </select>
       <select
         className="input"
@@ -27,9 +29,16 @@ export function CategoryPicker({
         onChange={(e) => onChange(marketplace, e.target.value)}
       >
         <option value="">Selecione a categoria</option>
-        <option value="electronics">Eletrônicos</option>
-        <option value="fashion">Moda</option>
-        <option value="home">Casa</option>
+        <option value="ELETRONICOS">Eletrônicos</option>
+        <option value="MODA">Moda</option>
+        <option value="CASA">Casa e Decoração</option>
+        <option value="ESPORTES">Esportes</option>
+        <option value="LIVROS">Livros</option>
+        <option value="BELEZA">Beleza</option>
+        <option value="BRINQUEDOS">Brinquedos</option>
+        <option value="ALIMENTOS">Alimentos</option>
+        <option value="AUTOMOTIVO">Automotivo</option>
+        <option value="OUTROS">Outros</option>
       </select>
     </div>
   );
