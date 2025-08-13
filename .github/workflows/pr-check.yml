@@ -1,0 +1,84 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # Quick checks that run in parallel
+  quick-checks:
+    name: Quick Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check PR title format
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        echo "PR Title: $PR_TITLE"
+        
+        # Check if title follows conventional commit format
+        if [[ "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?:\ .+ ]]; then
+          echo "✅ PR title follows conventional commit format"
+        else
+          echo "❌ PR title must follow conventional commit format"
+          echo "Expected format: type(scope): description"
+          echo "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+          exit 1
+        fi
+    
+    - name: Check file sizes
+      run: |
+        # Fail if any file is larger than 10MB
+        find . -type f -size +10M | grep -q . && \
+          echo "❌ Found files larger than 10MB" && exit 1 || \
+          echo "✅ No large files found"
+    
+    - name: Check for merge conflicts
+      run: |
+        # Use pattern that won't match itself
+        CONFLICT_PATTERN="<<<<<<<.*HEAD"
+        if grep -r "$CONFLICT_PATTERN" --exclude-dir=.git --exclude-dir=.github .; then
+          echo "❌ Merge conflicts found"
+          exit 1
+        fi
+        echo "✅ No merge conflicts"
+
+  # Label PR based on changes
+  label:
+    name: Auto Label
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    continue-on-error: true
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/labeler@v4
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      continue-on-error: true
+
+  # Add size label
+  size:
+    name: PR Size
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    
+    steps:
+    - uses: codelytv/pr-size-labeler@v1
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        xs_label: 'size/xs'
+        xs_max_size: '10'
+        s_label: 'size/s'
+        s_max_size: '100'
+        m_label: 'size/m'
+        m_max_size: '500'
+        l_label: 'size/l'
+        l_max_size: '1000'
+        xl_label: 'size/xl'

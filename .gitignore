@@ -41,41 +41,30 @@ next-env.d.ts
 .vscode/
 .idea/
 
-# Logs
-logs
-*.log
+# Claude-specific files (DO NOT COMMIT)
+CLAUDE.md
+*claude*.md
+.claude/
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+htmlcov/
 
-# Coverage directory used by tools like istanbul
-coverage
-*.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
+# Environment
 .env
 
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
