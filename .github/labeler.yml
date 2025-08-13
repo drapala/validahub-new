@@ -1,0 +1,59 @@
+# Add labels based on file changes
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'hooks/**'
+      - 'public/**'
+      - '*.tsx'
+      - '*.ts'
+      - 'package.json'
+      - 'next.config.*'
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'backend/**'
+      - 'requirements.txt'
+
+database:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'backend/alembic/**'
+      - 'backend/src/models/**'
+      - '**/migrations/**'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/tests/**'
+      - '**/test_*.py'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - '**/conftest.py'
+      - 'jest.config.*'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**'
+
+ci/cd:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.dockerignore'
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements.txt'
+      - 'Pipfile'
+      - 'Pipfile.lock'
