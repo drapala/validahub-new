@@ -40,15 +40,17 @@ class CSVCorrector:
         
         # Apply corrections for each error
         for error in validation_result.errors:
-            if error.suggestion and error.severity == "error":
-                row_idx = error.row - 2  # Adjust for header and 0-indexing
-                if row_idx >= 0 and row_idx < len(df):
-                    correction = self._apply_correction(
-                        df, row_idx, error, rules
-                    )
-                    if correction:
-                        corrections_applied.append(correction)
-                        rows_corrected.add(row_idx)
+            # Apply all corrections, not just those with suggestions
+            # error.row is 1-based counting from first data row (after header)
+            # So error.row=2 means the 2nd data row, which is index 1 in dataframe
+            row_idx = error.row - 1  # Convert to 0-based index
+            if row_idx >= 0 and row_idx < len(df):
+                correction = self._apply_correction(
+                    df, row_idx, error, rules
+                )
+                if correction:
+                    corrections_applied.append(correction)
+                    rows_corrected.add(row_idx)
         
         # Convert back to CSV
         output = io.StringIO()
@@ -78,13 +80,18 @@ class CSVCorrector:
         """Apply a single correction to the dataframe"""
         
         try:
+            # Check if column exists in dataframe
+            if error.column not in df.columns:
+                print(f"Warning: Column {error.column} not found in dataframe")
+                return None
+                
             old_value = df.at[row_idx, error.column]
             new_value = None
             
             # Apply correction based on error type
-            if "too long" in error.error.lower() and "title" in error.column.lower():
+            if "too long" in error.error.lower():
                 max_length = rules.get("max_title_length", 60)
-                new_value = str(old_value)[:max_length] if old_value else ""
+                new_value = str(old_value)[:max_length] if pd.notna(old_value) else ""
                 
             elif "must be greater than 0" in error.error.lower():
                 # Set minimum valid price
@@ -108,7 +115,16 @@ class CSVCorrector:
                 if "stock" in error.column.lower() or "quantity" in error.column.lower():
                     # Try to extract number from string
                     try:
-                        new_value = int(''.join(filter(str.isdigit, str(old_value))) or '0')
+                        # If it's already a string representation of a number
+                        if pd.isna(old_value):
+                            new_value = 0
+                        else:
+                            # Try to convert to int, if it fails, extract digits
+                            try:
+                                new_value = int(float(str(old_value)))
+                            except:
+                                digits = ''.join(filter(str.isdigit, str(old_value)))
+                                new_value = int(digits) if digits else 0
                     except:
                         new_value = 0
             
