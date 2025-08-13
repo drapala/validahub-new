@@ -186,4 +186,43 @@ export const api = {
     const qs = new URLSearchParams({ from, to });
     return http<any>(`/diff?${qs.toString()}`, { method: "GET" });
   },
+
+  correctCsv: async (params: { marketplace: string; category: string }, file: File) => {
+    const qs = new URLSearchParams({ 
+      marketplace: params.marketplace, 
+      category: params.category 
+    });
+    const form = new FormData();
+    form.append("file", file);
+    
+    const res = await fetch(`${API_BASE}/api/v1/correct_csv?${qs.toString()}`, {
+      method: "POST",
+      body: form,
+      credentials: MOCK ? "omit" : "include",
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Failed to correct CSV: ${res.status}`);
+    }
+    
+    return {
+      blob: await res.blob(),
+      filename: res.headers.get("content-disposition")?.split("filename=")[1] || "corrected.csv",
+      corrections: res.headers.get("x-corrections-applied") || "0",
+      successRate: res.headers.get("x-success-rate") || "0%"
+    };
+  },
+
+  correctionPreview: async (params: { marketplace: string; category: string }, file: File) => {
+    const qs = new URLSearchParams({ 
+      marketplace: params.marketplace, 
+      category: params.category 
+    });
+    const form = new FormData();
+    form.append("file", file);
+    return http<any>(`/api/v1/correction_preview?${qs.toString()}`, {
+      method: "POST",
+      body: form,
+    });
+  },
 };
