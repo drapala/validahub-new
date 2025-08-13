@@ -198,12 +198,10 @@ jobs:
         FROM node:20-alpine AS runner
         WORKDIR /app
         ENV NODE_ENV=production
+        RUN mkdir -p public
         COPY --from=builder /app/.next ./.next
         COPY --from=builder /app/package.json ./
         COPY --from=deps /app/node_modules ./node_modules
-        # Copy public dir if it exists
-        RUN mkdir -p public
-        COPY --from=builder /app/public* ./public/ || true
         CMD ["npm", "start"]
         EOF
         docker build -t validahub-web:test .
