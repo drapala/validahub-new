@@ -63,11 +63,19 @@ class RuleEngine(IValidator):
         # Collect column-specific rules from providers
         for provider in self.providers:
             provider_rules = provider.get_rules()
-            # provider.get_rules() returns Dict[str, List[IRule]]
-            for column_name, rules in provider_rules.items():
-                if column_name not in column_rules:
-                    column_rules[column_name] = []
-                column_rules[column_name].extend(rules)
+            
+            # Handle both dict and list formats for backward compatibility
+            if isinstance(provider_rules, dict):
+                # New format: Dict[str, List[IRule]]
+                for column_name, rules in provider_rules.items():
+                    if column_name not in column_rules:
+                        column_rules[column_name] = []
+                    column_rules[column_name].extend(rules)
+            elif isinstance(provider_rules, list):
+                # Old format: List[IRule] - add to wildcard rules
+                if '*' not in column_rules:
+                    column_rules['*'] = []
+                column_rules['*'].extend(provider_rules)
         
         # Iterate through each row
         for row_idx, row in data.iterrows():
