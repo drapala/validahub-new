@@ -248,7 +248,19 @@ pnpm install
 
 5. **Configure o Backend Python (API)**
 
-O backend requer um ambiente virtual Python para isolar as dependências:
+### Opção A: Usando o script automatizado (Recomendado)
+```bash
+# Da raiz do projeto
+./scripts/start-backend.sh
+```
+
+Este script irá automaticamente:
+- Criar o ambiente virtual se não existir
+- Instalar/atualizar dependências
+- Verificar configurações
+- Iniciar o servidor
+
+### Opção B: Configuração manual
 
 ```bash
 # Entre no diretório da API
@@ -262,35 +274,78 @@ source venv/bin/activate  # No Linux/Mac
 # ou
 venv\Scripts\activate     # No Windows
 
-# Instale as dependências do requirements.txt
+# Instale as dependências
 pip install -r requirements.txt
+
+# Verifique as dependências (opcional)
+python scripts/check_deps.py
 
 # Volte para a raiz do projeto
 cd ../..
 ```
 
+### Opção C: Usando Poetry (Gerenciamento avançado)
+```bash
+cd apps/api
+poetry install
+poetry run dev  # Inicia o servidor
+```
+
 6. **Inicie o desenvolvimento**
+
+### Modo integrado (Frontend + Backend)
 ```bash
 # Da raiz do projeto
 pnpm dev
 ```
 
-Ou inicie os serviços separadamente:
-
+### Modo separado (recomendado para desenvolvimento)
 ```bash
 # Terminal 1 - Frontend
 cd apps/web && pnpm dev
 
-# Terminal 2 - Backend (com venv ativo)
-cd apps/api
-source venv/bin/activate
-uvicorn src.main:app --reload --port 8000
+# Terminal 2 - Backend (usando script)
+./scripts/start-backend.sh
+
+# Ou com Poetry
+cd apps/api && poetry run dev
 ```
 
 Isso iniciará:
 - Frontend em http://localhost:3001
 - Backend em http://localhost:8000
 - Documentação da API em http://localhost:8000/docs
+
+## 🛠️ Scripts Úteis
+
+### Backend (Python/Poetry)
+```bash
+# Verificar dependências
+cd apps/api && python scripts/check_deps.py
+
+# Executar testes
+cd apps/api && poetry run test
+
+# Verificar código (lint)
+cd apps/api && poetry run lint
+
+# Formatar código
+cd apps/api && poetry run format
+
+# Verificar tipos
+cd apps/api && poetry run typecheck
+```
+
+### Scripts auxiliares
+```bash
+# Iniciar backend com verificações
+./scripts/start-backend.sh
+
+# Gerenciar banco de dados
+./scripts/db.sh up    # Iniciar
+./scripts/db.sh down  # Parar
+./scripts/db.sh seed  # Popular com dados de teste
+```
 
 ## 📚 API Endpoints
 
