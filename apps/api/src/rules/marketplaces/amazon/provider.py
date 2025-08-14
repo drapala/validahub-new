@@ -1,8 +1,9 @@
 """
 Amazon Marketplace Rule Provider
 """
-from typing import Dict, List
-from src.core.interfaces import IRuleProvider, IRule
+from typing import Dict, List, Optional, Any
+from src.rules.base.cached_provider import CachedRuleProvider
+from src.core.interfaces import IRule
 from src.rules.base import (
     RequiredFieldRule,
     MaxLengthRule,
@@ -15,20 +16,12 @@ from src.rules.base import (
 )
 
 
-class AmazonRuleProvider(IRuleProvider):
+class AmazonRuleProvider(CachedRuleProvider):
     """Rule provider for Amazon marketplace"""
     
-    def get_rules(self, context: Dict[str, any]) -> Dict[str, List[IRule]]:
-        """
-        Returns Amazon-specific validation rules based on context
-        
-        Amazon has strict requirements:
-        - ASIN/SKU must follow specific format
-        - Title limited to 200 chars, no promotional text
-        - Bullet points required (5 max)
-        - High-quality images (1000x1000 minimum)
-        - EAN/UPC required for most categories
-        """
+    
+    def _get_rules_with_context(self, context: Dict[str, Any]) -> Dict[str, List[IRule]]:
+        """Internal method that handles context-based rule generation"""
         category = context.get('category', '').upper()
         
         # Base rules for all Amazon products

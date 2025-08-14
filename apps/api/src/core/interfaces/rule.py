@@ -90,8 +90,13 @@ class IRuleProvider(ABC):
     """Interface for components that provide rules"""
     
     @abstractmethod
-    def get_rules(self) -> List[IRule]:
-        """Get all rules from this provider"""
+    def get_rules(self) -> Dict[str, List[IRule]]:
+        """
+        Get all rules from this provider
+        
+        Returns:
+            Dictionary mapping column names to lists of rules
+        """
         pass
     
     @abstractmethod
