@@ -47,7 +47,11 @@ class ValidationPipeline:
             provider = AmazonRuleProvider()
         else:
             # Raise error for unregistered marketplaces
+        # Load marketplace specific provider using registry
+        provider_cls = MARKETPLACE_PROVIDERS.get(marketplace)
+        if provider_cls is None:
             raise ValueError(f"Marketplace '{marketplace.value}' is not registered")
+        provider = provider_cls()
 
         self.engine.add_provider(provider)
 
