@@ -1,7 +1,7 @@
 """
 Base class for rule providers with caching support
 """
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from abc import abstractmethod
 from src.core.interfaces import IRuleProvider, IRule
 
@@ -42,7 +42,7 @@ class CachedRuleProvider(IRuleProvider):
         return self._rule_id_map.get(rule_id)
     
     @abstractmethod
-    def _get_rules_with_context(self, context: Dict[str, any]) -> Dict[str, List[IRule]]:
+    def _get_rules_with_context(self, context: Dict[str, Any]) -> Dict[str, List[IRule]]:
         """
         Internal method that generates rules based on context.
         Must be implemented by subclasses.

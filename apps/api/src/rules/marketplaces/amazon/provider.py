@@ -1,7 +1,7 @@
 """
 Amazon Marketplace Rule Provider
 """
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from src.rules.base.cached_provider import CachedRuleProvider
 from src.core.interfaces import IRule
 from src.rules.base import (
@@ -20,7 +20,7 @@ class AmazonRuleProvider(CachedRuleProvider):
     """Rule provider for Amazon marketplace"""
     
     
-    def _get_rules_with_context(self, context: Dict[str, any]) -> Dict[str, List[IRule]]:
+    def _get_rules_with_context(self, context: Dict[str, Any]) -> Dict[str, List[IRule]]:
         """Internal method that handles context-based rule generation"""
         category = context.get('category', '').upper()
         
