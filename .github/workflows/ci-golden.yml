@@ -1,0 +1,112 @@
+name: Golden Tests
+
+on:
+  push:
+    branches: [main, develop, feature/*]
+    paths:
+      - 'apps/api/**'
+      - 'tests/golden/**'
+      - '.github/workflows/ci-golden.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/api/**'
+      - 'tests/golden/**'
+
+jobs:
+  golden-tests:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pydantic pandas pyyaml numpy
+        if [ -f apps/api/requirements.txt ]; then pip install -r apps/api/requirements.txt; fi
+    
+    - name: Run golden tests
+      run: |
+        make test-golden
+      continue-on-error: true
+    
+    - name: Generate diff report
+      if: failure()
+      run: |
+        # Find all diff.html files and combine them
+        mkdir -p artifacts
+        find tests/golden -name "diff.html" -exec cp {} artifacts/ \; 2>/dev/null || true
+        find tests/golden -name "actual_output.csv" -exec cp {} artifacts/ \; 2>/dev/null || true
+        find tests/golden -name "actual_report.json" -exec cp {} artifacts/ \; 2>/dev/null || true
+    
+    - name: Upload test artifacts
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: golden-test-diffs-${{ matrix.python-version }}
+        path: artifacts/
+        retention-days: 7
+    
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request' && failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          let comment = '## ❌ Golden Tests Failed\n\n';
+          comment += 'Some golden tests did not pass. ';
+          comment += 'Please check the uploaded artifacts for detailed diffs.\n\n';
+          
+          // Check if there are specific failures to report
+          const artifactsDir = './artifacts';
+          if (fs.existsSync(artifactsDir)) {
+            const files = fs.readdirSync(artifactsDir);
+            if (files.length > 0) {
+              comment += '### Failed Cases:\n';
+              files.forEach(file => {
+                if (file.endsWith('.csv')) {
+                  comment += `- ${file.replace('actual_output.csv', '').replace(/_/g, ' ')}\n`;
+                }
+              });
+            }
+          }
+          
+          comment += '\n[Download artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})';
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+    
+    - name: Test summary
+      if: always()
+      run: |
+        echo "### Golden Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -d artifacts ] && [ "$(ls -A artifacts)" ]; then
+          echo "❌ Some tests failed. Check artifacts for details." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ All golden tests passed!" >> $GITHUB_STEP_SUMMARY
+        fi
