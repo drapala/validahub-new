@@ -231,6 +231,9 @@ docker-compose up -d
 
 # Verificar se está rodando
 docker-compose ps
+
+# (Opcional) Carregar dados de demonstração
+./scripts/db.sh seed
 ```
 
 Serviços disponíveis:

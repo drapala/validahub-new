@@ -73,9 +73,20 @@ function db_migrate() {
 
 function db_seed() {
     echo -e "${GREEN}Loading seed data...${NC}"
-    cd apps/api
-    python scripts/seed.py
-    cd ../..
+    
+    # Option 1: Python seed script (if exists)
+    if [ -f "apps/api/scripts/seed.py" ]; then
+        cd apps/api
+        python scripts/seed.py
+        cd ../..
+    fi
+    
+    # Option 2: SQL seed file
+    if [ -f "scripts/demo_data.sql" ]; then
+        echo -e "${GREEN}Loading SQL demo data...${NC}"
+        docker-compose exec -T postgres psql -U validahub -d validahub_db < scripts/demo_data.sql
+    fi
+    
     echo -e "${GREEN}Seed data loaded${NC}"
 }
 
