@@ -1,7 +1,7 @@
 """CSV correction service using the centralized pipeline."""
 import csv
 import io
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
 from src.schemas.validate import ValidationResult, ValidationError, Marketplace, Category
 from src.core.interfaces.corrector import ICorrection, ICorrectionProvider

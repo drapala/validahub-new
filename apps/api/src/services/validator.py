@@ -1,18 +1,14 @@
 """CSV validation service using the centralized pipeline."""
 import io
-from typing import List, Dict, Any
 from fastapi import UploadFile
 import pandas as pd
 
 from src.schemas.validate import (
-    ValidationError as SchemaValidationError,
     ValidationResult,
     Marketplace,
     Category,
 )
-from src.core.engines.rule_engine import RuleEngine
-from src.core.interfaces import ValidationError as CoreValidationError
-from src.rules.registry import MARKETPLACE_PROVIDERS
+from src.core.pipeline.validation_pipeline import ValidationPipeline
 
 
 class CSVValidator:
@@ -55,67 +51,12 @@ class CSVValidator:
                 error_rows=0,
                 errors=[],
                 warnings_count=0,
-                processing_time_ms=int((time.time() - start_time) * 1000)
+                processing_time_ms=0
             )
         
-        # Clear any existing rules
-        self.engine.clear_rules()
-        self.engine.clear_providers()
-        
-        # Load marketplace-specific rules using registry
-        try:
-            provider_cls = MARKETPLACE_PROVIDERS[marketplace]
-        except KeyError:
-            raise ValueError(f"Marketplace '{marketplace.value}' is not registered")
-
-        provider = provider_cls()
-        self.engine.add_provider(provider)
-        
-        # Create context for validation
-        context = {
-            'marketplace': marketplace.value,
-            'category': category.value
-        }
-        
-        # Run validation
-        core_errors = self.engine.validate(df, context)
-        
-        # Convert core errors to schema errors
-        schema_errors = self._convert_errors(core_errors)
-        
-        # Calculate statistics
-        total_rows = len(df)
-        error_rows = len(set(e.row - 1 for e in schema_errors))  # Unique rows with errors
-        valid_rows = total_rows - error_rows
-        warnings_count = sum(1 for e in schema_errors if e.severity == "warning")
-        
-        processing_time_ms = int((time.time() - start_time) * 1000)
-        
-        return ValidationResult(
-            total_rows=total_rows,
-            valid_rows=valid_rows,
-            error_rows=error_rows,
-            errors=schema_errors,
-            warnings_count=warnings_count,
-            processing_time_ms=processing_time_ms
-        )
-    
-    def _convert_errors(self, core_errors: List[CoreValidationError]) -> List[SchemaValidationError]:
-        """Convert core ValidationError to schema ValidationError"""
-        schema_errors = []
-        
-        for error in core_errors:
-            schema_error = SchemaValidationError(
-                row=error.row,
-                column=error.column,
-                error=error.error,
-                value=str(error.value) if error.value is not None else None,
-                suggestion=error.suggestion,
-                severity=error.severity.value  # Convert enum to string
-            )
-
-        # Delegate validation to the pipeline
+        # Use the pipeline to validate
         return self.pipeline.validate(df, marketplace, category)
+    
 
 
 # Create singleton instance for backward compatibility

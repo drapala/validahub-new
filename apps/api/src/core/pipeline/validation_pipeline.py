@@ -46,8 +46,8 @@ class ValidationPipeline:
             from src.rules.marketplaces.amazon import AmazonRuleProvider
             provider = AmazonRuleProvider()
         else:
-            from src.rules.marketplaces.mercado_livre import MercadoLivreRuleProvider
-            provider = MercadoLivreRuleProvider()
+            # Raise error for unregistered marketplaces
+            raise ValueError(f"Marketplace '{marketplace.value}' is not registered")
 
         self.engine.add_provider(provider)
 
