@@ -1,7 +1,7 @@
 """
 Amazon Marketplace Rule Provider
 """
-from typing import Dict, List
+from typing import Dict, List, Optional
 from src.core.interfaces import IRuleProvider, IRule
 from src.rules.base import (
     RequiredFieldRule,
@@ -31,12 +31,12 @@ class AmazonRuleProvider(IRuleProvider):
         """
         return self._get_rules_with_context({})
     
-    def get_rule_by_id(self, rule_id: str) -> IRule:
+    def get_rule_by_id(self, rule_id: str) -> Optional[IRule]:
         """Returns a rule by its ID"""
         rules = self.get_rules()
         for field_rules in rules.values():
             for rule in field_rules:
-                if hasattr(rule, 'id') and rule.id == rule_id:
+                if getattr(rule, 'rule_id', None) == rule_id:
                     return rule
         return None
     
