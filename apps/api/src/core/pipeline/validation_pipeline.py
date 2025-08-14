@@ -51,7 +51,7 @@ class ValidationPipeline:
         provider_cls = MARKETPLACE_PROVIDERS.get(marketplace)
         if provider_cls is None:
             raise ValueError(f"Marketplace '{marketplace.value}' is not registered")
-        provider = provider_cls()
+            raise ValueError(f"Marketplace '{marketplace.value}' is not registered")
 
         self.engine.add_provider(provider)
 
