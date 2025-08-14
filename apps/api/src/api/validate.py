@@ -57,6 +57,8 @@ async def validate_csv(
         return result
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()  # Print full stack trace to console
         raise HTTPException(
             status_code=500,
             detail=f"Error processing CSV: {str(e)}",

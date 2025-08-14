@@ -52,10 +52,22 @@ class RuleEngine(IValidator):
         """
         errors = []
         
-        # Collect all rules from providers
-        all_rules = list(self.rules)
+        # Collect rules from providers organized by column
+        column_rules = {}
+        
+        # Add standalone rules (if any)
+        # These would apply to all columns
+        if self.rules:
+            column_rules['*'] = list(self.rules)
+        
+        # Collect column-specific rules from providers
         for provider in self.providers:
-            all_rules.extend(provider.get_rules())
+            provider_rules = provider.get_rules()
+            # provider.get_rules() returns Dict[str, List[IRule]]
+            for column_name, rules in provider_rules.items():
+                if column_name not in column_rules:
+                    column_rules[column_name] = []
+                column_rules[column_name].extend(rules)
         
         # Iterate through each row
         for row_idx, row in data.iterrows():
@@ -77,8 +89,19 @@ class RuleEngine(IValidator):
                     metadata=context
                 )
                 
+                # Get rules for this specific column
+                rules_to_apply = []
+                
+                # Add column-specific rules
+                if column_name in column_rules:
+                    rules_to_apply.extend(column_rules[column_name])
+                
+                # Add wildcard rules (if any)
+                if '*' in column_rules:
+                    rules_to_apply.extend(column_rules['*'])
+                
                 # Apply all applicable rules
-                for rule in all_rules:
+                for rule in rules_to_apply:
                     if rule.can_apply(validation_context):
                         error = rule.validate(value, validation_context)
                         if error:
