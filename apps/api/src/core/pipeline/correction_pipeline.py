@@ -1,15 +1,29 @@
 import io
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, Protocol
 import pandas as pd
 
-from src.schemas.validate import Marketplace, Category, ValidationResult
+from src.schemas.validate import Marketplace, Category, ValidationResult, ValidationError as SchemaValidationError
 from .validation_pipeline import ValidationPipeline
+
+
+class CorrectorProtocol(Protocol):
+    """Protocol defining the interface for correctors."""
+    
+    def apply_corrections(
+        self,
+        csv_content: str,
+        validation_result: ValidationResult,
+        marketplace: Marketplace,
+        category: Category,
+    ) -> Tuple[str, Dict[str, Any]]:
+        """Apply corrections to CSV content based on validation errors."""
+        ...
 
 
 class CorrectionPipeline:
     """Pipeline that runs validation and then applies CSV corrections."""
 
-    def __init__(self, corrector: Any, validator: ValidationPipeline | None = None):
+    def __init__(self, corrector: CorrectorProtocol, validator: ValidationPipeline | None = None):
         self.corrector = corrector
         self.validator = validator or ValidationPipeline()
 
@@ -24,7 +38,6 @@ class CorrectionPipeline:
             df = pd.read_csv(io.StringIO(csv_content))
         except (pd.errors.ParserError, ValueError) as e:
             # Handle malformed CSV content similarly to the validator service
-            from src.schemas.validate import ValidationError as SchemaValidationError
             validation_result = ValidationResult(
                 total_rows=0,
                 valid_rows=0,
