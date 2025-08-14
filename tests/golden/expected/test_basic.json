@@ -1,0 +1,60 @@
+{
+  "summary": {
+    "total": 5,
+    "passed": 3,
+    "failed": 2,
+    "fixed": 0,
+    "pass_rate": 60.0,
+    "by_severity": {
+      "error": 1,
+      "info": 1
+    }
+  },
+  "results": [
+    {
+      "rule_id": "TEST-001",
+      "passed": true,
+      "message": "Check Required Fields: Passed",
+      "severity": "error",
+      "fix_available": true,
+      "fix_applied": false,
+      "metadata": {}
+    },
+    {
+      "rule_id": "TEST-002",
+      "passed": true,
+      "message": "Validate Email Format: Passed",
+      "severity": "warning",
+      "fix_available": true,
+      "fix_applied": false,
+      "metadata": {}
+    },
+    {
+      "rule_id": "TEST-003",
+      "passed": true,
+      "message": "Check Score Range: Passed",
+      "severity": "info",
+      "fix_available": true,
+      "fix_applied": false,
+      "metadata": {}
+    },
+    {
+      "rule_id": "TEST-004",
+      "passed": false,
+      "message": "Check Nested Path: Failed",
+      "severity": "error",
+      "fix_available": true,
+      "fix_applied": false,
+      "metadata": {}
+    },
+    {
+      "rule_id": "TEST-005",
+      "passed": false,
+      "message": "Append to List: Failed",
+      "severity": "info",
+      "fix_available": true,
+      "fix_applied": false,
+      "metadata": {}
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+version: "1.0"
+metadata:
+  name: "Base Validation Rules"
+  description: "Core validation rules for demonstrating engine capabilities"
+  author: "ValidaHub Team"
+
+rules:
+  - id: "sku_required"
+    name: "SKU Required"
+    description: "SKU field is mandatory"
+    category: "required"
+    severity: "error"
+    check:
+      type: "required"
+      field: "sku"
+    fix:
+      type: "set_default"
+      field: "sku"
+      value: "SKU-PENDING"
+
+  - id: "price_min"
+    name: "Minimum Price"
+    description: "Price must be at least 0.01"
+    category: "validation"
+    severity: "warning"
+    check:
+      type: "numeric_min"
+      field: "price"
+      min: 0.01
+    fix:
+      type: "set_default"
+      field: "price"
+      value: 0.01
+
+  - id: "brand_normalize"
+    name: "Brand Normalization"
+    description: "Normalize brand names to standard values"
+    category: "normalization"
+    severity: "info"
+    when: "marketplace == amazon"
+    check:
+      type: "in_set"
+      field: "brand"
+      mapping: "valid_brands"
+    fix:
+      type: "map_value"
+      field: "brand"
+      mapping: "brand_corrections"

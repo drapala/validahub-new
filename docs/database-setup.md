@@ -87,7 +87,7 @@ docker-compose exec -T postgres psql -U validahub validahub_db < backup.sql
 
 1. Open `http://localhost:5050`
 2. Login with:
-   - Email: `admin@validahub.local`
+   - Email: `admin@validahub.com`
    - Password: `admin_dev_2024`
 3. Add server:
    - Host: `postgres` (or `host.docker.internal` on Mac)

@@ -1,0 +1,174 @@
+import logging
+import yaml
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+from dataclasses import dataclass, field
+
+# Configuração básica do logger
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
+logger = logging.getLogger("rule_engine")
+
+
+@dataclass
+class RuleResult:
+    rule_id: str
+    status: str  # PASS, FAIL, FIXED, ERROR
+    message: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+class RuleEngine:
+    """Engine interpretativa para regras YAML"""
+    
+    def __init__(self):
+        self.rules = []
+        self.mappings = {}
+        
+    def load_ruleset(self, rules_path: str, mappings_path: Optional[str] = None):
+        """Carrega regras e mappings de arquivos YAML"""
+        logger.debug(f"Loading ruleset from {rules_path}")
+        
+        # Carregar regras
+        with open(rules_path, 'r', encoding='utf-8') as f:
+            rules_data = yaml.safe_load(f)
+            self.rules = rules_data.get('rules', [])
+        
+        # Carregar mappings se fornecido
+        if mappings_path:
+            logger.debug(f"Loading mappings from {mappings_path}")
+            with open(mappings_path, 'r', encoding='utf-8') as f:
+                mappings_data = yaml.safe_load(f)
+                self.mappings = mappings_data.get('mappings', {})
+        
+        logger.debug(f"Loaded {len(self.rules)} rules")
+    
+    def execute(self, row: Dict[str, Any], auto_fix: bool = False) -> List[RuleResult]:
+        """Executa todas as regras sobre um row"""
+        logger.debug(f"Executing {len(self.rules)} rules, auto_fix={auto_fix}")
+        results = []
+        
+        for rule in self.rules:
+            try:
+                result = self._execute_rule(rule, row, auto_fix)
+                results.append(result)
+                
+                # Log baseado no status
+                if result.status == "FAIL":
+                    logger.warning(f"Rule {result.rule_id}: {result.message}")
+                elif result.status == "FIXED":
+                    logger.info(f"Rule {result.rule_id}: {result.message}")
+                    
+            except Exception as e:
+                logger.error(f"Error executing rule {rule.get('id', 'unknown')}: {e}")
+                results.append(RuleResult(
+                    rule_id=rule.get('id', 'unknown'),
+                    status="ERROR",
+                    message=str(e)
+                ))
+        
+        return results
+    
+    def _execute_rule(self, rule: Dict[str, Any], row: Dict[str, Any], auto_fix: bool) -> RuleResult:
+        """Executa uma regra individual"""
+        rule_id = rule['id']
+        logger.debug(f"Evaluating rule {rule_id}")
+        
+        # Avaliar condição 'when' se existir
+        if 'when' in rule:
+            if not self._eval_when(rule['when'], row):
+                return RuleResult(rule_id=rule_id, status="SKIP", message="Condition not met")
+        
+        # Executar check
+        check = rule.get('check', {})
+        check_type = check.get('type')
+        passed = False
+        
+        if check_type == 'required':
+            field = check['field']
+            passed = field in row and row[field] not in [None, "", []]
+            
+        elif check_type == 'numeric_min':
+            field = check['field']
+            min_val = check['min']
+            if field in row and row[field] is not None:
+                try:
+                    passed = float(row[field]) >= min_val
+                except (ValueError, TypeError):
+                    passed = False
+            else:
+                passed = False
+                
+        elif check_type == 'in_set':
+            field = check['field']
+            valid_set = check.get('values', [])
+            # Pode referenciar mappings
+            if 'mapping' in check:
+                valid_set = self.mappings.get(check['mapping'], [])
+            passed = row.get(field) in valid_set
+        
+        # Se passou, retornar sucesso
+        if passed:
+            return RuleResult(
+                rule_id=rule_id,
+                status="PASS",
+                message=f"{rule.get('name', rule_id)}: OK"
+            )
+        
+        # Se falhou e auto_fix está habilitado, tentar corrigir
+        if auto_fix and 'fix' in rule:
+            fix = rule['fix']
+            fix_type = fix.get('type')
+            
+            if fix_type == 'set_default':
+                field = fix['field']
+                value = fix['value']
+                row[field] = value
+                return RuleResult(
+                    rule_id=rule_id,
+                    status="FIXED",
+                    message=f"{rule.get('name', rule_id)}: Fixed - set {field}={value}"
+                )
+                
+            elif fix_type == 'map_value':
+                field = fix['field']
+                mapping_name = fix.get('mapping')
+                if mapping_name and mapping_name in self.mappings:
+                    mapping_dict = self.mappings[mapping_name]
+                    current_val = row.get(field)
+                    if current_val in mapping_dict:
+                        row[field] = mapping_dict[current_val]
+                        return RuleResult(
+                            rule_id=rule_id,
+                            status="FIXED",
+                            message=f"{rule.get('name', rule_id)}: Fixed - mapped {current_val} to {mapping_dict[current_val]}"
+                        )
+        
+        # Falhou sem correção
+        return RuleResult(
+            rule_id=rule_id,
+            status="FAIL",
+            message=f"{rule.get('name', rule_id)}: Failed - {rule.get('description', '')}"
+        )
+    
+    def _eval_when(self, condition: str, row: Dict[str, Any]) -> bool:
+        """Avalia condição 'when' de forma segura"""
+        try:
+            # Implementação simplificada - só suporta field == value
+            if '==' in condition:
+                field, value = condition.split('==')
+                field = field.strip()
+                value = value.strip().strip('"').strip("'")
+                return str(row.get(field)) == value
+            return True
+        except:
+            return True
+
+
+def load_ruleset(rules_path: str, mappings_path: Optional[str] = None) -> RuleEngine:
+    """Helper para carregar e retornar engine configurada"""
+    engine = RuleEngine()
+    engine.load_ruleset(rules_path, mappings_path)
+    return engine

@@ -5,6 +5,16 @@ ValidaHub é uma plataforma de validação e correção de arquivos CSV para mar
 
 ---
 
+## 🏁 Milestones GitHub Criados
+1. **Ingest** - Data ingestion layer (CSV, JSON, API)
+2. **Engine v1** - Rule engine core (DSL, YAML, execution)
+3. **Ops/Obs** - Operations & Observability
+4. **UX Jobs** - Job scheduling, async processing
+5. **Integrations** - Marketplace connectors
+6. **Perf** - Performance optimization
+
+---
+
 ## 📋 Backlog de Features
 
 ˜### ✅ Sprint Concluído
@@ -13,14 +23,76 @@ ValidaHub é uma plataforma de validação e correção de arquivos CSV para mar
 - [x] **T4**: Adicionar download de CSV corrigido
 - [x] **Golden Tests**: Arquitetura completa de testes de regressão
 
-### 🔴 Sprint Atual - PostgreSQL Foundation
+### 🔴 Sprint Atual - Engine v1 Foundation [Milestone: Engine v1]
+- [x] **ENG-1**: Rule engine com logging estruturado ✅
+- [x] **ENG-2**: DSL v1 primitivas congeladas (ADR-002) ✅
+- [x] **ENG-3**: YAML parser e interpretador ✅
+- [x] **ENG-4**: Golden tests mínimos ✅
+- [ ] **ENG-5**: Integração com apps/api
+- [ ] **ENG-6**: Endpoint /validate_row com engine
+- [ ] **ENG-7**: Batch processing de múltiplas rows
+- [ ] **ENG-8**: Report generator com summary
+
+### 🏗️ Sprint CQRS & Auditoria (NEW)
+- [ ] **CQRS-1**: Implementar CQRS Lite
+  - [ ] Criar tabela audit_events (append-only)
+  - [ ] Separar Command e Query handlers
+  - [ ] Implementar audit middleware para todas operações
+  - [ ] Adicionar versionamento de arquivos CSV
+  
+- [ ] **CQRS-2**: Read Models e Views
+  - [ ] Criar materialized views para queries frequentes
+  - [ ] Implementar Redis cache para hot data
+  - [ ] Dashboard de atividade do usuário
+  - [ ] Queries de analytics básicas
+  
+- [ ] **CQRS-3**: Armazenamento de CSVs
+  - [ ] Setup S3/MinIO para histórico de arquivos
+  - [ ] Estrutura: /validations/{year}/{month}/{validation_id}/
+  - [ ] Guardar: original.csv, validated.csv, corrected.csv
+  - [ ] Metadata.json com detalhes da operação
+
+### 🟡 Próximo Sprint - Database Foundation [Milestone: Ingest]
 - [ ] **DB-1**: Docker Compose com PostgreSQL + pgAdmin
 - [ ] **DB-2**: Migrations iniciais com Alembic
 - [ ] **DB-3**: Models: ValidationHistory, Template, CorrectionCache
 - [ ] **DB-4**: Integrar histórico de validações
 - [ ] **DB-5**: Seeds para desenvolvimento
 
-### 🟡 Próximo Sprint - Async & Templates
+### 🔵 Sprint Planejado - Pós-Scaffolding
+
+* [ ] **PIPE-1**: Ingestão robusta de CSV
+  * Encoding sniff com fallback (`utf-8`, `utf-8-sig`, `latin-1`)
+  * Detecção de delimitador dominante e cabeçalho opcional
+  * Sanitização opcional anti-fórmula
+  * Estados `READABLE | PARTIALLY_READABLE | CORRUPT` com diagnóstico
+
+* [ ] **PIPE-2**: Rule Engine v1
+  * Checks: `regex`, `length_between`, `numeric_max`, `unique`, `date_range`, `cross_field_compare`
+  * Fixes: `trim`, `lower/upper`, `default_if_missing`, `coalesce`, `round`
+  * Explainability via `meta` no `RuleResult`
+
+* [ ] **OBS-1**: Observabilidade inicial
+  * Métricas: `jobs_submitted`, `jobs_succeeded`, `%FIXED`, latência P95/P99
+  * Logging estruturado com `job_id`, `rownum`, `rule_id`
+  * Dashboard inicial no Grafana
+
+* [ ] **UIJ-1**: UX de Jobs
+  * Tela de upload com progresso
+  * Lista de jobs com status e links para artefatos (`corrected.csv`, `report.json`, `diff.html`)
+  * Diff HTML legível e paginado
+
+* [ ] **INT-1**: Integrações essenciais
+  * Webhook assinado por HMAC no `job_completed`
+  * E-mail com link seguro para resultados
+  * Notificação via WhatsApp (plano Pro)
+
+* [ ] **PERF-1**: Performance & custos
+  * Processamento streaming linha-a-linha com backpressure
+  * Limites configuráveis (linhas, tamanho de linha, tempo por job)
+  * Cache leve de `refs` por ruleset
+
+### 🟢 Sprint 4 - Async & Templates [Milestone: UX Jobs]
 - [ ] **T3**: Processamento assíncrono com Celery + Redis
   - Usar Jobs table existente
   - WebSocket para progresso

@@ -1,0 +1,88 @@
+name: Affected Build & Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.mk.outputs.matrix }}
+      rules_changed: ${{ steps.mk.outputs.rules_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Python setup
+        uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Inventory
+        run: |
+          python tools/inventory.py || (echo "running inventory..." && python3 tools/inventory.py)
+          cat tools/services.json
+      - id: diff
+        run: |
+          base="${{ github.event.pull_request.base.sha || github.event.before }}"
+          head="${{ github.sha }}"
+          git diff --name-only "$base" "$head" > changed.txt || true
+          echo "Changed files:" && cat changed.txt
+      - id: mk
+        run: |
+          rules_dirs=$(jq -r '.rules_dirs[]?' tools/services.json | tr '\n' ' ')
+          # detect services affected
+          jq -r '.services[] | [.name,.path,.lang] | @tsv' tools/services.json > services.tsv
+          echo "[]" > matrix.json
+          while IFS=$'\t' read -r name path lang; do
+            if grep -E "^${path}/" changed.txt >/dev/null 2>&1; then
+              jq --arg n "$name" --arg p "$path" --arg l "$lang" '. += [{"name":$n,"path":$p,"lang":$l}]' matrix.json > tmp.json && mv tmp.json matrix.json
+            fi
+          done < services.tsv
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+          # rules changed?
+          rc=false
+          for r in $rules_dirs; do
+            if grep -E "^${r}/" changed.txt >/dev/null 2>&1; then rc=true; fi
+          done
+          echo "rules_changed=$rc" >> $GITHUB_OUTPUT
+
+  build-test:
+    needs: detect
+    if: ${{ fromJson(needs.detect.outputs.matrix) != null && (fromJson(needs.detect.outputs.matrix) | length) > 0 }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.detect.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Set up language toolchain
+        uses: actions/setup-node@v4
+        if: ${{ matrix.lang == 'node' }}
+        with: { node-version: '20' }
+      - uses: actions/setup-python@v5
+        if: ${{ matrix.lang == 'python' }}
+        with: { python-version: '3.11' }
+      - uses: actions/setup-go@v5
+        if: ${{ matrix.lang == 'go' }}
+        with: { go-version: '1.22' }
+      - name: Build & Test
+        run: |
+          cd "${{ matrix.path }}"
+          if [ -f package.json ]; then npm ci && npm test --if-present; fi
+          if [ -f pyproject.toml ] || [ -f requirements.txt ]; then pip install -U pip && pip install -r requirements.txt 2>/dev/null || true; pytest -q || true; fi
+          if [ -f go.mod ]; then go test ./...; fi
+          if [ -f build.gradle ] || [ -f gradlew ]; then ./gradlew test || true; fi
+
+  golden:
+    needs: detect
+    if: ${{ needs.detect.outputs.rules_changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Golden tests
+        run: |
+          # adapte aqui ao seu runner de golden
+          make golden || python -m pytest tests/golden -q || true

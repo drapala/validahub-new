@@ -239,7 +239,7 @@ docker-compose ps
 Serviços disponíveis:
 - PostgreSQL: `localhost:5432`
 - Redis: `localhost:6379` 
-- pgAdmin: `http://localhost:5050` (admin@validahub.local / admin_dev_2024)
+- pgAdmin: `http://localhost:5050` (admin@validahub.com / admin_dev_2024)
 
 4. **Instale as dependências**
 ```bash

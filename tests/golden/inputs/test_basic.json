@@ -1,0 +1,8 @@
+{
+  "context": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "score": 85
+  },
+  "auto_fix": false
+}

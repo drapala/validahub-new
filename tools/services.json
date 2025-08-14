@@ -1,0 +1,28 @@
+{
+  "services": [
+    {
+      "name": ".",
+      "path": ".",
+      "lang": "node"
+    },
+    {
+      "name": "shared",
+      "path": "packages/shared",
+      "lang": "node"
+    },
+    {
+      "name": "web",
+      "path": "apps/web",
+      "lang": "node"
+    },
+    {
+      "name": "api",
+      "path": "apps/api",
+      "lang": "python"
+    }
+  ],
+  "rules_dirs": [
+    "rulesets",
+    "rulesets/base"
+  ]
+}

@@ -1,0 +1,30 @@
+version: "1.0"
+metadata:
+  name: "Base Rule Mappings"
+  description: "Mappings for validation and normalization"
+
+mappings:
+  valid_brands:
+    - "Nike"
+    - "Adidas"
+    - "Apple"
+    - "Samsung"
+    - "Sony"
+    - "Microsoft"
+    - "Generic"
+  
+  brand_corrections:
+    "nike": "Nike"
+    "NIKE": "Nike"
+    "adidas": "Adidas"
+    "ADIDAS": "Adidas"
+    "apple": "Apple"
+    "APPLE": "Apple"
+    "samsung": "Samsung"
+    "SAMSUNG": "Samsung"
+    "sony": "Sony"
+    "SONY": "Sony"
+    "microsoft": "Microsoft"
+    "MICROSOFT": "Microsoft"
+    "": "Generic"
+    "unknown": "Generic"
