@@ -7,12 +7,28 @@ ValidaHub é uma plataforma de validação e correção de arquivos CSV para mar
 
 ## 📋 Backlog de Features
 
-### 🔴 Sprint Atual (Em Andamento)
+˜### ✅ Sprint Concluído
 - [x] **T1**: Configurar monorepo com pnpm + Turborepo
 - [x] **T2**: Implementar endpoint /validate_csv com validação síncrona
-- [ ] **T3**: Implementar processamento assíncrono para arquivos grandes
 - [x] **T4**: Adicionar download de CSV corrigido
-- [ ] **T5**: Implementar sistema de templates/mapeamentos
+- [x] **Golden Tests**: Arquitetura completa de testes de regressão
+
+### 🔴 Sprint Atual - PostgreSQL Foundation
+- [ ] **DB-1**: Docker Compose com PostgreSQL + pgAdmin
+- [ ] **DB-2**: Migrations iniciais com Alembic
+- [ ] **DB-3**: Models: ValidationHistory, Template, CorrectionCache
+- [ ] **DB-4**: Integrar histórico de validações
+- [ ] **DB-5**: Seeds para desenvolvimento
+
+### 🟡 Próximo Sprint - Async & Templates
+- [ ] **T3**: Processamento assíncrono com Celery + Redis
+  - Usar Jobs table existente
+  - WebSocket para progresso
+  - Retry automático
+- [ ] **T5**: Sistema de templates/mapeamentos
+  - CRUD de templates
+  - Aplicar template na validação
+  - Compartilhamento entre usuários
 
 ### 🚨 Sprint Crítica - Segurança e Compliance
 - [ ] **SEC-1**: Implementar autenticação JWT
@@ -92,22 +108,18 @@ ValidaHub é uma plataforma de validação e correção de arquivos CSV para mar
   - Retry-after headers
   - Exponential backoff guidance
 
-### 🟡 Próxima Sprint - Infraestrutura de Dados
-- [ ] **BD-1**: Configurar PostgreSQL e migrations com Alembic
-  - Instalar psycopg2 e configurar conexão
-  - Criar schema inicial do banco
-  - Configurar pool de conexões
+### 🟢 Sprint de Quick Wins - Refatoração
+- [ ] **REF-1**: MarketplaceConfig data-driven
+  - Extrair configurações para data classes
+  - Reduzir if/else em corrector_v2.py
   
-- [ ] **BD-2**: Implementar modelos de dados
-  - Tabela de usuários
-  - Tabela de validações (histórico)
-  - Tabela de jobs assíncronos
-  - Tabela de regras customizadas
+- [ ] **REF-2**: Classificador de erros simples
+  - ErrorType enum
+  - classify_error_type() function
   
-- [ ] **BD-3**: Sistema de cache com Redis
-  - Cache de regras de validação
-  - Cache de resultados recentes
-  - Session storage
+- [ ] **REF-3**: Integrar golden tests com pipeline real
+  - Remover mock do golden_runner.py
+  - Garantir detecção de regressões
 
 ### 🟢 Features de Autenticação
 - [ ] **AUTH-1**: Sistema de login/registro
