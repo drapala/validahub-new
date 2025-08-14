@@ -18,9 +18,9 @@ from src.rules.base import (
 class AmazonRuleProvider(IRuleProvider):
     """Rule provider for Amazon marketplace"""
     
-    def get_rules(self, context: Dict[str, any]) -> Dict[str, List[IRule]]:
+    def get_rules(self) -> Dict[str, List[IRule]]:
         """
-        Returns Amazon-specific validation rules based on context
+        Returns Amazon-specific validation rules
         
         Amazon has strict requirements:
         - ASIN/SKU must follow specific format
@@ -29,6 +29,19 @@ class AmazonRuleProvider(IRuleProvider):
         - High-quality images (1000x1000 minimum)
         - EAN/UPC required for most categories
         """
+        return self._get_rules_with_context({})
+    
+    def get_rule_by_id(self, rule_id: str) -> IRule:
+        """Returns a rule by its ID"""
+        rules = self.get_rules()
+        for field_rules in rules.values():
+            for rule in field_rules:
+                if hasattr(rule, 'id') and rule.id == rule_id:
+                    return rule
+        return None
+    
+    def _get_rules_with_context(self, context: Dict[str, any]) -> Dict[str, List[IRule]]:
+        """Internal method that handles context-based rule generation"""
         category = context.get('category', '').upper()
         
         # Base rules for all Amazon products
