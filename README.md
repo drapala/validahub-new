@@ -241,14 +241,50 @@ Serviços disponíveis:
 - Redis: `localhost:6379` 
 - pgAdmin: `http://localhost:5050` (admin@validahub.com / admin_dev_2024)
 
-4. **Instale as dependências**
+4. **Instale as dependências do Frontend**
 ```bash
 pnpm install
 ```
 
-5. **Inicie o desenvolvimento**
+5. **Configure o Backend Python (API)**
+
+O backend requer um ambiente virtual Python para isolar as dependências:
+
 ```bash
+# Entre no diretório da API
+cd apps/api
+
+# Crie o ambiente virtual
+python3 -m venv venv
+
+# Ative o ambiente virtual
+source venv/bin/activate  # No Linux/Mac
+# ou
+venv\Scripts\activate     # No Windows
+
+# Instale as dependências do requirements.txt
+pip install -r requirements.txt
+
+# Volte para a raiz do projeto
+cd ../..
+```
+
+6. **Inicie o desenvolvimento**
+```bash
+# Da raiz do projeto
 pnpm dev
+```
+
+Ou inicie os serviços separadamente:
+
+```bash
+# Terminal 1 - Frontend
+cd apps/web && pnpm dev
+
+# Terminal 2 - Backend (com venv ativo)
+cd apps/api
+source venv/bin/activate
+uvicorn src.main:app --reload --port 8000
 ```
 
 Isso iniciará:

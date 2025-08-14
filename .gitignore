@@ -49,6 +49,7 @@ docs/workspace/CLAUDE.md
 
 # Python
 **/venv/
+**/venv_new/
 **/__pycache__/
 *.pyc
 *.pyo
