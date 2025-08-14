@@ -16,6 +16,7 @@ from src.schemas.validate import (
 )
 from src.core.engines.rule_engine import RuleEngine
 from src.core.interfaces import ValidationError as CoreValidationError
+from src.rules.registry import MARKETPLACE_PROVIDERS
 
 
 class CSVValidator:
@@ -68,24 +69,14 @@ class CSVValidator:
         self.engine.clear_rules()
         self.engine.clear_providers()
         
-        # Load marketplace-specific rules
-        if marketplace == Marketplace.MERCADO_LIVRE:
-            from src.rules.marketplaces.mercado_livre import MercadoLivreRuleProvider
-            provider = MercadoLivreRuleProvider()
-            self.engine.add_provider(provider)
-        elif marketplace == Marketplace.SHOPEE:
-            from src.rules.marketplaces.shopee import ShopeeRuleProvider
-            provider = ShopeeRuleProvider()
-            self.engine.add_provider(provider)
-        elif marketplace == Marketplace.AMAZON:
-            from src.rules.marketplaces.amazon import AmazonRuleProvider
-            provider = AmazonRuleProvider()
-            self.engine.add_provider(provider)
-        else:
-            # For marketplaces not yet implemented, use Mercado Livre as default
-            from src.rules.marketplaces.mercado_livre import MercadoLivreRuleProvider
-            provider = MercadoLivreRuleProvider()
-            self.engine.add_provider(provider)
+        # Load marketplace-specific rules using registry
+        try:
+            provider_cls = MARKETPLACE_PROVIDERS[marketplace]
+        except KeyError:
+            raise ValueError(f"Marketplace '{marketplace.value}' is not registered")
+
+        provider = provider_cls()
+        self.engine.add_provider(provider)
         
         # Create context for validation
         context = {
