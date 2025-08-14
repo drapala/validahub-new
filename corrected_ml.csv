@@ -1,0 +1,4 @@
+sku,title,price,stock
+PROD-001,Notebook Dell,2500.0,10
+,,0.01,-5
+PROD-003,Mouse Gamer com título muito longo que excede o limite de 60,45.9,abc

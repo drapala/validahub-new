@@ -11,8 +11,86 @@ ValidaHub é uma plataforma de validação e correção de arquivos CSV para mar
 - [x] **T1**: Configurar monorepo com pnpm + Turborepo
 - [x] **T2**: Implementar endpoint /validate_csv com validação síncrona
 - [ ] **T3**: Implementar processamento assíncrono para arquivos grandes
-- [ ] **T4**: Adicionar download de CSV corrigido
+- [x] **T4**: Adicionar download de CSV corrigido
 - [ ] **T5**: Implementar sistema de templates/mapeamentos
+
+### 🚨 Sprint Crítica - Segurança e Compliance
+- [ ] **SEC-1**: Implementar autenticação JWT
+  - Login/logout endpoints
+  - Refresh tokens
+  - Password hashing com bcrypt
+  
+- [ ] **SEC-2**: Adicionar rate limiting
+  - 100 requests/minuto por IP
+  - 1000 requests/hora por usuário
+  - Circuit breaker para proteção
+  
+- [ ] **SEC-3**: Implementar autorização e roles
+  - RBAC (Role-Based Access Control)
+  - Permissões por endpoint
+  - Admin, User, Viewer roles
+  
+- [ ] **SEC-4**: Security headers e CORS restritivo
+  - Helmet.js equivalent para FastAPI
+  - CSP (Content Security Policy)
+  - CORS com domínios específicos
+  
+- [ ] **SEC-5**: Input validation e sanitização
+  - Pydantic validators rigorosos
+  - Proteção contra CSV bombs
+  - Limite de tamanho e complexidade
+  
+- [ ] **SEC-6**: Audit logging
+  - Log todas as operações críticas
+  - Rastreamento de quem/quando/o quê
+  - Compliance com LGPD
+
+### 🔧 Sprint de Observabilidade
+- [ ] **LOG-1**: Structured logging com contexto
+  - JSON logs com correlation IDs
+  - Log levels apropriados (DEBUG/INFO/WARN/ERROR)
+  - Integração com ELK stack
+  
+- [ ] **LOG-2**: Métricas e monitoring
+  - Prometheus metrics
+  - Grafana dashboards
+  - Alertas automáticos
+  
+- [ ] **LOG-3**: Error tracking
+  - Integração com Sentry
+  - Stack traces sem expor dados sensíveis
+  - Error grouping e notificações
+  
+- [ ] **LOG-4**: APM (Application Performance Monitoring)
+  - Distributed tracing
+  - Performance bottlenecks
+  - Response time tracking
+
+### 🏗️ Sprint de API Design
+- [ ] **API-1**: RESTful design completo
+  - Recursos identificáveis (/validations/{id})
+  - HATEOAS com links relacionados
+  - Versionamento semântico
+  
+- [ ] **API-2**: Paginação e filtering
+  - Cursor-based pagination
+  - Query parameters para filtros
+  - Sorting capabilities
+  
+- [ ] **API-3**: Content negotiation
+  - Accept headers (JSON, CSV, XML)
+  - Compression (gzip, brotli)
+  - Language negotiation
+  
+- [ ] **API-4**: API documentation melhorada
+  - OpenAPI 3.0 completo
+  - Exemplos de request/response
+  - Postman collection
+  
+- [ ] **API-5**: Idempotência e retry safety
+  - Idempotency keys
+  - Retry-after headers
+  - Exponential backoff guidance
 
 ### 🟡 Próxima Sprint - Infraestrutura de Dados
 - [ ] **BD-1**: Configurar PostgreSQL e migrations com Alembic
@@ -158,6 +236,24 @@ ValidaHub é uma plataforma de validação e correção de arquivos CSV para mar
 - **Lock-in positivo**: Templates e histórico criam switching costs
 - **Barreira de entrada**: Dados agregados impossíveis de replicar
 - **Monetização escalonável**: Dados podem ser vendidos sem custo marginal
+
+## 🔒 Requisitos de Segurança (Prioridade Máxima)
+
+### Compliance Requirements
+- **OWASP Top 10**: Proteção contra vulnerabilidades comuns
+- **LGPD/GDPR**: Proteção de dados pessoais
+- **ISO 27001**: Segurança da informação
+- **SOC 2 Type II**: Para clientes enterprise
+
+### Security Checklist
+- [ ] Autenticação multi-fator (MFA)
+- [ ] Encryption at rest e in transit
+- [ ] Penetration testing quarterly
+- [ ] Security audit anual
+- [ ] Bug bounty program
+- [ ] WAF (Web Application Firewall)
+- [ ] DDoS protection
+- [ ] Backup e disaster recovery
 
 ## 📊 Métricas de Sucesso
 - **Tempo de validação**: < 2s para arquivos até 10MB
