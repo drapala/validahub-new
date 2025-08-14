@@ -29,7 +29,12 @@ class CorrectionPipeline:
                 is_valid=False,
                 errors=[{"message": f"Malformed CSV: {str(e)}"}],
                 warnings=[],
-                info=[],
+                total_rows=0,
+                valid_rows=0,
+                error_rows=0,
+                errors=[{"message": f"Malformed CSV: {str(e)}"}],
+                warnings_count=0,
+                processing_time_ms=0,
             )
             return csv_content, {}, validation_result
         validation_result = self.validator.validate(df, marketplace, category)
