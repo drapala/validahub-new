@@ -1,0 +1,45 @@
+{
+  "marketplace": "shopee",
+  "category": "moda",
+  "total_rows": 5,
+  "errors_found": 6,
+  "corrections_applied": 6,
+  "validation_errors": [
+    {
+      "row": 0,
+      "column": "title",
+      "error": "Title exceeds maximum length of 100 characters",
+      "value": "Vestido Longo Floral de Verão com Alças Ajustáveis e Tecido Leve Ideal para Praia e Passeios Casuais em Dias Ensolarados"
+    },
+    {
+      "row": 0,
+      "column": "size",
+      "error": "Size is required for MODA category",
+      "value": null
+    },
+    {
+      "row": 2,
+      "column": "title",
+      "error": "Title contains invalid special characters",
+      "value": "Camiseta Básica @#$%"
+    },
+    {
+      "row": 3,
+      "column": "title",
+      "error": "Title is required",
+      "value": null
+    },
+    {
+      "row": 4,
+      "column": "price",
+      "error": "Price cannot be negative",
+      "value": -299.99
+    },
+    {
+      "row": 4,
+      "column": "color",
+      "error": "Color is required for MODA category",
+      "value": null
+    }
+  ]
+}

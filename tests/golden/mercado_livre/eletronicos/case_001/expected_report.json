@@ -1,0 +1,45 @@
+{
+  "marketplace": "mercado_livre",
+  "category": "eletronicos",
+  "total_rows": 5,
+  "errors_found": 6,
+  "corrections_applied": 6,
+  "validation_errors": [
+    {
+      "row": 0,
+      "column": "title",
+      "error": "Title exceeds maximum length of 60 characters",
+      "value": "Monitor LED 27 polegadas Full HD com tecnologia IPS e tempo de resposta de 5ms ideal para trabalho e entretenimento"
+    },
+    {
+      "row": 0,
+      "column": "price",
+      "error": "Price cannot be negative",
+      "value": -199.99
+    },
+    {
+      "row": 1,
+      "column": "title",
+      "error": "Title is required",
+      "value": null
+    },
+    {
+      "row": 1,
+      "column": "price",
+      "error": "Price is required",
+      "value": null
+    },
+    {
+      "row": 2,
+      "column": "description",
+      "error": "Description is required",
+      "value": null
+    },
+    {
+      "row": 4,
+      "column": "stock",
+      "error": "Stock cannot be negative",
+      "value": -2
+    }
+  ]
+}

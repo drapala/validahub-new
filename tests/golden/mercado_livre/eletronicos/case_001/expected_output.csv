@@ -1,0 +1,6 @@
+sku,title,price,description,stock,brand,category
+PROD001,Monitor LED 27 polegadas Full HD com tecnologia IPS e t,0.01,Monitor profissional com alta qualidade de imagem,10,Samsung,ELETRONICOS
+PROD002,Produto sem título,0.01,Teclado mecânico para gamers,5,Razer,ELETRONICOS
+PROD003,Mouse Gamer RGB,49.99,Sem descrição,0,Logitech,ELETRONICOS
+PROD004,Notebook Intel Core i7 16GB RAM 512GB SSD Windows 11 Pro,3999.99,Notebook de alta performance,3,Dell,ELETRONICOS
+PROD005,Fone de Ouvido Bluetooth,149.99,Fone com cancelamento de ruído,0,Sony,ELETRONICOS
