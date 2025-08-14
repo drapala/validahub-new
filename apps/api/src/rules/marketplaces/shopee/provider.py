@@ -1,8 +1,9 @@
 """
 Shopee Marketplace Rule Provider
 """
-from typing import Dict, List
-from src.core.interfaces import IRuleProvider, IRule
+from typing import Dict, List, Optional, Any
+from src.rules.base.cached_provider import CachedRuleProvider
+from src.core.interfaces import IRule
 from src.rules.base import (
     RequiredFieldRule,
     MaxLengthRule,
@@ -15,20 +16,12 @@ from src.rules.base import (
 )
 
 
-class ShopeeRuleProvider(IRuleProvider):
+class ShopeeRuleProvider(CachedRuleProvider):
     """Rule provider for Shopee marketplace"""
     
-    def get_rules(self, context: Dict[str, any]) -> Dict[str, List[IRule]]:
-        """
-        Returns Shopee-specific validation rules based on context
-        
-        Shopee has specific requirements:
-        - SKU must be unique and alphanumeric
-        - Title limited to 100 chars with emoji support
-        - Price in local currency with 2 decimal places
-        - Images must be square (1:1 ratio preferred)
-        - Categories from Shopee's taxonomy
-        """
+    
+    def _get_rules_with_context(self, context: Dict[str, Any]) -> Dict[str, List[IRule]]:
+        """Internal method that handles context-based rule generation"""
         category = context.get('category', '').upper()
         
         # Base rules for all Shopee products

@@ -13,7 +13,7 @@ class RequiredFieldRule(IRule):
     def validate(self, value: Any, context: ValidationContext) -> Optional[ValidationError]:
         if pd.isna(value) or (isinstance(value, str) and not value.strip()):
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error=f"Required field is empty",
                 value=None,
@@ -21,6 +21,10 @@ class RequiredFieldRule(IRule):
                 severity=Severity.ERROR
             )
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Always apply required field validation"""
+        return True
 
 
 class MaxLengthRule(IRule):
@@ -33,7 +37,7 @@ class MaxLengthRule(IRule):
     def validate(self, value: Any, context: ValidationContext) -> Optional[ValidationError]:
         if pd.notna(value) and len(str(value)) > self.max_length:
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error=self.error_msg or f"Text is too long (max {self.max_length} characters)",
                 value=str(value),
@@ -41,6 +45,10 @@ class MaxLengthRule(IRule):
                 severity=Severity.ERROR
             )
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply to text fields"""
+        return True
 
 
 class MinLengthRule(IRule):
@@ -53,7 +61,7 @@ class MinLengthRule(IRule):
     def validate(self, value: Any, context: ValidationContext) -> Optional[ValidationError]:
         if pd.notna(value) and len(str(value)) < self.min_length:
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error=self.error_msg or f"Text is too short (min {self.min_length} characters)",
                 value=str(value),
@@ -61,6 +69,10 @@ class MinLengthRule(IRule):
                 severity=Severity.ERROR
             )
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply to text fields"""
+        return True
 
 
 class RegexRule(IRule):
@@ -73,7 +85,7 @@ class RegexRule(IRule):
     def validate(self, value: Any, context: ValidationContext) -> Optional[ValidationError]:
         if pd.notna(value) and not self.pattern.match(str(value)):
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error=self.error_msg,
                 value=str(value),
@@ -81,6 +93,10 @@ class RegexRule(IRule):
                 severity=Severity.ERROR
             )
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply pattern validation"""
+        return True
 
 
 class URLRule(IRule):
@@ -99,7 +115,7 @@ class URLRule(IRule):
     def validate(self, value: Any, context: ValidationContext) -> Optional[ValidationError]:
         if pd.notna(value) and not self.url_pattern.match(str(value)):
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error=self.error_msg or "Invalid URL format",
                 value=str(value),
@@ -107,6 +123,10 @@ class URLRule(IRule):
                 severity=Severity.ERROR
             )
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply URL validation"""
+        return True
 
 
 class ImageURLRule(IRule):
@@ -126,7 +146,7 @@ class ImageURLRule(IRule):
         valid_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp')
         if pd.notna(value) and not str(value).lower().endswith(valid_extensions):
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error=self.error_msg or "URL must point to an image file",
                 value=str(value),
@@ -134,6 +154,10 @@ class ImageURLRule(IRule):
                 severity=Severity.WARNING
             )
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply image URL validation"""
+        return True
 
 
 class EnumRule(IRule):
@@ -146,7 +170,7 @@ class EnumRule(IRule):
     def validate(self, value: Any, context: ValidationContext) -> Optional[ValidationError]:
         if pd.notna(value) and str(value) not in self.allowed_values:
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error=self.error_msg or f"Value must be one of: {', '.join(self.allowed_values)}",
                 value=str(value),
@@ -154,6 +178,10 @@ class EnumRule(IRule):
                 severity=Severity.ERROR
             )
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply enum validation"""
+        return True
 
 
 class NumericRangeRule(IRule):
@@ -173,7 +201,7 @@ class NumericRangeRule(IRule):
             
             if self.min_value is not None and num_value < self.min_value:
                 return ValidationError(
-                    row=context.row_number,
+                    row=context.row_index,
                     column=context.column_name,
                     error=self.error_msg or f"Value must be at least {self.min_value}",
                     value=str(value),
@@ -183,7 +211,7 @@ class NumericRangeRule(IRule):
             
             if self.max_value is not None and num_value > self.max_value:
                 return ValidationError(
-                    row=context.row_number,
+                    row=context.row_index,
                     column=context.column_name,
                     error=self.error_msg or f"Value must be at most {self.max_value}",
                     value=str(value),
@@ -193,7 +221,7 @@ class NumericRangeRule(IRule):
                 
         except (ValueError, TypeError):
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error="Value must be numeric",
                 value=str(value),
@@ -202,6 +230,10 @@ class NumericRangeRule(IRule):
             )
         
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply numeric range validation"""
+        return True
 
 
 class PositiveNumberRule(IRule):
@@ -215,7 +247,7 @@ class PositiveNumberRule(IRule):
             num_value = float(value)
             if num_value < 0:
                 return ValidationError(
-                    row=context.row_number,
+                    row=context.row_index,
                     column=context.column_name,
                     error="Value cannot be negative",
                     value=str(value),
@@ -224,7 +256,7 @@ class PositiveNumberRule(IRule):
                 )
         except (ValueError, TypeError):
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error="Value must be numeric",
                 value=str(value),
@@ -233,6 +265,10 @@ class PositiveNumberRule(IRule):
             )
         
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply positive number validation"""
+        return True
 
 
 class IntegerRule(IRule):
@@ -246,7 +282,7 @@ class IntegerRule(IRule):
             float_val = float(value)
             if float_val != int(float_val):
                 return ValidationError(
-                    row=context.row_number,
+                    row=context.row_index,
                     column=context.column_name,
                     error="Value must be a whole number",
                     value=str(value),
@@ -255,7 +291,7 @@ class IntegerRule(IRule):
                 )
         except (ValueError, TypeError):
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error="Value must be numeric",
                 value=str(value),
@@ -264,6 +300,10 @@ class IntegerRule(IRule):
             )
         
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply integer validation"""
+        return True
 
 
 class StockQuantityRule(IRule):
@@ -279,7 +319,7 @@ class StockQuantityRule(IRule):
             # Check if it's an integer
             if float_val != int(float_val):
                 return ValidationError(
-                    row=context.row_number,
+                    row=context.row_index,
                     column=context.column_name,
                     error="Stock quantity must be a whole number",
                     value=str(value),
@@ -290,7 +330,7 @@ class StockQuantityRule(IRule):
             # Check if it's non-negative
             if float_val < 0:
                 return ValidationError(
-                    row=context.row_number,
+                    row=context.row_index,
                     column=context.column_name,
                     error="Stock quantity cannot be negative",
                     value=str(value),
@@ -300,7 +340,7 @@ class StockQuantityRule(IRule):
                 
         except (ValueError, TypeError):
             return ValidationError(
-                row=context.row_number,
+                row=context.row_index,
                 column=context.column_name,
                 error="Stock quantity must be numeric",
                 value=str(value),
@@ -309,3 +349,7 @@ class StockQuantityRule(IRule):
             )
         
         return None
+    
+    def can_apply(self, context: ValidationContext) -> bool:
+        """Apply stock quantity validation"""
+        return True
