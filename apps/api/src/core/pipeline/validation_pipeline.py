@@ -5,6 +5,7 @@ import pandas as pd
 from src.core.engines.rule_engine import RuleEngine
 from src.core.interfaces import ValidationError as CoreValidationError
 from src.schemas.validate import ValidationResult, ValidationError as SchemaValidationError, Marketplace, Category
+from src.rules.registry import MARKETPLACE_PROVIDERS
 
 
 class ValidationPipeline:
@@ -35,23 +36,12 @@ class ValidationPipeline:
         self.engine.clear_rules()
         self.engine.clear_providers()
 
-        # Load marketplace specific provider
-        if marketplace == Marketplace.MERCADO_LIVRE:
-            from src.rules.marketplaces.mercado_livre import MercadoLivreRuleProvider
-            provider = MercadoLivreRuleProvider()
-        elif marketplace == Marketplace.SHOPEE:
-            from src.rules.marketplaces.shopee import ShopeeRuleProvider
-            provider = ShopeeRuleProvider()
-        elif marketplace == Marketplace.AMAZON:
-            from src.rules.marketplaces.amazon import AmazonRuleProvider
-            provider = AmazonRuleProvider()
-        else:
-            # Raise error for unregistered marketplaces
         # Load marketplace specific provider using registry
         provider_cls = MARKETPLACE_PROVIDERS.get(marketplace)
-        if provider_cls is None:
+        if not provider_cls:
             raise ValueError(f"Marketplace '{marketplace.value}' is not registered")
-            raise ValueError(f"Marketplace '{marketplace.value}' is not registered")
+        
+        provider = provider_cls()
 
         self.engine.add_provider(provider)
 

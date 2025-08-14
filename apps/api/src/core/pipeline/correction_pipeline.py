@@ -24,17 +24,21 @@ class CorrectionPipeline:
             df = pd.read_csv(io.StringIO(csv_content))
         except (pd.errors.ParserError, ValueError) as e:
             # Handle malformed CSV content similarly to the validator service
-            # Here, we return an empty ValidationResult with an error message, but you may want to adjust this
+            from src.schemas.validate import ValidationError as SchemaValidationError
             validation_result = ValidationResult(
-                is_valid=False,
-                errors=[{"message": f"Malformed CSV: {str(e)}"}],
-                warnings=[],
                 total_rows=0,
                 valid_rows=0,
                 error_rows=0,
-                errors=[{"message": f"Malformed CSV: {str(e)}"}],
+                errors=[SchemaValidationError(
+                    row=0,
+                    column="CSV",
+                    error=f"Malformed CSV: {str(e)}",
+                    value=None,
+                    suggestion="Please check CSV format",
+                    severity="error"
+                )],
                 warnings_count=0,
-                processing_time_ms=0,
+                processing_time_ms=0
             )
             return csv_content, {}, validation_result
         validation_result = self.validator.validate(df, marketplace, category)
