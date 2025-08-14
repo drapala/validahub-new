@@ -12,6 +12,7 @@ from .common_rules import (
     IntegerRule,
     StockQuantityRule,
 )
+from .cached_provider import CachedRuleProvider
 
 __all__ = [
     'RequiredFieldRule',
@@ -25,4 +26,5 @@ __all__ = [
     'PositiveNumberRule',
     'IntegerRule',
     'StockQuantityRule',
+    'CachedRuleProvider',
 ]
