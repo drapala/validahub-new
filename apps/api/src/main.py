@@ -1,11 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 from contextlib import asynccontextmanager
 import logging
 
 from src.config import settings
 # from src.db.base import engine, Base  # Commented for testing
-from src.api import validate
+from src.api.v1 import health, validation
+from src.middleware.correlation import (
+    CorrelationMiddleware,
+    RateLimitMiddleware,
+    SecurityHeadersMiddleware
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,10 +27,21 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="ValidaHub API",
     version=settings.version,
+    description="Professional CSV validation and correction API for e-commerce marketplaces",
     docs_url="/docs" if settings.app_env == "development" else None,
     redoc_url="/redoc" if settings.app_env == "development" else None,
     lifespan=lifespan,
+    servers=[
+        {"url": "http://localhost:3001", "description": "Local development"},
+        {"url": "https://api.validahub.com", "description": "Production"},
+        {"url": "https://staging-api.validahub.com", "description": "Staging"},
+    ],
 )
+
+# Add custom middleware
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware, rate_limit=100, window_seconds=60)
+app.add_middleware(CorrelationMiddleware)
 
 # Configure CORS
 app.add_middleware(
@@ -32,16 +49,34 @@ app.add_middleware(
     allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=[
+        "*",
+        "X-Correlation-Id",
+        "Idempotency-Key",
+        "X-RateLimit-Limit",
+        "X-RateLimit-Remaining",
+        "X-RateLimit-Reset"
+    ],
+    expose_headers=[
+        "X-Correlation-Id",
+        "X-Process-Time-Ms",
+        "X-Corrections-Applied",
+        "X-Success-Rate",
+        "X-Job-Id",
+        "X-RateLimit-Limit",
+        "X-RateLimit-Remaining",
+        "X-RateLimit-Reset"
+    ],
 )
 
 # Include routers
-app.include_router(validate.router)
+app.include_router(health.router)  # Health endpoints (no prefix)
+app.include_router(validation.router)  # Validation endpoints with YAML rule engine
 
 
 @app.get("/status")
 async def get_status():
-    """Health check endpoint."""
+    """Legacy health check endpoint - use /health instead."""
     return {
         "ok": True,
         "version": settings.version,
@@ -53,6 +88,62 @@ async def get_status():
             "s3": "up"
         }
     }
+
+
+def custom_openapi():
+    """Customize OpenAPI schema."""
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    openapi_schema = get_openapi(
+        title="ValidaHub API",
+        version=settings.version,
+        description="Professional CSV validation and correction API for e-commerce marketplaces",
+        routes=app.routes,
+    )
+    
+    # Add security schemes
+    openapi_schema["components"]["securitySchemes"] = {
+        "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "description": "JWT authentication token"
+        },
+        "apiKey": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-API-Key",
+            "description": "API key authentication"
+        }
+    }
+    
+    # Add global parameters
+    if "parameters" not in openapi_schema["components"]:
+        openapi_schema["components"]["parameters"] = {}
+    
+    openapi_schema["components"]["parameters"].update({
+        "correlationId": {
+            "name": "X-Correlation-Id",
+            "in": "header",
+            "description": "Correlation ID for request tracking",
+            "required": False,
+            "schema": {"type": "string", "format": "uuid"}
+        },
+        "idempotencyKey": {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Idempotency key for safe retries",
+            "required": False,
+            "schema": {"type": "string"}
+        }
+    })
+    
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 
 if __name__ == "__main__":
