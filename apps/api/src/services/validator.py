@@ -1,84 +1,31 @@
+"""
+Validator V2 - Using Plugin Architecture
+Adapter to integrate new architecture with existing code
+"""
 import pandas as pd
 import io
-from typing import Dict, List, Any
+from typing import List, Dict, Any
 from fastapi import UploadFile
 import time
 
 from src.schemas.validate import (
-    ValidationError,
+    ValidationError as SchemaValidationError,
     ValidationResult,
     Marketplace,
     Category,
 )
+from src.core.engines.rule_engine import RuleEngine
+from src.core.interfaces import ValidationError as CoreValidationError
 
 
 class CSVValidator:
-    """Service for validating CSV files based on marketplace and category rules"""
+    """
+    New validator using plugin architecture
+    Maintains compatibility with existing interface
+    """
     
-    # Define required columns per marketplace
-    MARKETPLACE_RULES: Dict[Marketplace, Dict[str, Any]] = {
-        Marketplace.MERCADO_LIVRE: {
-            "required_columns": ["sku", "title", "price", "available_quantity", "condition"],
-            "max_title_length": 60,
-            "max_description_length": 5000,
-        },
-        Marketplace.SHOPEE: {
-            "required_columns": ["sku", "name", "price", "stock", "category_id"],
-            "max_title_length": 100,
-            "max_description_length": 3000,
-        },
-        Marketplace.AMAZON: {
-            "required_columns": ["sku", "product_name", "standard_price", "quantity", "product_id_type"],
-            "max_title_length": 200,
-            "max_description_length": 2000,
-        },
-        Marketplace.MAGALU: {
-            "required_columns": ["sku", "titulo", "preco", "estoque", "categoria"],
-            "max_title_length": 150,
-            "max_description_length": 4000,
-        },
-        Marketplace.AMERICANAS: {
-            "required_columns": ["sku", "nome", "preco_de", "preco_por", "estoque"],
-            "max_title_length": 100,
-            "max_description_length": 3000,
-        },
-    }
-    
-    # Category-specific validation rules
-    CATEGORY_RULES: Dict[Category, Dict[str, Any]] = {
-        Category.ELETRONICOS: {
-            "required_fields": ["brand", "model", "warranty"],
-            "validate_ean": True,
-        },
-        Category.MODA: {
-            "required_fields": ["size", "color", "material"],
-            "validate_ean": False,
-        },
-        Category.CASA: {
-            "required_fields": ["dimensions", "material", "color"],
-            "validate_ean": True,
-        },
-        Category.ESPORTE: {
-            "required_fields": ["size", "brand", "sport_type"],
-            "validate_ean": True,
-        },
-        Category.BELEZA: {
-            "required_fields": ["brand", "volume", "ingredients"],
-            "validate_ean": True,
-        },
-        Category.LIVROS: {
-            "required_fields": ["isbn", "author", "publisher", "pages"],
-            "validate_ean": False,
-        },
-        Category.BRINQUEDOS: {
-            "required_fields": ["age_range", "brand", "safety_warning"],
-            "validate_ean": True,
-        },
-        Category.ALIMENTOS: {
-            "required_fields": ["expiry_date", "ingredients", "nutritional_info"],
-            "validate_ean": True,
-        },
-    }
+    def __init__(self):
+        self.engine = RuleEngine()
     
     async def validate_csv(
         self,
@@ -87,177 +34,105 @@ class CSVValidator:
         category: Category,
     ) -> ValidationResult:
         """
-        Validate CSV file based on marketplace and category rules
+        Validate CSV file using plugin architecture
+        
+        Args:
+            file: The uploaded CSV file
+            marketplace: Target marketplace
+            category: Product category
+            
+        Returns:
+            ValidationResult with all errors found
         """
         start_time = time.time()
-        errors: List[ValidationError] = []
         
-        # Read CSV file
+        # Read CSV content
         content = await file.read()
-        df = pd.read_csv(io.BytesIO(content))
+        csv_string = content.decode('utf-8')
         
-        total_rows = len(df)
-        
-        # Get rules for marketplace and category
-        marketplace_rules = self.MARKETPLACE_RULES.get(marketplace, {})
-        category_rules = self.CATEGORY_RULES.get(category, {})
-        
-        # Check required columns for marketplace
-        required_cols = marketplace_rules.get("required_columns", [])
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        
-        if missing_cols:
-            for col in missing_cols:
-                errors.append(
-                    ValidationError(
-                        row=0,
-                        column=col,
-                        error=f"Missing required column: {col}",
-                        value=None,
-                        suggestion=f"Add column '{col}' to your CSV",
-                        severity="error",
-                    )
-                )
-        
-        # Validate each row
-        for idx, row in df.iterrows():
-            row_errors = self._validate_row(
-                row,
-                idx + 1,  # Row number (1-indexed)
-                marketplace_rules,
-                category_rules,
+        # Parse CSV into DataFrame
+        try:
+            df = pd.read_csv(io.StringIO(csv_string))
+        except Exception as e:
+            # Return error if CSV is malformed
+            return ValidationResult(
+                total_rows=0,
+                valid_rows=0,
+                error_rows=0,
+                errors=[],
+                warnings_count=0,
+                processing_time_ms=int((time.time() - start_time) * 1000)
             )
-            errors.extend(row_errors)
         
-        # Calculate metrics
-        error_rows = len(set(e.row for e in errors if e.severity == "error"))
-        warning_count = len([e for e in errors if e.severity == "warning"])
+        # Clear any existing rules
+        self.engine.clear_rules()
+        self.engine.clear_providers()
+        
+        # Load marketplace-specific rules
+        if marketplace == Marketplace.MERCADO_LIVRE:
+            from src.rules.marketplaces.mercado_livre import MercadoLivreRuleProvider
+            provider = MercadoLivreRuleProvider()
+            self.engine.add_provider(provider)
+        elif marketplace == Marketplace.SHOPEE:
+            from src.rules.marketplaces.shopee import ShopeeRuleProvider
+            provider = ShopeeRuleProvider()
+            self.engine.add_provider(provider)
+        elif marketplace == Marketplace.AMAZON:
+            from src.rules.marketplaces.amazon import AmazonRuleProvider
+            provider = AmazonRuleProvider()
+            self.engine.add_provider(provider)
+        else:
+            # For marketplaces not yet implemented, use Mercado Livre as default
+            from src.rules.marketplaces.mercado_livre import MercadoLivreRuleProvider
+            provider = MercadoLivreRuleProvider()
+            self.engine.add_provider(provider)
+        
+        # Create context for validation
+        context = {
+            'marketplace': marketplace.value,
+            'category': category.value
+        }
+        
+        # Run validation
+        core_errors = self.engine.validate(df, context)
+        
+        # Convert core errors to schema errors
+        schema_errors = self._convert_errors(core_errors)
+        
+        # Calculate statistics
+        total_rows = len(df)
+        error_rows = len(set(e.row - 1 for e in schema_errors))  # Unique rows with errors
         valid_rows = total_rows - error_rows
+        warnings_count = sum(1 for e in schema_errors if e.severity == "warning")
         
-        processing_time = int((time.time() - start_time) * 1000)
+        processing_time_ms = int((time.time() - start_time) * 1000)
         
         return ValidationResult(
             total_rows=total_rows,
             valid_rows=valid_rows,
             error_rows=error_rows,
-            errors=errors[:100],  # Limit to first 100 errors
-            warnings_count=warning_count,
-            processing_time_ms=processing_time,
+            errors=schema_errors,
+            warnings_count=warnings_count,
+            processing_time_ms=processing_time_ms
         )
     
-    def _validate_row(
-        self,
-        row: pd.Series,
-        row_num: int,
-        marketplace_rules: Dict[str, Any],
-        category_rules: Dict[str, Any],
-    ) -> List[ValidationError]:
-        """Validate a single row"""
-        errors = []
+    def _convert_errors(self, core_errors: List[CoreValidationError]) -> List[SchemaValidationError]:
+        """Convert core ValidationError to schema ValidationError"""
+        schema_errors = []
         
-        # Validate title length
-        title_fields = ["title", "name", "product_name", "titulo", "nome"]
-        max_title_length = marketplace_rules.get("max_title_length", 200)
+        for error in core_errors:
+            schema_error = SchemaValidationError(
+                row=error.row,
+                column=error.column,
+                error=error.error,
+                value=str(error.value) if error.value is not None else None,
+                suggestion=error.suggestion,
+                severity=error.severity.value  # Convert enum to string
+            )
+            schema_errors.append(schema_error)
         
-        for field in title_fields:
-            if field in row and pd.notna(row[field]):
-                if len(str(row[field])) > max_title_length:
-                    errors.append(
-                        ValidationError(
-                            row=row_num,
-                            column=field,
-                            error=f"Title too long (max {max_title_length} chars)",
-                            value=str(row[field])[:50] + "...",
-                            suggestion=f"Shorten to {max_title_length} characters",
-                            severity="error",
-                        )
-                    )
-        
-        # Validate price
-        price_fields = ["price", "standard_price", "preco", "preco_de", "preco_por"]
-        for field in price_fields:
-            if field in row and pd.notna(row[field]):
-                try:
-                    price = float(row[field])
-                    if price <= 0:
-                        errors.append(
-                            ValidationError(
-                                row=row_num,
-                                column=field,
-                                error="Price must be greater than 0",
-                                value=str(row[field]),
-                                suggestion="Set a positive price value",
-                                severity="error",
-                            )
-                        )
-                    elif price > 999999:
-                        errors.append(
-                            ValidationError(
-                                row=row_num,
-                                column=field,
-                                error="Price seems too high",
-                                value=str(row[field]),
-                                suggestion="Verify the price value",
-                                severity="warning",
-                            )
-                        )
-                except (ValueError, TypeError):
-                    errors.append(
-                        ValidationError(
-                            row=row_num,
-                            column=field,
-                            error="Invalid price format",
-                            value=str(row[field]),
-                            suggestion="Use numeric value for price",
-                            severity="error",
-                        )
-                    )
-        
-        # Validate stock/quantity
-        stock_fields = ["available_quantity", "stock", "quantity", "estoque"]
-        for field in stock_fields:
-            if field in row and pd.notna(row[field]):
-                try:
-                    stock = int(row[field])
-                    if stock < 0:
-                        errors.append(
-                            ValidationError(
-                                row=row_num,
-                                column=field,
-                                error="Stock cannot be negative",
-                                value=str(row[field]),
-                                suggestion="Set stock to 0 or positive value",
-                                severity="error",
-                            )
-                        )
-                except (ValueError, TypeError):
-                    errors.append(
-                        ValidationError(
-                            row=row_num,
-                            column=field,
-                            error="Invalid stock format",
-                            value=str(row[field]),
-                            suggestion="Use integer value for stock",
-                            severity="error",
-                        )
-                    )
-        
-        # Check for empty required fields
-        for field in marketplace_rules.get("required_columns", []):
-            if field in row and (pd.isna(row[field]) or str(row[field]).strip() == ""):
-                errors.append(
-                    ValidationError(
-                        row=row_num,
-                        column=field,
-                        error="Required field is empty",
-                        value=None,
-                        suggestion=f"Provide value for {field}",
-                        severity="error",
-                    )
-                )
-        
-        return errors
+        return schema_errors
 
 
-# Singleton instance
+# Create singleton instance for backward compatibility
 csv_validator = CSVValidator()

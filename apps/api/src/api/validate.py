@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, UploadFile, File, Query, HTTPException, Response
 from fastapi.responses import StreamingResponse
 from typing import Optional, Dict, Any
@@ -11,7 +10,7 @@ from src.schemas.validate import (
     Category,
 )
 from src.services.validator import csv_validator
-from src.services.corrector import CSVCorrector
+from src.services.corrector_v2 import CSVCorrectorV2
 
 router = APIRouter(prefix="/api/v1", tags=["validation"])
 
@@ -97,7 +96,7 @@ async def correct_csv(
         )
         
         # Apply corrections
-        corrector = CSVCorrector()
+        corrector = CSVCorrectorV2()
         corrected_csv, summary = corrector.apply_corrections(
             csv_content=csv_content,
             validation_result=validation_result,
@@ -162,7 +161,7 @@ async def correction_preview(
         )
         
         # Apply corrections (in memory)
-        corrector = CSVCorrector()
+        corrector = CSVCorrectorV2()
         corrected_csv, summary = corrector.apply_corrections(
             csv_content=csv_content,
             validation_result=validation_result,
