@@ -143,10 +143,40 @@
 - **Interface Web**: Upload drag-and-drop com feedback visual
 
 ### 🔄 Em Desenvolvimento
-- **Processamento Assíncrono** (T3): Para arquivos grandes
-- **Sistema de Templates** (T5): Mapeamentos customizáveis
-- **Autenticação JWT** (SEC-1): Login seguro
-- **Rate Limiting** (SEC-2): Proteção contra abuse
+- **Processamento Assíncrono**: Para arquivos grandes (Celery + Redis)
+- **Sistema de Templates**: Mapeamentos customizáveis por usuário
+- **Batch Processing**: Streaming de CSVs grandes com chunks configuráveis
+- **Dry-run Mode**: Preview de correções sem aplicar
+
+## 📅 Roadmap
+
+### ✅ Sprint Concluído
+- [x] **T1**: Configurar monorepo com pnpm + Turborepo
+- [x] **T2**: Implementar endpoint `/validate_csv` com validação síncrona
+- [x] **T4**: Adicionar download de CSV corrigido
+- [x] **Golden Tests**: Arquitetura completa de testes de regressão
+
+### 🚧 Sprint Atual - Quick Wins
+- [ ] **MarketplaceConfig Data-Driven**: Refatorar configurações para data classes
+- [ ] **Classificador de Erros**: Sistema simples de classificação de erros
+- [ ] **Integração Golden Tests**: Conectar com pipeline real
+
+### 📋 Backlog Priorizado
+
+#### Q1 2025
+- [ ] **T3 - Processamento Assíncrono**: Celery + Redis para arquivos grandes
+- [ ] **BatchSettings**: Processar CSVs em chunks configuráveis
+- [ ] **PartialSuccessPolicy**: Modos fail_fast/continue/threshold
+
+#### Q2 2025
+- [ ] **T5 - Sistema de Templates**: UI para configurar mapeamentos
+- [ ] **Dry-run Mode**: Preview completo sem efeitos colaterais
+- [ ] **Reason Codes**: Catalogar e documentar todos os códigos de correção
+
+#### Futuro
+- [ ] **Novos Marketplaces**: Magalu, Americanas, B2W
+- [ ] **API v2**: GraphQL com subscriptions
+- [ ] **Machine Learning**: Correções preditivas baseadas em histórico
 
 ## 🛠️ Stack Tecnológica
 
@@ -273,6 +303,7 @@ class Marketplace(str, Enum):
 
 ## 🧪 Testes
 
+### Comandos Principais
 ```bash
 # Rodar todos os testes
 pnpm test
@@ -284,7 +315,19 @@ pytest
 # Testes do frontend
 cd apps/web
 pnpm test
+
+# Golden Tests (testes de regressão)
+make test-golden
+make test-golden-ml      # Apenas Mercado Livre
+make test-golden-shopee  # Apenas Shopee
 ```
+
+### Golden Tests
+Sistema de testes de regressão que compara outputs do pipeline com resultados esperados:
+- Detecta mudanças não intencionais no comportamento
+- Suporta diferentes marketplaces e categorias
+- Gera HTML diffs visuais em caso de falha
+- [Documentação completa](docs/testing/golden-tests.md)
 
 ## 📊 Métricas de Qualidade
 
