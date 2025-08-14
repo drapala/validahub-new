@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 from typing import Optional, Dict, Any
 import io
 import json
+import logging
 
 from src.schemas.validate import (
     ValidationResult,
@@ -12,6 +13,7 @@ from src.schemas.validate import (
 from src.services.validator import csv_validator
 from src.services.corrector_v2 import CSVCorrectorV2
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["validation"])
 
 
@@ -57,8 +59,7 @@ async def validate_csv(
         return result
         
     except Exception as e:
-        import traceback
-        traceback.print_exc()  # Print full stack trace to console
+        logger.exception("Error processing CSV file")
         raise HTTPException(
             status_code=500,
             detail=f"Error processing CSV: {str(e)}",
