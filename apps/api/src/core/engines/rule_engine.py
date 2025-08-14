@@ -3,6 +3,7 @@ Rule Engine
 Orchestrates rule execution and validation
 """
 from typing import List, Dict, Any, Optional
+import warnings
 import pandas as pd
 from src.core.interfaces import (
     IRule, 
@@ -73,6 +74,13 @@ class RuleEngine(IValidator):
                     column_rules[column_name].extend(rules)
             elif isinstance(provider_rules, list):
                 # Old format: List[IRule] - add to wildcard rules
+                warnings.warn(
+                    f"Provider {provider.__class__.__name__}.get_rules() returned a list (legacy format). "
+                    "This format is deprecated and will be removed in v2.0. "
+                    "Please update your provider to return Dict[str, List[IRule]] mapping column names to rules.",
+                    DeprecationWarning,
+                    stacklevel=2
+                )
                 if '*' not in column_rules:
                     column_rules['*'] = []
                 column_rules['*'].extend(provider_rules)

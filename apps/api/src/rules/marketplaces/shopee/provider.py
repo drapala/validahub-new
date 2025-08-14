@@ -18,6 +18,10 @@ from src.rules.base import (
 class ShopeeRuleProvider(IRuleProvider):
     """Rule provider for Shopee marketplace"""
     
+    def __init__(self):
+        self._rules_cache = None
+        self._rule_id_map = None
+    
     def get_rules(self) -> Dict[str, List[IRule]]:
         """
         Returns Shopee-specific validation rules
@@ -29,16 +33,21 @@ class ShopeeRuleProvider(IRuleProvider):
         - Images must be square (1:1 ratio preferred)
         - Categories from Shopee's taxonomy
         """
-        return self._get_rules_with_context({})
+        if self._rules_cache is None:
+            self._rules_cache = self._get_rules_with_context({})
+        return self._rules_cache
     
     def get_rule_by_id(self, rule_id: str) -> Optional[IRule]:
-        """Returns a rule by its ID"""
-        rules = self.get_rules()
-        for field_rules in rules.values():
-            for rule in field_rules:
-                if getattr(rule, 'rule_id', None) == rule_id:
-                    return rule
-        return None
+        """Returns a rule by its ID with caching for performance"""
+        if self._rule_id_map is None:
+            self._rule_id_map = {}
+            rules = self.get_rules()
+            for field_rules in rules.values():
+                for rule in field_rules:
+                    rid = getattr(rule, 'rule_id', None)
+                    if rid is not None:
+                        self._rule_id_map[rid] = rule
+        return self._rule_id_map.get(rule_id)
     
     def _get_rules_with_context(self, context: Dict[str, any]) -> Dict[str, List[IRule]]:
         """Internal method that handles context-based rule generation"""
