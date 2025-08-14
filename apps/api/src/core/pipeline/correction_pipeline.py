@@ -36,7 +36,7 @@ class CorrectionPipeline:
         """Validate CSV content and apply automatic corrections."""
         try:
             df = pd.read_csv(io.StringIO(csv_content))
-        except (pd.errors.ParserError, ValueError) as e:
+        except Exception as e:
             # Handle malformed CSV content similarly to the validator service
             validation_result = ValidationResult(
                 total_rows=0,
