@@ -216,17 +216,34 @@ git clone https://github.com/drapala/validahub-new.git
 cd validahub-new
 ```
 
-2. **Instale as dependências**
+2. **Configure o ambiente**
+```bash
+cp .env.example .env
+```
+
+3. **Inicie o banco de dados** (Docker necessário)
+```bash
+# Opção 1: Usando o script helper
+./scripts/db.sh up
+
+# Opção 2: Usando docker-compose diretamente
+docker-compose up -d
+
+# Verificar se está rodando
+docker-compose ps
+```
+
+Serviços disponíveis:
+- PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379` 
+- pgAdmin: `http://localhost:5050` (admin@validahub.local / admin_dev_2024)
+
+4. **Instale as dependências**
 ```bash
 pnpm install
 ```
 
-3. **Configure o ambiente**
-```bash
-cp .env.example .env.local
-```
-
-4. **Inicie o desenvolvimento**
+5. **Inicie o desenvolvimento**
 ```bash
 pnpm dev
 ```

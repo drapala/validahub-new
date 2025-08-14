@@ -43,6 +43,7 @@ next-env.d.ts
 
 # Claude-specific files (DO NOT COMMIT)
 CLAUDE.md
+docs/workspace/CLAUDE.md
 *claude*.md
 .claude/
 
