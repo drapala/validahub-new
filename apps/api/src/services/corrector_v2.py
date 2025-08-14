@@ -140,7 +140,7 @@ class CSVCorrectorV2:
         csv_content: str,
         marketplace: Marketplace,
         category: Category,
-    ) -> tuple[str, Dict[str, Any], ValidationResult]:
+    ) -> Tuple[str, Dict[str, Any], ValidationResult]:
         """Run full correction pipeline: validate and apply corrections."""
         return self.pipeline.run(csv_content, marketplace, category)
     
