@@ -1,0 +1,16 @@
+separator: ","
+decimal: "."
+encoding: "utf-8"
+
+key_columns: ["sku"]
+sort_by: ["sku"]
+
+float_tolerance: 0.000001
+trim_whitespace: true
+casefold_text: false
+normalize_floats: true
+
+ignore_columns_in_diff: []
+report_ignore_keys: ["run_id", "timestamp", "duration_ms"]
+
+chunk_size: null
