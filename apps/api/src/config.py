@@ -11,10 +11,16 @@ class Settings(BaseSettings):
     version: str = "0.1.0"
     
     # Database
-    database_url: str = "postgresql://validahub:validahub@localhost:5432/validahub"
+    database_url: str = os.getenv(
+        "DATABASE_URL", 
+        "postgresql://validahub:validahub_dev_2024@localhost:5432/validahub_db"
+    )
     
     # Redis
-    redis_url: str = "redis://localhost:6379/0"
+    redis_url: str = os.getenv(
+        "REDIS_URL",
+        "redis://:redis_dev_2024@localhost:6379/0"
+    )
     
     # S3/MinIO
     s3_endpoint: str = "http://localhost:9000"
