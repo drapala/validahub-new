@@ -1,9 +1,7 @@
-"""
-CSV Correction Service V2 - Using Plugin Architecture
-"""
+"""CSV correction service using the centralized pipeline."""
 import csv
 import io
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
 from src.schemas.validate import ValidationResult, ValidationError, Marketplace, Category
 from src.core.interfaces.corrector import ICorrection, ICorrectionProvider
@@ -14,6 +12,7 @@ from src.core.corrections.base import (
     NumericCleanCorrection,
 )
 from src.core.corrections.base import AutoGenerateCorrection
+from src.core.pipeline.correction_pipeline import CorrectionPipeline
 
 
 class MarketplaceCorrectionProvider(ICorrectionProvider):
@@ -130,10 +129,29 @@ class MarketplaceCorrectionProvider(ICorrectionProvider):
 
 
 class CSVCorrectorV2:
-    """New CSV Corrector using plugin architecture"""
-    
+    """New CSV Corrector using plugin architecture and pipeline."""
+
     def __init__(self):
-        pass
+        # Initialize pipeline with this corrector instance
+        self.pipeline = CorrectionPipeline(corrector=self)
+
+    def correct_csv(
+        self,
+        csv_content: str,
+        marketplace: Marketplace,
+        category: Category,
+    ) -> Tuple[str, Dict[str, Any], ValidationResult]:
+        """
+        Run full correction pipeline: validate and apply corrections.
+        
+        Returns:
+            Tuple[str, Dict[str, Any], ValidationResult]: 
+                A tuple containing:
+                    - corrected_csv_content (str): The corrected CSV as a string
+                    - correction_summary (Dict[str, Any]): A summary of the corrections applied
+                    - validation_result (ValidationResult): The validation result after corrections
+        """
+        return self.pipeline.run(csv_content, marketplace, category)
     
     def apply_corrections(
         self, 
