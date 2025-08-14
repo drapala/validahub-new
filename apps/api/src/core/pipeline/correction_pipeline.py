@@ -20,7 +20,18 @@ class CorrectionPipeline:
         category: Category,
     ) -> Tuple[str, Dict[str, Any], ValidationResult]:
         """Validate CSV content and apply automatic corrections."""
-        df = pd.read_csv(io.StringIO(csv_content))
+        try:
+            df = pd.read_csv(io.StringIO(csv_content))
+        except (pd.errors.ParserError, ValueError) as e:
+            # Handle malformed CSV content similarly to the validator service
+            # Here, we return an empty ValidationResult with an error message, but you may want to adjust this
+            validation_result = ValidationResult(
+                is_valid=False,
+                errors=[{"message": f"Malformed CSV: {str(e)}"}],
+                warnings=[],
+                info=[],
+            )
+            return csv_content, {}, validation_result
         validation_result = self.validator.validate(df, marketplace, category)
         corrected_csv, summary = self.corrector.apply_corrections(
             csv_content=csv_content,
