@@ -95,7 +95,7 @@ class TestRuleEngineService:
         """Test getting engine for a marketplace."""
         engine = rule_engine_service.get_engine_for_marketplace("test")
         assert engine is not None
-        assert hasattr(engine, 'run')
+        assert hasattr(engine, 'execute')
     
     def test_validate_row_missing_required(self, rule_engine_service):
         """Test validation of row with missing required field."""
@@ -199,10 +199,9 @@ class TestRuleEngineService:
         # Test FAIL result
         result = RuleResult(
             rule_id="test_rule",
-            rule_name="Test Rule",
             status="FAIL",
             message="Test failed",
-            meta={"field": "test_field", "severity": "ERROR"}
+            metadata={"field": "test_field", "severity": "ERROR"}
         )
         
         item = rule_engine_service._convert_result_to_validation_item(
@@ -217,11 +216,9 @@ class TestRuleEngineService:
         # Test FIXED result
         result_fixed = RuleResult(
             rule_id="test_rule",
-            rule_name="Test Rule",
             status="FIXED",
             message="Fixed",
-            fixed_value="new_value",
-            meta={"field": "test_field", "fix_type": "auto_fix"}
+            metadata={"field": "test_field", "fix_type": "auto_fix", "fixed_value": "new_value"}
         )
         
         item_fixed = rule_engine_service._convert_result_to_validation_item(
@@ -241,7 +238,8 @@ class TestRuleEngineService:
         result = RuleResult(
             rule_id="test",
             status="FAIL",
-            meta={"severity": "CRITICAL"}
+            message="",
+            metadata={"severity": "CRITICAL"}
         )
         severity = rule_engine_service._map_severity(result)
         assert severity == Severity.ERROR
@@ -249,7 +247,9 @@ class TestRuleEngineService:
         # Test without meta
         result_no_meta = RuleResult(
             rule_id="test",
-            status="ERROR"
+            status="ERROR",
+            message="",
+            metadata={}
         )
         severity_no_meta = rule_engine_service._map_severity(result_no_meta)
         assert severity_no_meta == Severity.ERROR

@@ -189,7 +189,12 @@ async def validate_csv_v2(
         
         # Convert corrected DataFrame to dict if present
         if result.corrected_data is not None:
-            result.corrected_data = result.corrected_data.to_dict('records')
+            # Handle NaN and inf values before converting to dict
+            import numpy as np
+            df = result.corrected_data
+            df = df.replace([np.inf, -np.inf], None)
+            df = df.where(pd.notnull(df), None)
+            result.corrected_data = df.to_dict('records')
         
         return result
         
