@@ -32,7 +32,8 @@ class Settings(BaseSettings):
     # API
     api_host: str = "0.0.0.0"
     api_port: int = 3001
-    cors_origins: str = "http://localhost:3000,http://localhost:3001,*"
+    # TODO: Do NOT use "*" in production. Set CORS origins via environment variable for each environment.
+    cors_origins: str = "http://localhost:3000,http://localhost:3001"
     
     @property
     def cors_origins_list(self) -> List[str]:
