@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { AlertCircle, CheckCircle, AlertTriangle, Info, Loader2 } from 'lucide-react'
+import { AlertCircle, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function ValidateRowPage() {

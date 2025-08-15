@@ -110,7 +110,7 @@ export function ResultsTable({ results }: ResultsTableProps) {
               <div className="w-1/6 truncate text-sm font-mono">{item.row}</div>
               <div className="w-1/6 truncate text-sm">{item.column}</div>
               <div className="w-1/6 truncate text-sm">
-                <Badge variant={severityMap[item.severity]}>{item.severity}</Badge>
+                <Badge variant={severityMap[item.severity as keyof typeof severityMap]}>{item.severity}</Badge>
               </div>
               <div className="w-2/6 truncate text-sm text-zinc-400">{item.error}</div>
               <div className="w-1/6 truncate text-sm text-emerald-400">{item.suggestion || '-'}</div>
