@@ -13,7 +13,7 @@ import sys
 libs_path = Path(__file__).parent.parent.parent.parent.parent / "libs"
 if str(libs_path) not in sys.path:
     sys.path.insert(0, str(libs_path))
-
+# TODO: The 'rule_engine' package must be installed in the environment (e.g., via pip install -e libs)
 from rule_engine import RuleEngine, RuleResult, load_ruleset
 
 from ..schemas.validate import ValidationItem, ErrorDetail, CorrectionDetail
