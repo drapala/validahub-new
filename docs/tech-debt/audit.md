@@ -34,7 +34,6 @@ Este relatório cobre todos os arquivos versionados do monorepo `validahub-new`,
 - Modularizar `apps/api/src/api/v1/validation.py`, removendo duplicações.
 - Implementar health checks reais e rate limiting baseado em Redis.
 
-=======
 # Auditoria de Dívida Técnica - Validahub
 
 **Data**: 2025-08-15  
