@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuite errors="0" failures="1" name="mypy" skips="0" tests="1" time="0.619">
+  <testcase classname="mypy" file="mypy" line="1" name="mypy-py3_12-linux" time="0.619">
+    <failure message="mypy produced messages">apps/api/tests/unit/test_rule_engine_service.py:9: error: Library stubs not installed for "yaml"  [import-untyped]
+apps/api/tests/unit/test_rule_engine_service.py:9: note: Hint: "python3 -m pip install types-PyYAML"
+apps/api/tests/unit/test_rule_engine_service.py:9: note: (or run "mypy --install-types" to install all missing stub packages)
+apps/api/tests/unit/test_rule_engine_service.py:9: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+libs/rule_engine/engine.py:2: error: Library stubs not installed for "yaml"  [import-untyped]
+tests/golden/golden_runner.py: error: Source file found twice under different module names: "golden.golden_runner" and "tests.golden.golden_runner"
+tests/golden/golden_runner.py: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#mapping-file-paths-to-modules for more info
+tests/golden/golden_runner.py: note: Common resolutions include: a) adding `__init__.py` somewhere, b) using `--explicit-package-bases` or adjusting MYPYPATH</failure>
+  </testcase>
+</testsuite>

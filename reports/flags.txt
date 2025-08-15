@@ -1,0 +1,15 @@
+BACKLOG.md:139:  - Log levels apropriados (DEBUG/INFO/WARN/ERROR)
+apps/api/src/api/v1/health.py:28:        "database": "healthy",  # TODO: Add actual DB health check
+apps/api/src/api/v1/health.py:29:        "redis": "healthy",     # TODO: Add actual Redis health check
+apps/api/src/api/v1/health.py:30:        "s3": "healthy"         # TODO: Add actual S3 health check
+apps/api/src/api/v1/health.py:56:    # TODO: Add actual readiness checks
+apps/api/src/api/v1/jobs.py:12:# TODO: Replace with Redis or database
+apps/api/src/api/v1/validation.py:654:    # TODO: Implement with Celery or similar job queue
+apps/api/src/api/v1/validation.py:667:    # TODO: Implement with Celery or similar job queue
+apps/api/src/middleware/correlation.py:58:        # TODO: Implement actual rate limiting with Redis
+apps/api/src/middleware/correlation.py:61:        # TODO: Check rate limits
+docs/architecture/API_AUDIT.md:75:- **Apenas INFO level**: Sem DEBUG, WARNING, ERROR diferenciados
+docs/architecture/API_AUDIT.md:98:# DEBUG: Detalhes de validação
+docs/testing/golden-tests.md:250:    """Normalize CPF to XXX.XXX.XXX-XX format."""
+tests/golden/test_engine.py:113:    # Configurar logging para DEBUG durante testes
+tests/golden/test_engine.py:114:    logging.getLogger("rule_engine").setLevel(logging.DEBUG)
