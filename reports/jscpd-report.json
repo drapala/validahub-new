@@ -1,0 +1,3021 @@
+{
+  "statistics": {
+    "detectionDate": "2025-08-15T18:27:23.141Z",
+    "formats": {
+      "javascript": {
+        "sources": {
+          "/workspace/validahub-new/apps/web/app/(public)/auth/register/page.tsx": {
+            "lines": 3,
+            "tokens": 77,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(public)/auth/login/page.tsx": {
+            "lines": 3,
+            "tokens": 77,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/results/[jobId]/page.tsx": {
+            "lines": 17,
+            "tokens": 232,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/validate-row/page.tsx": {
+            "lines": 194,
+            "tokens": 1789,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/upload/page.tsx": {
+            "lines": 34,
+            "tokens": 334,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/toaster.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/toast.tsx": {
+            "lines": 92,
+            "tokens": 624,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/textarea.tsx": {
+            "lines": 4,
+            "tokens": 15,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/table.tsx": {
+            "lines": 94,
+            "tokens": 611,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/switch.tsx": {
+            "lines": 10,
+            "tokens": 37,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/skeleton.tsx": {
+            "lines": 0,
+            "tokens": 8,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/select.tsx": {
+            "lines": 122,
+            "tokens": 815,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/label.tsx": {
+            "lines": 1,
+            "tokens": 16,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/input.tsx": {
+            "lines": 5,
+            "tokens": 21,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/dialog.tsx": {
+            "lines": 83,
+            "tokens": 512,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/card.tsx": {
+            "lines": 63,
+            "tokens": 436,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/button.tsx": {
+            "lines": 1,
+            "tokens": 21,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/badge.tsx": {
+            "lines": 0,
+            "tokens": 13,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/alert.tsx": {
+            "lines": 26,
+            "tokens": 193,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(public)/page.tsx": {
+            "lines": 2,
+            "tokens": 43,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/results-table.tsx": {
+            "lines": 24,
+            "tokens": 284,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/providers.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/job-progress.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/category-picker.tsx": {
+            "lines": 13,
+            "tokens": 163,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/apply-fixes-bar.tsx": {
+            "lines": 8,
+            "tokens": 51,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/app-shell.tsx": {
+            "lines": 7,
+            "tokens": 41,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/postcss.config.js": {
+            "lines": 5,
+            "tokens": 35,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/next.config.mjs": {
+            "lines": 35,
+            "tokens": 138,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 35,
+            "duplicatedTokens": 138,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/postcss.config.js": {
+            "lines": 5,
+            "tokens": 35,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/next.config.mjs": {
+            "lines": 35,
+            "tokens": 138,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 35,
+            "duplicatedTokens": 138,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 886,
+          "tokens": 6768,
+          "sources": 30,
+          "clones": 1,
+          "duplicatedLines": 35,
+          "duplicatedTokens": 138,
+          "percentage": 3.95,
+          "percentageTokens": 2.04,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "tsx": {
+        "sources": {
+          "/workspace/validahub-new/apps/web/app/(public)/auth/register/page.tsx": {
+            "lines": 40,
+            "tokens": 446,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 5,
+            "duplicatedTokens": 107,
+            "percentage": 12.5,
+            "percentageTokens": 23.99,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(public)/auth/login/page.tsx": {
+            "lines": 42,
+            "tokens": 475,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 5,
+            "duplicatedTokens": 107,
+            "percentage": 11.9,
+            "percentageTokens": 22.53,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/settings/billing/page.tsx": {
+            "lines": 7,
+            "tokens": 79,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/results/[jobId]/page.tsx": {
+            "lines": 60,
+            "tokens": 669,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(public)/status/page.tsx": {
+            "lines": 23,
+            "tokens": 229,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(public)/pricing/page.tsx": {
+            "lines": 20,
+            "tokens": 228,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(public)/docs/page.tsx": {
+            "lines": 7,
+            "tokens": 83,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/webhooks/page.tsx": {
+            "lines": 7,
+            "tokens": 89,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/validate-row/page.tsx": {
+            "lines": 391,
+            "tokens": 3407,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/upload/page.tsx": {
+            "lines": 117,
+            "tokens": 1234,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/mappings/page.tsx": {
+            "lines": 7,
+            "tokens": 83,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/jobs/page.tsx": {
+            "lines": 7,
+            "tokens": 81,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/connectors/page.tsx": {
+            "lines": 7,
+            "tokens": 89,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/toaster.tsx": {
+            "lines": 34,
+            "tokens": 232,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/toast.tsx": {
+            "lines": 128,
+            "tokens": 864,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/textarea.tsx": {
+            "lines": 21,
+            "tokens": 125,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/table.tsx": {
+            "lines": 119,
+            "tokens": 754,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/switch.tsx": {
+            "lines": 28,
+            "tokens": 167,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/skeleton.tsx": {
+            "lines": 14,
+            "tokens": 79,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/select.tsx": {
+            "lines": 158,
+            "tokens": 1037,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/label.tsx": {
+            "lines": 25,
+            "tokens": 188,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/input.tsx": {
+            "lines": 21,
+            "tokens": 133,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/dialog.tsx": {
+            "lines": 121,
+            "tokens": 736,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/card.tsx": {
+            "lines": 77,
+            "tokens": 552,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/button.tsx": {
+            "lines": 56,
+            "tokens": 375,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/badge.tsx": {
+            "lines": 39,
+            "tokens": 248,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/ui/alert.tsx": {
+            "lines": 62,
+            "tokens": 420,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(public)/page.tsx": {
+            "lines": 28,
+            "tokens": 288,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/(app)/layout.tsx": {
+            "lines": 4,
+            "tokens": 57,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/results-table.tsx": {
+            "lines": 122,
+            "tokens": 1092,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/result-summary.tsx": {
+            "lines": 50,
+            "tokens": 535,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/providers.tsx": {
+            "lines": 14,
+            "tokens": 142,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/job-progress.tsx": {
+            "lines": 29,
+            "tokens": 334,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/dropzone-card.tsx": {
+            "lines": 48,
+            "tokens": 435,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/category-picker.tsx": {
+            "lines": 44,
+            "tokens": 449,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/apply-fixes-bar.tsx": {
+            "lines": 157,
+            "tokens": 1301,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components/app-shell.tsx": {
+            "lines": 51,
+            "tokens": 548,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/app/layout.tsx": {
+            "lines": 18,
+            "tokens": 126,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 2203,
+          "tokens": 18409,
+          "sources": 38,
+          "clones": 1,
+          "duplicatedLines": 5,
+          "duplicatedTokens": 107,
+          "percentage": 0.23,
+          "percentageTokens": 0.58,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "json": {
+        "sources": {
+          "/workspace/validahub-new/tests/golden/shopee/moda/case_001/expected_report.json": {
+            "lines": 44,
+            "tokens": 250,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/mercado_livre/eletronicos/case_001/expected_report.json": {
+            "lines": 44,
+            "tokens": 251,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/inputs/test_basic.json": {
+            "lines": 7,
+            "tokens": 38,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/expected/test_basic.json": {
+            "lines": 59,
+            "tokens": 357,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/packages/shared/tsconfig.json": {
+            "lines": 8,
+            "tokens": 52,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/packages/shared/package.json": {
+            "lines": 19,
+            "tokens": 112,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/tsconfig.json": {
+            "lines": 47,
+            "tokens": 246,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 25,
+            "duplicatedTokens": 136,
+            "percentage": 53.19,
+            "percentageTokens": 55.28,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/package.json": {
+            "lines": 56,
+            "tokens": 366,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/components.json": {
+            "lines": 20,
+            "tokens": 124,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/package.json": {
+            "lines": 24,
+            "tokens": 147,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tools/services.json": {
+            "lines": 27,
+            "tokens": 135,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/turbo.json": {
+            "lines": 45,
+            "tokens": 283,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tsconfig.json": {
+            "lines": 44,
+            "tokens": 221,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 25,
+            "duplicatedTokens": 136,
+            "percentage": 56.82,
+            "percentageTokens": 61.54,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tsconfig.base.json": {
+            "lines": 27,
+            "tokens": 190,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/package.json": {
+            "lines": 31,
+            "tokens": 185,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 502,
+          "tokens": 2957,
+          "sources": 15,
+          "clones": 1,
+          "duplicatedLines": 25,
+          "duplicatedTokens": 136,
+          "percentage": 4.98,
+          "percentageTokens": 4.6,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "yaml": {
+        "sources": {
+          "/workspace/validahub-new/tests/golden/shopee/moda/case_001/config.yaml": {
+            "lines": 15,
+            "tokens": 75,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/mercado_livre/eletronicos/case_001/config.yaml": {
+            "lines": 15,
+            "tokens": 76,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/rulesets/base/rules.yml": {
+            "lines": 47,
+            "tokens": 258,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/rulesets/base/mappings.yml": {
+            "lines": 29,
+            "tokens": 151,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/.github/workflows/pr-check.yml": {
+            "lines": 83,
+            "tokens": 492,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/.github/workflows/deploy.yml": {
+            "lines": 68,
+            "tokens": 437,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/.github/workflows/ci.yml": {
+            "lines": 227,
+            "tokens": 1421,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/.github/workflows/ci-golden.yml": {
+            "lines": 111,
+            "tokens": 690,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/.github/workflows/affected.yml": {
+            "lines": 87,
+            "tokens": 505,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/rulesets/mercadolivre.yaml": {
+            "lines": 125,
+            "tokens": 711,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/rulesets/default.yaml": {
+            "lines": 110,
+            "tokens": 598,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/.github/labeler.yml": {
+            "lines": 58,
+            "tokens": 266,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docker-compose.yml": {
+            "lines": 66,
+            "tokens": 372,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 1041,
+          "tokens": 6052,
+          "sources": 13,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "python": {
+        "sources": {
+          "/workspace/validahub-new/apps/api/src/rules/base/text_rules.py": {
+            "lines": 85,
+            "tokens": 701,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/rules/base/stock_rules.py": {
+            "lines": 62,
+            "tokens": 436,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/rules/base/required_fields.py": {
+            "lines": 33,
+            "tokens": 292,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/rules/base/number_rules.py": {
+            "lines": 153,
+            "tokens": 1188,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 32,
+            "duplicatedTokens": 218,
+            "percentage": 20.92,
+            "percentageTokens": 18.35,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/rules/base/common_rules.py": {
+            "lines": 354,
+            "tokens": 2788,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 32,
+            "duplicatedTokens": 212,
+            "percentage": 9.04,
+            "percentageTokens": 7.6,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/rules/base/cached_provider.py": {
+            "lines": 62,
+            "tokens": 362,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/rules/base/__init__.py": {
+            "lines": 29,
+            "tokens": 121,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/pipeline/validation_pipeline.py": {
+            "lines": 155,
+            "tokens": 1117,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/pipeline/correction_pipeline.py": {
+            "lines": 63,
+            "tokens": 474,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/interfaces/validator.py": {
+            "lines": 64,
+            "tokens": 306,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/interfaces/rule.py": {
+            "lines": 123,
+            "tokens": 607,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/interfaces/corrector.py": {
+            "lines": 96,
+            "tokens": 380,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/interfaces/__init__.py": {
+            "lines": 39,
+            "tokens": 144,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/corrections/base.py": {
+            "lines": 209,
+            "tokens": 1937,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/corrections/__init__.py": {
+            "lines": 18,
+            "tokens": 74,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/api/v1/validation.py": {
+            "lines": 667,
+            "tokens": 4719,
+            "sources": 1,
+            "clones": 10,
+            "duplicatedLines": 96,
+            "duplicatedTokens": 1088,
+            "percentage": 14.39,
+            "percentageTokens": 23.06,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/api/v1/responses.py": {
+            "lines": 70,
+            "tokens": 344,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/api/v1/jobs.py": {
+            "lines": 107,
+            "tokens": 692,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/api/v1/health.py": {
+            "lines": 65,
+            "tokens": 428,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/tests/unit/test_rule_engine_service.py": {
+            "lines": 254,
+            "tokens": 1805,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/tests/integration/test_validation_endpoint.py": {
+            "lines": 265,
+            "tokens": 1974,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 56,
+            "duplicatedTokens": 418,
+            "percentage": 21.13,
+            "percentageTokens": 21.18,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/services/rule_engine_service.py": {
+            "lines": 269,
+            "tokens": 2128,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/schemas/validate.py": {
+            "lines": 179,
+            "tokens": 2273,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 10,
+            "duplicatedTokens": 166,
+            "percentage": 5.59,
+            "percentageTokens": 7.3,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/schemas/errors.py": {
+            "lines": 77,
+            "tokens": 571,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/models/user.py": {
+            "lines": 16,
+            "tokens": 208,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/models/job.py": {
+            "lines": 29,
+            "tokens": 319,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/models/file.py": {
+            "lines": 19,
+            "tokens": 225,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/models/__init__.py": {
+            "lines": 4,
+            "tokens": 49,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/middleware/correlation.py": {
+            "lines": 86,
+            "tokens": 659,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/db/base.py": {
+            "lines": 18,
+            "tokens": 126,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/core/enums.py": {
+            "lines": 46,
+            "tokens": 318,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/alembic/versions/001_initial_data.py": {
+            "lines": 95,
+            "tokens": 869,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/tests/test_validate.py": {
+            "lines": 164,
+            "tokens": 1062,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/tests/test_status.py": {
+            "lines": 7,
+            "tokens": 85,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/tests/test_pipelines.py": {
+            "lines": 50,
+            "tokens": 391,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/tests/conftest.py": {
+            "lines": 14,
+            "tokens": 87,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/main.py": {
+            "lines": 156,
+            "tokens": 979,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/src/config.py": {
+            "lines": 45,
+            "tokens": 309,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/scripts/seed.py": {
+            "lines": 124,
+            "tokens": 765,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/scripts/check_deps.py": {
+            "lines": 114,
+            "tokens": 708,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/alembic/env.py": {
+            "lines": 88,
+            "tokens": 410,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/update_goldens.py": {
+            "lines": 116,
+            "tokens": 671,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/test_golden.py": {
+            "lines": 37,
+            "tokens": 228,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/test_engine.py": {
+            "lines": 123,
+            "tokens": 1138,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/normalizers.py": {
+            "lines": 168,
+            "tokens": 1175,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/golden_runner.py": {
+            "lines": 298,
+            "tokens": 1889,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/conftest.py": {
+            "lines": 87,
+            "tokens": 600,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/config_schema.py": {
+            "lines": 37,
+            "tokens": 260,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tests/golden/comparators.py": {
+            "lines": 293,
+            "tokens": 1835,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/libs/rule_engine/setup.py": {
+            "lines": 12,
+            "tokens": 66,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/libs/rule_engine/engine.py": {
+            "lines": 227,
+            "tokens": 1979,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/libs/rule_engine/dsl.py": {
+            "lines": 143,
+            "tokens": 1395,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/libs/rule_engine/core.py": {
+            "lines": 178,
+            "tokens": 1645,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/libs/rule_engine/__init__.py": {
+            "lines": 6,
+            "tokens": 34,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tools/inventory.py": {
+            "lines": 53,
+            "tokens": 603,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 6351,
+          "tokens": 46948,
+          "sources": 55,
+          "clones": 10,
+          "duplicatedLines": 113,
+          "duplicatedTokens": 1051,
+          "percentage": 1.78,
+          "percentageTokens": 2.24,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "typescript": {
+        "sources": {
+          "/workspace/validahub-new/packages/shared/src/types.ts": {
+            "lines": 36,
+            "tokens": 238,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/packages/shared/src/schemas.ts": {
+            "lines": 26,
+            "tokens": 274,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/packages/shared/src/constants.ts": {
+            "lines": 30,
+            "tokens": 219,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/lib/utils.ts": {
+            "lines": 5,
+            "tokens": 56,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/lib/env.ts": {
+            "lines": 7,
+            "tokens": 66,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/lib/api.ts": {
+            "lines": 257,
+            "tokens": 2559,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 14,
+            "duplicatedTokens": 198,
+            "percentage": 5.45,
+            "percentageTokens": 7.74,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/hooks/use-toast.ts": {
+            "lines": 193,
+            "tokens": 1358,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/tailwind.config.ts": {
+            "lines": 41,
+            "tokens": 246,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 41,
+            "duplicatedTokens": 246,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/web/next-env.d.ts": {
+            "lines": 4,
+            "tokens": 7,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/tailwind.config.ts": {
+            "lines": 41,
+            "tokens": 246,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 41,
+            "duplicatedTokens": 246,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 640,
+          "tokens": 5269,
+          "sources": 10,
+          "clones": 2,
+          "duplicatedLines": 48,
+          "duplicatedTokens": 345,
+          "percentage": 7.5,
+          "percentageTokens": 6.55,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "css": {
+        "sources": {
+          "/workspace/validahub-new/apps/web/app/globals.css": {
+            "lines": 50,
+            "tokens": 176,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 50,
+          "tokens": 176,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "markdown": {
+        "sources": {
+          "/workspace/validahub-new/apps/api/examples/api_usage.md": {
+            "lines": 219,
+            "tokens": 817,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/testing/golden-tests.md": {
+            "lines": 257,
+            "tokens": 1558,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/tasks/ENG-5-DOD.md": {
+            "lines": 62,
+            "tokens": 758,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/planning/PRAGMATIC_REFACTORING_PLAN.md": {
+            "lines": 226,
+            "tokens": 1090,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/planning/BRANCHLESS_REFACTORING_PLAN.md": {
+            "lines": 308,
+            "tokens": 1335,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/architecture/cqrs-strategy.md": {
+            "lines": 268,
+            "tokens": 1398,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/architecture/ARCHITECTURE.md": {
+            "lines": 264,
+            "tokens": 1309,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/architecture/API_AUDIT.md": {
+            "lines": 257,
+            "tokens": 1302,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/adr/template.md": {
+            "lines": 83,
+            "tokens": 528,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/adr/README.md": {
+            "lines": 56,
+            "tokens": 498,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/adr/002-dsl-v1-primitives.md": {
+            "lines": 156,
+            "tokens": 791,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/adr/001-cqrs-architecture.md": {
+            "lines": 213,
+            "tokens": 1698,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/requirements.txt": {
+            "lines": 22,
+            "tokens": 42,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/README.md": {
+            "lines": 223,
+            "tokens": 1299,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/apps/api/IMPROVEMENTS.md": {
+            "lines": 156,
+            "tokens": 1148,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/reports/flags.txt": {
+            "lines": 14,
+            "tokens": 211,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/docs/database-setup.md": {
+            "lines": 232,
+            "tokens": 868,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/TECHNICAL_DEBT.md": {
+            "lines": 157,
+            "tokens": 1322,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/README.md": {
+            "lines": 476,
+            "tokens": 3247,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/PROJECT_STRUCTURE.md": {
+            "lines": 168,
+            "tokens": 1309,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/BACKLOG.md": {
+            "lines": 362,
+            "tokens": 3815,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 4179,
+          "tokens": 26343,
+          "sources": 21,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "ini": {
+        "sources": {
+          "/workspace/validahub-new/apps/api/alembic.ini": {
+            "lines": 115,
+            "tokens": 981,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 115,
+          "tokens": 981,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "bash": {
+        "sources": {
+          "/workspace/validahub-new/scripts/start-backend.sh": {
+            "lines": 122,
+            "tokens": 561,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/scripts/db.sh": {
+            "lines": 135,
+            "tokens": 745,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 257,
+          "tokens": 1306,
+          "sources": 2,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "sql": {
+        "sources": {
+          "/workspace/validahub-new/scripts/init.sql": {
+            "lines": 22,
+            "tokens": 221,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "/workspace/validahub-new/scripts/demo_data.sql": {
+            "lines": 38,
+            "tokens": 206,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 60,
+          "tokens": 427,
+          "sources": 2,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "markup": {
+        "sources": {
+          "/workspace/validahub-new/reports/mypy.xml": {
+            "lines": 12,
+            "tokens": 251,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 12,
+          "tokens": 251,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 16296,
+      "tokens": 115887,
+      "sources": 189,
+      "clones": 15,
+      "duplicatedLines": 226,
+      "duplicatedTokens": 1777,
+      "percentage": 1.39,
+      "percentageTokens": 1.53,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "tsx",
+      "lines": 6,
+      "fragment": "</h1>\n      <form onSubmit={handleSubmit(onSubmit)} className=\"space-y-4\">\n        <input className=\"input w-full\" placeholder=\"Email\" type=\"email\" {...register(\"email\")} />\n        <input className=\"input w-full\" placeholder=\"Senha\" type=\"password\" {...register(\"password\")} />\n        <button disabled={isSubmitting} className=\"btn btn-primary w-full\" type=\"submit\">\n          {isSubmitting ? \"Entrando...\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/web/app/(public)/auth/login/page.tsx",
+        "start": 33,
+        "end": 38,
+        "startLoc": {
+          "line": 33,
+          "column": 7,
+          "position": 342
+        },
+        "endLoc": {
+          "line": 38,
+          "column": 14,
+          "position": 449
+        }
+      },
+      "secondFile": {
+        "name": "apps/web/app/(public)/auth/register/page.tsx",
+        "start": 31,
+        "end": 36,
+        "startLoc": {
+          "line": 31,
+          "column": 6,
+          "position": 313
+        },
+        "endLoc": {
+          "line": 36,
+          "column": 13,
+          "position": 420
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 17,
+      "fragment": "if value is None:\n            return None\n        \n        try:\n            num_value = float(value)\n        except (ValueError, TypeError):\n            return ValidationError(\n                row=context.row_index,\n                column=context.column_name,\n                error=\"Invalid number format\",\n                value=str(value),\n                suggestion=\"Use a valid number\",\n                severity=Severity.ERROR,\n                rule_id=self.rule_id\n            )\n        \n        if self.allow_zero",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/src/rules/base/number_rules.py",
+        "start": 79,
+        "end": 95,
+        "startLoc": {
+          "line": 79,
+          "column": 9,
+          "position": 652
+        },
+        "endLoc": {
+          "line": 95,
+          "column": 11,
+          "position": 761
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/src/rules/base/number_rules.py",
+        "start": 24,
+        "end": 40,
+        "startLoc": {
+          "line": 24,
+          "column": 9,
+          "position": 209
+        },
+        "endLoc": {
+          "line": 40,
+          "column": 10,
+          "position": 318
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 17,
+      "fragment": ",\n                    severity=Severity.ERROR\n                )\n        except (ValueError, TypeError):\n            return ValidationError(\n                row=context.row_index,\n                column=context.column_name,\n                error=\"Value must be numeric\",\n                value=str(value),\n                suggestion=\"Use a valid number\",\n                severity=Severity.ERROR\n            )\n        \n        return None\n    \n    def can_apply(self, context: ValidationContext) -> bool:\n        \"\"\"Apply positive number validation\"\"\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/src/rules/base/common_rules.py",
+        "start": 254,
+        "end": 270,
+        "startLoc": {
+          "line": 254,
+          "column": 24,
+          "position": 2116
+        },
+        "endLoc": {
+          "line": 270,
+          "column": 39,
+          "position": 2222
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/src/rules/base/common_rules.py",
+        "start": 218,
+        "end": 235,
+        "startLoc": {
+          "line": 218,
+          "column": 32,
+          "position": 1874
+        },
+        "endLoc": {
+          "line": 235,
+          "column": 37,
+          "position": 1982
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 11,
+      "fragment": ",\n    response_model=ValidationResult,\n    responses={\n        202: {\"model\": AsyncJobResponse, \"description\": \"Request accepted for async processing\"},\n        400: {\"model\": ProblemDetail, \"description\": \"Bad request\"},\n        413: {\"model\": FileSizeProblemDetail, \"description\": \"File too large\"},\n        415: {\"model\": ProblemDetail, \"description\": \"Unsupported media type\"},\n        422: {\"model\": ValidationProblemDetail, \"description\": \"Validation error\"},\n        429: {\"model\": RateLimitProblemDetail, \"description\": \"Rate limit exceeded\"}\n    },\n    operation_id=\"validateCsvAlias\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 238,
+        "end": 248,
+        "startLoc": {
+          "line": 238,
+          "column": 16,
+          "position": 1621
+        },
+        "endLoc": {
+          "line": 248,
+          "column": 19,
+          "position": 1748
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 88,
+        "end": 98,
+        "startLoc": {
+          "line": 88,
+          "column": 12,
+          "position": 589
+        },
+        "endLoc": {
+          "line": 98,
+          "column": 14,
+          "position": 716
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 6,
+      "fragment": "202: {\"model\": AsyncJobResponse, \"description\": \"Request accepted for async processing\"},\n        400: {\"model\": ProblemDetail, \"description\": \"Bad request\"},\n        413: {\"model\": FileSizeProblemDetail, \"description\": \"File too large\"},\n        415: {\"model\": ProblemDetail, \"description\": \"Unsupported media type\"},\n        422: {\"model\": ValidationProblemDetail, \"description\": \"Validation error\"},\n    }",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 337,
+        "end": 342,
+        "startLoc": {
+          "line": 337,
+          "column": 9,
+          "position": 2410
+        },
+        "endLoc": {
+          "line": 342,
+          "column": 2,
+          "position": 2500
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 91,
+        "end": 96,
+        "startLoc": {
+          "line": 91,
+          "column": 9,
+          "position": 603
+        },
+        "endLoc": {
+          "line": 96,
+          "column": 4,
+          "position": 693
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 13,
+      "fragment": ",\n                extensions={\"field\": \"options\"},\n                correlation_id=correlation_id\n            ))\n    \n    # Validate file type\n    if not file.filename.endswith(('.csv', '.CSV')):\n        return problem_response(ProblemDetail(\n            type=\"https://validahub.com/errors/invalid-file-type\",\n            title=\"Invalid File Type\",\n            status=415,\n            detail=\"File must be a CSV file\",\n            instance=\"/api/v1/correct\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 373,
+        "end": 385,
+        "startLoc": {
+          "line": 373,
+          "column": 18,
+          "position": 2690
+        },
+        "endLoc": {
+          "line": 385,
+          "column": 18,
+          "position": 2772
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 133,
+        "end": 145,
+        "startLoc": {
+          "line": 133,
+          "column": 19,
+          "position": 920
+        },
+        "endLoc": {
+          "line": 145,
+          "column": 19,
+          "position": 1002
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 14,
+      "fragment": "try:\n        # Read CSV file\n        content = await file.read()\n        csv_str = content.decode('utf-8', errors='replace')\n        \n        # Parse CSV to DataFrame\n        df = pd.read_csv(io.StringIO(csv_str))\n        \n        # Handle NaN and inf values right after reading\n        import numpy as np\n        df = df.replace([np.inf, -np.inf], None)\n        df = df.where(pd.notnull(df), None)\n        \n        # Validate and fix using pipeline",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 421,
+        "end": 434,
+        "startLoc": {
+          "line": 421,
+          "column": 5,
+          "position": 2979
+        },
+        "endLoc": {
+          "line": 434,
+          "column": 34,
+          "position": 3099
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 183,
+        "end": 196,
+        "startLoc": {
+          "line": 183,
+          "column": 5,
+          "position": 1218
+        },
+        "endLoc": {
+          "line": 196,
+          "column": 26,
+          "position": 1338
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 9,
+      "fragment": "responses={\n        200: {\"description\": \"Corrected CSV file\", \"content\": {\"text/csv\": {}}},\n        202: {\"model\": AsyncJobResponse, \"description\": \"Request accepted for async processing\"},\n        400: {\"model\": ProblemDetail, \"description\": \"Bad request\"},\n        413: {\"model\": FileSizeProblemDetail, \"description\": \"File too large\"},\n        415: {\"model\": ProblemDetail, \"description\": \"Unsupported media type\"},\n        422: {\"model\": ValidationProblemDetail, \"description\": \"Validation error\"},\n    },\n    operation_id=\"correctCsvAlias\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 486,
+        "end": 494,
+        "startLoc": {
+          "line": 486,
+          "column": 5,
+          "position": 3438
+        },
+        "endLoc": {
+          "line": 494,
+          "column": 18,
+          "position": 3563
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/src/api/v1/validation.py",
+        "start": 335,
+        "end": 343,
+        "startLoc": {
+          "line": 335,
+          "column": 5,
+          "position": 2381
+        },
+        "endLoc": {
+          "line": 343,
+          "column": 13,
+          "position": 2506
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 15,
+      "fragment": "]\n        \n        output = io.StringIO()\n        writer = csv.writer(output)\n        writer.writerows(csv_data)\n        csv_content = output.getvalue()\n        \n        files = {\n            \"file\": (\"test.csv\", csv_content, \"text/csv\")\n        }\n        data = {\n            \"marketplace\": \"MERCADO_LIVRE\",\n            \"category\": \"ELETRONICOS\"\n        }\n        headers",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/tests/integration/test_validation_endpoint.py",
+        "start": 217,
+        "end": 231,
+        "startLoc": {
+          "line": 217,
+          "column": 9,
+          "position": 1567
+        },
+        "endLoc": {
+          "line": 231,
+          "column": 8,
+          "position": 1663
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/tests/integration/test_validation_endpoint.py",
+        "start": 117,
+        "end": 132,
+        "startLoc": {
+          "line": 117,
+          "column": 9,
+          "position": 836
+        },
+        "endLoc": {
+          "line": 132,
+          "column": 9,
+          "position": 934
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 15,
+      "fragment": "csv_data = [\n            [\"sku\", \"title\", \"price\"],\n            [\"SKU001\", \"Product 1\", \"10.99\"]\n        ]\n        \n        output = io.StringIO()\n        writer = csv.writer(output)\n        writer.writerows(csv_data)\n        csv_content = output.getvalue()\n        \n        files = {\n            \"file\": (\"test.csv\", csv_content, \"text/csv\")\n        }\n        data = {\n            \"marketplace\": marketplace",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/tests/integration/test_validation_endpoint.py",
+        "start": 244,
+        "end": 258,
+        "startLoc": {
+          "line": 244,
+          "column": 9,
+          "position": 1768
+        },
+        "endLoc": {
+          "line": 258,
+          "column": 12,
+          "position": 1881
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/tests/integration/test_validation_endpoint.py",
+        "start": 214,
+        "end": 228,
+        "startLoc": {
+          "line": 214,
+          "column": 9,
+          "position": 1537
+        },
+        "endLoc": {
+          "line": 228,
+          "column": 16,
+          "position": 1650
+        }
+      }
+    },
+    {
+      "format": "python",
+      "lines": 6,
+      "fragment": "(BaseModel):\n    model_config = ConfigDict(extra='forbid')\n    \n    marketplace: Marketplace = Field(..., description=\"Target marketplace\")\n    category: Category = Field(..., description=\"Product category\")\n    options: Optional[Dict[str, Any]] = Field(None, description=\"Additional correction options\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/api/src/schemas/validate.py",
+        "start": 122,
+        "end": 127,
+        "startLoc": {
+          "line": 122,
+          "column": 18,
+          "position": 1377
+        },
+        "endLoc": {
+          "line": 127,
+          "column": 32,
+          "position": 1460
+        }
+      },
+      "secondFile": {
+        "name": "apps/api/src/schemas/validate.py",
+        "start": 114,
+        "end": 119,
+        "startLoc": {
+          "line": 114,
+          "column": 19,
+          "position": 1286
+        },
+        "endLoc": {
+          "line": 119,
+          "column": 32,
+          "position": 1369
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": ": async (params: { marketplace: string; category: string }, file: File) => {\n    const qs = new URLSearchParams({ \n      marketplace: params.marketplace, \n      category: params.category \n    });\n    const form = new FormData();\n    form.append(\"file\", file);\n    return",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps/web/lib/api.ts",
+        "start": 246,
+        "end": 253,
+        "startLoc": {
+          "line": 246,
+          "column": 18,
+          "position": 2416
+        },
+        "endLoc": {
+          "line": 253,
+          "column": 7,
+          "position": 2515
+        }
+      },
+      "secondFile": {
+        "name": "apps/web/lib/api.ts",
+        "start": 220,
+        "end": 228,
+        "startLoc": {
+          "line": 220,
+          "column": 11,
+          "position": 2127
+        },
+        "endLoc": {
+          "line": 228,
+          "column": 6,
+          "position": 2228
+        }
+      }
+    },
+    {
+      "format": "json",
+      "lines": 26,
+      "fragment": "\"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"lib\": [\n      \"ES2023\",\n      \"DOM\",\n      \"DOM.Iterable\"\n    ],\n    \"jsx\": \"preserve\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"Bundler\",\n    \"strict\": true,\n    \"types\": [\n      \"node\",\n      \"react\",\n      \"react-dom\"\n    ],\n    \"noEmit\": true,\n    \"allowJs\": false,\n    \"resolveJsonModule\": true,\n    \"incremental\": true,\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\n        \"./*\"\n      ]\n    }",
+      "tokens": 0,
+      "firstFile": {
+        "name": "tsconfig.json",
+        "start": 2,
+        "end": 27,
+        "startLoc": {
+          "line": 2,
+          "column": 3,
+          "position": 3
+        },
+        "endLoc": {
+          "line": 27,
+          "column": 2,
+          "position": 139
+        }
+      },
+      "secondFile": {
+        "name": "apps/web/tsconfig.json",
+        "start": 3,
+        "end": 27,
+        "startLoc": {
+          "line": 3,
+          "column": 3,
+          "position": 10
+        },
+        "endLoc": {
+          "line": 27,
+          "column": 2,
+          "position": 144
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 42,
+      "fragment": "import type { Config } from \"tailwindcss\";\n\nconst config: Config = {\n  darkMode: [\"class\"],\n  content: [\n    \"./app/**/*.{ts,tsx}\",\n    \"./components/**/*.{ts,tsx}\",\n    \"./lib/**/*.{ts,tsx}\"\n  ],\n  theme: {\n    extend: {\n      colors: {\n        background: \"hsl(240 10% 7%)\",\n        foreground: \"hsl(0 0% 98%)\",\n        border: \"#27272a\", // zinc-800\n        card: {\n          DEFAULT: \"hsl(240 10% 9%)\",\n          foreground: \"hsl(0 0% 98%)\"\n        },\n        muted: {\n          DEFAULT: \"hsl(240 5% 15%)\",\n          foreground: \"hsl(240 5% 64%)\"\n        },\n        primary: {\n          DEFAULT: \"hsl(142 71% 45%)\", // emerald-500\n          foreground: \"hsl(146 70% 10%)\"\n        },\n        ring: \"hsl(142 71% 45%)\"\n      },\n      borderRadius: {\n        xl: \"0.75rem\",\n        \"2xl\": \"1rem\"\n      },\n      boxShadow: {\n        subtle: \"0 6px 30px -12px rgba(0,0,0,0.35)\"\n      }\n    },\n  },\n  plugins: [require(\"tailwindcss-animate\")],\n};\n\nexport default config;",
+      "tokens": 0,
+      "firstFile": {
+        "name": "tailwind.config.ts",
+        "start": 1,
+        "end": 42,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 42,
+          "column": 2,
+          "position": 246
+        }
+      },
+      "secondFile": {
+        "name": "apps/web/tailwind.config.ts",
+        "start": 1,
+        "end": 42,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 42,
+          "column": 2,
+          "position": 246
+        }
+      }
+    },
+    {
+      "format": "javascript",
+      "lines": 36,
+      "fragment": "/** @type {import('next').NextConfig} */\n\nconst apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';\n\nconst cspHeader = `\n    default-src 'self';\n    connect-src 'self' ${apiBaseUrl};\n    script-src 'self' 'unsafe-eval' 'unsafe-inline';\n    style-src 'self' 'unsafe-inline';\n    img-src 'self' blob: data:;\n    font-src 'self';\n    object-src 'none';\n    base-uri 'self';\n    form-action 'self';\n    frame-ancestors 'none';\n    upgrade-insecure-requests;\n`;\n\nconst nextConfig = {\n  reactStrictMode: true,\n  async headers() {\n    return [\n      {\n        source: \"/(.*)\",\n        headers: [\n          {\n            key: 'Content-Security-Policy',\n            value: cspHeader.replace(/\\s{2,}/g, ' ').trim(),\n          },\n        ],\n      },\n    ];\n  },\n};\n\nexport default nextConfig;",
+      "tokens": 0,
+      "firstFile": {
+        "name": "next.config.mjs",
+        "start": 1,
+        "end": 36,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 36,
+          "column": 2,
+          "position": 138
+        }
+      },
+      "secondFile": {
+        "name": "apps/web/next.config.mjs",
+        "start": 1,
+        "end": 36,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 36,
+          "column": 2,
+          "position": 138
+        }
+      }
+    }
+  ]
+}

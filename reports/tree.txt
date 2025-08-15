@@ -1,0 +1,287 @@
+.
+├── ./.env.example
+├── ./.env.local
+├── ./.github
+│   ├── ./.github/labeler.yml
+│   └── ./.github/workflows
+│       ├── ./.github/workflows/affected.yml
+│       ├── ./.github/workflows/ci-golden.yml
+│       ├── ./.github/workflows/ci.yml
+│       ├── ./.github/workflows/deploy.yml
+│       └── ./.github/workflows/pr-check.yml
+├── ./.gitignore
+├── ./BACKLOG.md
+├── ./Makefile
+├── ./PROJECT_STRUCTURE.md
+├── ./README.md
+├── ./TECHNICAL_DEBT.md
+├── ./apps
+│   ├── ./apps/api
+│   │   ├── ./apps/api/.env
+│   │   ├── ./apps/api/.env.example
+│   │   ├── ./apps/api/IMPROVEMENTS.md
+│   │   ├── ./apps/api/Makefile
+│   │   ├── ./apps/api/README.md
+│   │   ├── ./apps/api/alembic
+│   │   │   ├── ./apps/api/alembic/README
+│   │   │   ├── ./apps/api/alembic/env.py
+│   │   │   ├── ./apps/api/alembic/script.py.mako
+│   │   │   └── ./apps/api/alembic/versions
+│   │   │       └── ./apps/api/alembic/versions/001_initial_data.py
+│   │   ├── ./apps/api/alembic.ini
+│   │   ├── ./apps/api/examples
+│   │   │   └── ./apps/api/examples/api_usage.md
+│   │   ├── ./apps/api/package.json
+│   │   ├── ./apps/api/pyproject.toml
+│   │   ├── ./apps/api/pytest.ini
+│   │   ├── ./apps/api/requirements.txt
+│   │   ├── ./apps/api/scripts
+│   │   │   ├── ./apps/api/scripts/check_deps.py
+│   │   │   └── ./apps/api/scripts/seed.py
+│   │   ├── ./apps/api/src
+│   │   │   ├── ./apps/api/src/__init__.py
+│   │   │   ├── ./apps/api/src/api
+│   │   │   │   ├── ./apps/api/src/api/__init__.py
+│   │   │   │   └── ./apps/api/src/api/v1
+│   │   │   │       ├── ./apps/api/src/api/v1/__init__.py
+│   │   │   │       ├── ./apps/api/src/api/v1/health.py
+│   │   │   │       ├── ./apps/api/src/api/v1/jobs.py
+│   │   │   │       ├── ./apps/api/src/api/v1/responses.py
+│   │   │   │       └── ./apps/api/src/api/v1/validation.py
+│   │   │   ├── ./apps/api/src/config.py
+│   │   │   ├── ./apps/api/src/core
+│   │   │   │   ├── ./apps/api/src/core/__init__.py
+│   │   │   │   ├── ./apps/api/src/core/corrections
+│   │   │   │   │   ├── ./apps/api/src/core/corrections/__init__.py
+│   │   │   │   │   └── ./apps/api/src/core/corrections/base.py
+│   │   │   │   ├── ./apps/api/src/core/engines
+│   │   │   │   │   └── ./apps/api/src/core/engines/__init__.py
+│   │   │   │   ├── ./apps/api/src/core/enums.py
+│   │   │   │   ├── ./apps/api/src/core/interfaces
+│   │   │   │   │   ├── ./apps/api/src/core/interfaces/__init__.py
+│   │   │   │   │   ├── ./apps/api/src/core/interfaces/corrector.py
+│   │   │   │   │   ├── ./apps/api/src/core/interfaces/rule.py
+│   │   │   │   │   └── ./apps/api/src/core/interfaces/validator.py
+│   │   │   │   └── ./apps/api/src/core/pipeline
+│   │   │   │       ├── ./apps/api/src/core/pipeline/__init__.py
+│   │   │   │       ├── ./apps/api/src/core/pipeline/correction_pipeline.py
+│   │   │   │       └── ./apps/api/src/core/pipeline/validation_pipeline.py
+│   │   │   ├── ./apps/api/src/db
+│   │   │   │   ├── ./apps/api/src/db/__init__.py
+│   │   │   │   └── ./apps/api/src/db/base.py
+│   │   │   ├── ./apps/api/src/main.py
+│   │   │   ├── ./apps/api/src/middleware
+│   │   │   │   ├── ./apps/api/src/middleware/__init__.py
+│   │   │   │   └── ./apps/api/src/middleware/correlation.py
+│   │   │   ├── ./apps/api/src/models
+│   │   │   │   ├── ./apps/api/src/models/__init__.py
+│   │   │   │   ├── ./apps/api/src/models/file.py
+│   │   │   │   ├── ./apps/api/src/models/job.py
+│   │   │   │   └── ./apps/api/src/models/user.py
+│   │   │   ├── ./apps/api/src/rules
+│   │   │   │   ├── ./apps/api/src/rules/__init__.py
+│   │   │   │   └── ./apps/api/src/rules/base
+│   │   │   │       ├── ./apps/api/src/rules/base/__init__.py
+│   │   │   │       ├── ./apps/api/src/rules/base/cached_provider.py
+│   │   │   │       ├── ./apps/api/src/rules/base/common_rules.py
+│   │   │   │       ├── ./apps/api/src/rules/base/number_rules.py
+│   │   │   │       ├── ./apps/api/src/rules/base/required_fields.py
+│   │   │   │       ├── ./apps/api/src/rules/base/stock_rules.py
+│   │   │   │       └── ./apps/api/src/rules/base/text_rules.py
+│   │   │   ├── ./apps/api/src/schemas
+│   │   │   │   ├── ./apps/api/src/schemas/__init__.py
+│   │   │   │   ├── ./apps/api/src/schemas/errors.py
+│   │   │   │   └── ./apps/api/src/schemas/validate.py
+│   │   │   └── ./apps/api/src/services
+│   │   │       ├── ./apps/api/src/services/__init__.py
+│   │   │       ├── ./apps/api/src/services/rule_engine_service.py
+│   │   │       └── ./apps/api/src/services/validator_old.py.bak
+│   │   └── ./apps/api/tests
+│   │       ├── ./apps/api/tests/__init__.py
+│   │       ├── ./apps/api/tests/conftest.py
+│   │       ├── ./apps/api/tests/integration
+│   │       │   └── ./apps/api/tests/integration/test_validation_endpoint.py
+│   │       ├── ./apps/api/tests/test_pipelines.py
+│   │       ├── ./apps/api/tests/test_status.py
+│   │       ├── ./apps/api/tests/test_validate.py
+│   │       └── ./apps/api/tests/unit
+│   │           └── ./apps/api/tests/unit/test_rule_engine_service.py
+│   └── ./apps/web
+│       ├── ./apps/web/.env.example
+│       ├── ./apps/web/.eslintrc.json
+│       ├── ./apps/web/app
+│       │   ├── ./apps/web/app/(app)
+│       │   │   ├── ./apps/web/app/(app)/connectors
+│       │   │   │   └── ./apps/web/app/(app)/connectors/page.tsx
+│       │   │   ├── ./apps/web/app/(app)/jobs
+│       │   │   │   └── ./apps/web/app/(app)/jobs/page.tsx
+│       │   │   ├── ./apps/web/app/(app)/layout.tsx
+│       │   │   ├── ./apps/web/app/(app)/mappings
+│       │   │   │   └── ./apps/web/app/(app)/mappings/page.tsx
+│       │   │   ├── ./apps/web/app/(app)/results
+│       │   │   │   └── ./apps/web/app/(app)/results/[jobId]
+│       │   │   │       └── ./apps/web/app/(app)/results/[jobId]/page.tsx
+│       │   │   ├── ./apps/web/app/(app)/settings
+│       │   │   │   └── ./apps/web/app/(app)/settings/billing
+│       │   │   │       └── ./apps/web/app/(app)/settings/billing/page.tsx
+│       │   │   ├── ./apps/web/app/(app)/upload
+│       │   │   │   └── ./apps/web/app/(app)/upload/page.tsx
+│       │   │   ├── ./apps/web/app/(app)/validate-row
+│       │   │   │   └── ./apps/web/app/(app)/validate-row/page.tsx
+│       │   │   └── ./apps/web/app/(app)/webhooks
+│       │   │       └── ./apps/web/app/(app)/webhooks/page.tsx
+│       │   ├── ./apps/web/app/(public)
+│       │   │   ├── ./apps/web/app/(public)/auth
+│       │   │   │   ├── ./apps/web/app/(public)/auth/login
+│       │   │   │   │   └── ./apps/web/app/(public)/auth/login/page.tsx
+│       │   │   │   └── ./apps/web/app/(public)/auth/register
+│       │   │   │       └── ./apps/web/app/(public)/auth/register/page.tsx
+│       │   │   ├── ./apps/web/app/(public)/docs
+│       │   │   │   └── ./apps/web/app/(public)/docs/page.tsx
+│       │   │   ├── ./apps/web/app/(public)/layout.tsx
+│       │   │   ├── ./apps/web/app/(public)/page.tsx
+│       │   │   ├── ./apps/web/app/(public)/pricing
+│       │   │   │   └── ./apps/web/app/(public)/pricing/page.tsx
+│       │   │   └── ./apps/web/app/(public)/status
+│       │   │       └── ./apps/web/app/(public)/status/page.tsx
+│       │   ├── ./apps/web/app/globals.css
+│       │   └── ./apps/web/app/layout.tsx
+│       ├── ./apps/web/components
+│       │   ├── ./apps/web/components/app-shell.tsx
+│       │   ├── ./apps/web/components/apply-fixes-bar.tsx
+│       │   ├── ./apps/web/components/category-picker.tsx
+│       │   ├── ./apps/web/components/dropzone-card.tsx
+│       │   ├── ./apps/web/components/job-progress.tsx
+│       │   ├── ./apps/web/components/providers.tsx
+│       │   ├── ./apps/web/components/result-summary.tsx
+│       │   ├── ./apps/web/components/results-table.tsx
+│       │   └── ./apps/web/components/ui
+│       │       ├── ./apps/web/components/ui/alert.tsx
+│       │       ├── ./apps/web/components/ui/badge.tsx
+│       │       ├── ./apps/web/components/ui/button.tsx
+│       │       ├── ./apps/web/components/ui/card.tsx
+│       │       ├── ./apps/web/components/ui/dialog.tsx
+│       │       ├── ./apps/web/components/ui/input.tsx
+│       │       ├── ./apps/web/components/ui/label.tsx
+│       │       ├── ./apps/web/components/ui/select.tsx
+│       │       ├── ./apps/web/components/ui/skeleton.tsx
+│       │       ├── ./apps/web/components/ui/switch.tsx
+│       │       ├── ./apps/web/components/ui/table.tsx
+│       │       ├── ./apps/web/components/ui/textarea.tsx
+│       │       ├── ./apps/web/components/ui/toast.tsx
+│       │       └── ./apps/web/components/ui/toaster.tsx
+│       ├── ./apps/web/components.json
+│       ├── ./apps/web/hooks
+│       │   └── ./apps/web/hooks/use-toast.ts
+│       ├── ./apps/web/lib
+│       │   ├── ./apps/web/lib/api.ts
+│       │   ├── ./apps/web/lib/env.ts
+│       │   └── ./apps/web/lib/utils.ts
+│       ├── ./apps/web/next-env.d.ts
+│       ├── ./apps/web/next.config.mjs
+│       ├── ./apps/web/package.json
+│       ├── ./apps/web/postcss.config.js
+│       ├── ./apps/web/public
+│       │   └── ./apps/web/public/.gitkeep
+│       ├── ./apps/web/tailwind.config.ts
+│       └── ./apps/web/tsconfig.json
+├── ./corrected_ml.csv
+├── ./corrected_shopee.csv
+├── ./csv-valido-mercado-livre.csv
+├── ./docker-compose.yml
+├── ./docs
+│   ├── ./docs/adr
+│   │   ├── ./docs/adr/001-cqrs-architecture.md
+│   │   ├── ./docs/adr/002-dsl-v1-primitives.md
+│   │   ├── ./docs/adr/README.md
+│   │   └── ./docs/adr/template.md
+│   ├── ./docs/architecture
+│   │   ├── ./docs/architecture/API_AUDIT.md
+│   │   ├── ./docs/architecture/ARCHITECTURE.md
+│   │   └── ./docs/architecture/cqrs-strategy.md
+│   ├── ./docs/database-setup.md
+│   ├── ./docs/planning
+│   │   ├── ./docs/planning/BRANCHLESS_REFACTORING_PLAN.md
+│   │   └── ./docs/planning/PRAGMATIC_REFACTORING_PLAN.md
+│   ├── ./docs/tasks
+│   │   └── ./docs/tasks/ENG-5-DOD.md
+│   └── ./docs/testing
+│       └── ./docs/testing/golden-tests.md
+├── ./libs
+│   └── ./libs/rule_engine
+│       ├── ./libs/rule_engine/__init__.py
+│       ├── ./libs/rule_engine/core.py
+│       ├── ./libs/rule_engine/dsl.py
+│       ├── ./libs/rule_engine/engine.py
+│       └── ./libs/rule_engine/setup.py
+├── ./next.config.mjs
+├── ./package-lock.json
+├── ./package.json
+├── ./packages
+│   └── ./packages/shared
+│       ├── ./packages/shared/package.json
+│       ├── ./packages/shared/src
+│       │   ├── ./packages/shared/src/constants.ts
+│       │   ├── ./packages/shared/src/index.ts
+│       │   ├── ./packages/shared/src/schemas.ts
+│       │   └── ./packages/shared/src/types.ts
+│       └── ./packages/shared/tsconfig.json
+├── ./pnpm-lock.yaml
+├── ./pnpm-workspace.yaml
+├── ./postcss.config.js
+├── ./rulesets
+│   ├── ./rulesets/base
+│   │   ├── ./rulesets/base/mappings.yml
+│   │   └── ./rulesets/base/rules.yml
+│   ├── ./rulesets/default.yaml
+│   └── ./rulesets/mercadolivre.yaml
+├── ./scripts
+│   ├── ./scripts/db.sh
+│   ├── ./scripts/demo_data.sql
+│   ├── ./scripts/init.sql
+│   └── ./scripts/start-backend.sh
+├── ./tailwind.config.ts
+├── ./test_shopee.csv
+├── ./test_simple.csv
+├── ./test_validation.csv
+├── ./teste-corrigido.csv
+├── ./teste-mercado-livre.csv
+├── ./teste-mercado-livre_corrigido.csv
+├── ./teste-valido.csv
+├── ./tests
+│   └── ./tests/golden
+│       ├── ./tests/golden/__init__.py
+│       ├── ./tests/golden/comparators.py
+│       ├── ./tests/golden/config_schema.py
+│       ├── ./tests/golden/conftest.py
+│       ├── ./tests/golden/expected
+│       │   └── ./tests/golden/expected/test_basic.json
+│       ├── ./tests/golden/golden_runner.py
+│       ├── ./tests/golden/inputs
+│       │   └── ./tests/golden/inputs/test_basic.json
+│       ├── ./tests/golden/mercado_livre
+│       │   └── ./tests/golden/mercado_livre/eletronicos
+│       │       └── ./tests/golden/mercado_livre/eletronicos/case_001
+│       │           ├── ./tests/golden/mercado_livre/eletronicos/case_001/config.yaml
+│       │           ├── ./tests/golden/mercado_livre/eletronicos/case_001/expected_output.csv
+│       │           ├── ./tests/golden/mercado_livre/eletronicos/case_001/expected_report.json
+│       │           └── ./tests/golden/mercado_livre/eletronicos/case_001/input.csv
+│       ├── ./tests/golden/normalizers.py
+│       ├── ./tests/golden/shopee
+│       │   └── ./tests/golden/shopee/moda
+│       │       └── ./tests/golden/shopee/moda/case_001
+│       │           ├── ./tests/golden/shopee/moda/case_001/config.yaml
+│       │           ├── ./tests/golden/shopee/moda/case_001/expected_output.csv
+│       │           ├── ./tests/golden/shopee/moda/case_001/expected_report.json
+│       │           └── ./tests/golden/shopee/moda/case_001/input.csv
+│       ├── ./tests/golden/test_engine.py
+│       ├── ./tests/golden/test_golden.py
+│       └── ./tests/golden/update_goldens.py
+├── ./tools
+│   ├── ./tools/inventory.py
+│   └── ./tools/services.json
+├── ./tsconfig.base.json
+├── ./tsconfig.json
+└── ./turbo.json
+
+77 directories, 208 files

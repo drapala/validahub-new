@@ -1,0 +1,6 @@
+id,title,dimension,severity,opportunity,effort,priority,file,lines,evidence,fix,acceptance,links
+TD-0005,Vulnerable Python dependencies,Segurança,5,3,S,3.4,,,"pip-audit report shows FastAPI 0.109.0 and ecdsa 0.19.1 vulnerable","Update FastAPI to 0.109.1 and python-jose to 3.4.0","pip-audit reports 0 vulnerabilities",reports/pip-audit.json
+TD-0002,Mypy errors from missing stubs,Código,3,4,S,2.3,apps/api/tests/unit/test_rule_engine_service.py,9,"mypy missing types for yaml and duplicate modules","Install types-PyYAML and adjust package layout","mypy --ignore-missing-imports passes",reports/mypy.xml
+TD-0004,Health and rate-limiting placeholders,Observabilidade,4,3,M,1.7,apps/api/src/api/v1/health.py,"25-31;56","TODOs for real health checks and rate limit","Implement check_db/check_redis and rate limiter","/health and headers reflect real state",reports/flags.txt
+TD-0003,Frontend lint and type check failures,CI/CD,3,4,M,1.3,,,"ESLint missing config; tsc missing types","Add .eslintrc.json and @types packages","eslint and tsc run clean",reports/eslint.json
+TD-0001,Monolithic validation module,Código,4,3,L,0.7,apps/api/src/api/v1/validation.py,"88-98;238-248","668 LOC; duplicated endpoints","Refactor into smaller functions and reuse validate_csv_v2","radon complexity <8; jscpd shows no duplicates",reports/radon-raw.json

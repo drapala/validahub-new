@@ -1,0 +1,38 @@
+name: Tech Debt
+description: Rastrear uma dívida técnica identificada pela auditoria
+labels: [tech-debt]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Título curto
+  - type: dropdown
+    id: dimension
+    attributes:
+      label: Dimensão
+      options: [Arquitetura, Código, Testes, Dados, API, Observabilidade, CI/CD, Segurança, Performance, Infra, Documentação]
+  - type: input
+    id: location
+    attributes:
+      label: Arquivo(s) / Linhas
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidência
+  - type: textarea
+    id: why
+    attributes:
+      label: Por que importa
+  - type: textarea
+    id: fix
+    attributes:
+      label: Proposta de correção (com diff se possível)
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Esforço
+      options: [S, M, L]
+  - type: input
+    id: acceptance
+    attributes:
+      label: Critérios de aceite
