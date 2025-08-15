@@ -65,9 +65,21 @@ def get_correlation_id(
 
 def problem_response(problem: ProblemDetail) -> JSONResponse:
     """Create a problem+json response."""
+    # Convert to dict and handle datetime serialization
+    content = problem.model_dump(exclude_none=True)
+    
+    # Convert datetime fields to ISO format strings
+    if "timestamp" in content and content["timestamp"]:
+        if isinstance(content["timestamp"], datetime):
+            content["timestamp"] = content["timestamp"].isoformat()
+    
+    if "rate_limit_reset" in content and content["rate_limit_reset"]:
+        if isinstance(content["rate_limit_reset"], datetime):
+            content["rate_limit_reset"] = content["rate_limit_reset"].isoformat()
+    
     return JSONResponse(
         status_code=problem.status,
-        content=problem.model_dump(exclude_none=True),
+        content=content,
         headers={"Content-Type": "application/problem+json"}
     )
 
@@ -175,6 +187,11 @@ async def validate_csv_v2(
         
         # Parse CSV to DataFrame
         df = pd.read_csv(io.StringIO(csv_str))
+        
+        # Handle NaN and inf values right after reading
+        import numpy as np
+        df = df.replace([np.inf, -np.inf], None)
+        df = df.where(pd.notnull(df), None)
         
         # Validate using pipeline
         result = validation_pipeline.validate(
@@ -408,6 +425,11 @@ async def correct_csv_v2(
         
         # Parse CSV to DataFrame
         df = pd.read_csv(io.StringIO(csv_str))
+        
+        # Handle NaN and inf values right after reading
+        import numpy as np
+        df = df.replace([np.inf, -np.inf], None)
+        df = df.where(pd.notnull(df), None)
         
         # Validate and fix using pipeline
         result = validation_pipeline.validate(
