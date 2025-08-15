@@ -22,6 +22,7 @@ import json
 import logging
 import uuid
 import time
+import os
 from datetime import datetime
 import pandas as pd
 
@@ -46,8 +47,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["validation"])
 
 # Constants
-MAX_SYNC_FILE_SIZE = 5 * 1024 * 1024  # 5MB
-MAX_FILE_SIZE = 50 * 1024 * 1024      # 50MB
+MAX_SYNC_FILE_SIZE = int(os.environ.get("MAX_SYNC_FILE_SIZE", 5 * 1024 * 1024))  # 5MB default
+MAX_FILE_SIZE = int(os.environ.get("MAX_FILE_SIZE", 50 * 1024 * 1024))           # 50MB default
 RULESET_VERSION = "2.0.0"
 
 # Initialize services

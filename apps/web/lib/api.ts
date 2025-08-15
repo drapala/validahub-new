@@ -134,7 +134,7 @@ export const api = {
     const qs = new URLSearchParams({ 
       marketplace: params.marketplace, 
       category: params.category,
-      auto_fix: String(params.auto_fix ?? false) // Por padrão, não auto-corrige na validação
+      auto_fix: String(params.auto_fix ?? false) // By default, do not auto-fix during validation
     });
     const form = new FormData();
     form.append("file", file);

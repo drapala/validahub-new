@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label'
 import { AlertCircle, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { API_BASE } from '@/lib/env'
 
 export default function ValidateRowPage() {
   const [marketplace, setMarketplace] = useState('MERCADO_LIVRE')
@@ -71,7 +72,7 @@ export default function ValidateRowPage() {
         params.append('category', category)
       }
 
-      const response = await fetch(`http://localhost:3001/api/v1/validate_row?${params}`, {
+      const response = await fetch(`${API_BASE}/api/v1/validate_row?${params}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
