@@ -76,10 +76,12 @@ if not field and "_" in result.rule_id:
 
 ---
 
-### 3. Python Path Manipulation
-**File:** `apps/api/src/services/rule_engine_service.py:12-14`
+### 3. Python Path Manipulation (Multiple Occurrences)
+**Files:** 
+- `apps/api/src/services/rule_engine_service.py:12-14`
+- `apps/api/tests/unit/test_rule_engine_service.py:12-13`
 
-**Issue:** Runtime `sys.path` manipulation for imports should be avoided in favor of proper Python packaging.
+**Issue:** Runtime `sys.path` manipulation for imports creates tight coupling and makes code fragile to directory structure changes.
 
 **Current Code:**
 ```python
@@ -88,12 +90,13 @@ if str(libs_path) not in sys.path:
     sys.path.insert(0, str(libs_path))
 ```
 
-**Impact:** Low - Works for current project structure but is not a best practice.
+**Impact:** Medium - Works for current project structure but creates maintenance burden and testing difficulties.
 
-**Suggested Improvement:** 
-- Use proper Python packaging with `setup.py` or `pyproject.toml`
-- Alternatively, use `PYTHONPATH` environment variable
+**Suggested Improvements:** 
+- Use proper Python packaging with `setup.py` or `pyproject.toml` to install libs as a package
+- Set `PYTHONPATH` environment variable in development/deployment scripts
 - Consider restructuring the project to avoid cross-directory imports
+- Add the libs directory to Python path via Docker or deployment configuration
 
 ---
 
@@ -120,6 +123,31 @@ return field in row and value is not None and value != "" and value != []
 Or better yet, explicitly check for the types of "empty" values that should fail the condition:
 ```python
 return field in row and value not in [None, "", []]
+```
+
+---
+
+### 5. DataFrame Cleaning Code Duplication
+**File:** `apps/api/src/api/v1/validation.py` (multiple locations)
+
+**Issue:** DataFrame cleaning operations (replacing inf values and handling nulls) are duplicated across multiple functions.
+
+**Current Code (appears multiple times):**
+```python
+import numpy as np
+df = df.replace([np.inf, -np.inf], None)
+df = df.where(pd.notnull(df), None)
+```
+
+**Impact:** Low - Code duplication but functional. Makes maintenance harder if cleaning logic needs to change.
+
+**Suggested Improvement:** Extract into a utility function:
+```python
+def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean DataFrame by replacing inf and NaN values with None for JSON serialization."""
+    import numpy as np
+    df = df.replace([np.inf, -np.inf], None)
+    return df.where(pd.notnull(df), None)
 ```
 
 ---
