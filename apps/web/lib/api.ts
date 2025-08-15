@@ -53,7 +53,28 @@ export type ValidationResult = {
   total_rows: number;
   valid_rows: number;
   error_rows: number;
-  errors: Array<{
+  // New format with validation_items
+  validation_items?: Array<{
+    row_number: number;
+    status: string;
+    errors?: Array<{
+      code: string;
+      message: string;
+      severity: string;
+      field?: string;
+      value?: any;
+      expected?: any;
+    }>;
+    corrections?: Array<{
+      field: string;
+      original_value?: any;
+      corrected_value: any;
+      correction_type: string;
+      confidence: number;
+    }>;
+  }>;
+  // Old format for backward compatibility
+  errors?: Array<{
     row: number;
     column: string;
     error: string;
@@ -61,8 +82,16 @@ export type ValidationResult = {
     suggestion?: string;
     severity: "error" | "warning" | "info";
   }>;
-  warnings_count: number;
-  processing_time_ms: number;
+  summary?: {
+    total_errors: number;
+    total_warnings: number;
+    total_corrections: number;
+    error_types: Record<string, number>;
+    processing_time_seconds: number;
+  };
+  warnings_count?: number;
+  processing_time_ms?: number;
+  auto_fix_applied?: boolean;
 };
 
 
@@ -84,7 +113,7 @@ export const api = {
     return http<{ status: string }>("/status");
   },
 
-  validateCsv: async (params: { marketplace: string; category: string }, file: File) => {
+  validateCsv: async (params: { marketplace: string; category: string; auto_fix?: boolean }, file: File) => {
     if (MOCK) {
       console.log("Retornando validação mockada para", params);
       // Simula um pequeno delay de rede
@@ -104,7 +133,8 @@ export const api = {
     }
     const qs = new URLSearchParams({ 
       marketplace: params.marketplace, 
-      category: params.category 
+      category: params.category,
+      auto_fix: String(params.auto_fix ?? false) // Por padrão, não auto-corrige na validação
     });
     const form = new FormData();
     form.append("file", file);

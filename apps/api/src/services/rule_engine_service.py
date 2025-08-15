@@ -45,16 +45,31 @@ class RuleEngineService:
         if self.config.cache_enabled and cache_key in self._engines_cache:
             return self._engines_cache[cache_key]
         
-        # Load ruleset for marketplace
-        ruleset = self._load_marketplace_ruleset(marketplace)
+        # Create engine
+        engine = RuleEngine()
         
-        # Create engine with ruleset
-        engine = RuleEngine(ruleset)
+        # Load ruleset for marketplace
+        ruleset_file = self._get_ruleset_file(marketplace)
+        if ruleset_file.exists():
+            # Load rules and mappings from the YAML file
+            engine.load_ruleset(str(ruleset_file))
         
         if self.config.cache_enabled:
             self._engines_cache[cache_key] = engine
             
         return engine
+    
+    def _get_ruleset_file(self, marketplace: str) -> Path:
+        """Get the path to the ruleset file for a marketplace."""
+        # Try marketplace-specific ruleset
+        ruleset_file = self.config.rulesets_path / f"{marketplace.lower()}.yaml"
+        
+        # Fallback to default if not found
+        if not ruleset_file.exists():
+            logger.warning(f"Ruleset not found for {marketplace}, using default")
+            ruleset_file = self.config.rulesets_path / "default.yaml"
+        
+        return ruleset_file
     
     def _load_marketplace_ruleset(self, marketplace: str) -> dict:
         """Load ruleset YAML file for a marketplace."""
@@ -106,7 +121,7 @@ class RuleEngineService:
     ) -> List[ValidationItem]:
         """Validate a single row using the rule engine."""
         engine = self.get_engine_for_marketplace(marketplace)
-        results = engine.run(row)
+        results = engine.execute(row, auto_fix=False)
         
         validation_items = []
         
@@ -129,25 +144,23 @@ class RuleEngineService:
         auto_fix: bool = True
     ) -> tuple[Dict[str, Any], List[ValidationItem]]:
         """Validate and optionally fix a row."""
+        import copy
         engine = self.get_engine_for_marketplace(marketplace)
         
-        # Run validation with auto-fix
-        results = engine.run(row, auto_fix=auto_fix)
+        # Create a deep copy to preserve original row
+        fixed_row = copy.deepcopy(row)
         
-        # Extract fixed row from results
-        fixed_row = row.copy()
+        # Run validation with auto-fix on the copy
+        results = engine.execute(fixed_row, auto_fix=auto_fix)
+        
         validation_items = []
         
         for result in results:
-            # Apply fixes if status is FIXED
-            if result.status == "FIXED" and result.fixed_value is not None:
-                field = result.meta.get("field", result.rule_id.split("_")[-1])
-                fixed_row[field] = result.fixed_value
-            
+            # The fixes are already applied to fixed_row by engine.execute()
             validation_item = self._convert_result_to_validation_item(
                 result,
                 row_number,
-                row
+                row  # Pass original row for comparison
             )
             if validation_item:
                 validation_items.append(validation_item)
@@ -176,8 +189,8 @@ class RuleEngineService:
         else:
             status = ValidationStatus.INFO
         
-        # Extract field from meta or rule_id
-        field = result.meta.get("field") if result.meta else None
+        # Extract field from metadata or rule_id
+        field = result.metadata.get("field") if result.metadata else None
         if not field and "_" in result.rule_id:
             # Try to extract field from rule_id (e.g., "sku_required" -> "sku")
             field = result.rule_id.rsplit("_", 1)[0]
@@ -191,19 +204,21 @@ class RuleEngineService:
                 severity=self._map_severity(result),
                 field=field,
                 value=original_row.get(field) if field else None,
-                expected=result.meta.get("expected") if result.meta else None
+                expected=result.metadata.get("expected") if result.metadata else None
             )
         
         # Build correction detail
         correction_detail = None
-        if result.status == "FIXED" and result.fixed_value is not None:
-            correction_detail = CorrectionDetail(
-                field=field or "",
-                original_value=original_row.get(field) if field else None,
-                corrected_value=result.fixed_value,
-                correction_type=result.meta.get("fix_type", "auto_fix") if result.meta else "auto_fix",
-                confidence=result.meta.get("confidence", 1.0) if result.meta else 1.0
-            )
+        if result.status == "FIXED":
+            fixed_value = result.metadata.get("fixed_value") if result.metadata else None
+            if fixed_value is not None:
+                correction_detail = CorrectionDetail(
+                    field=field or "",
+                    original_value=original_row.get(field) if field else None,
+                    corrected_value=fixed_value,
+                    correction_type=result.metadata.get("fix_type", "auto_fix") if result.metadata else "auto_fix",
+                    confidence=result.metadata.get("confidence", 1.0) if result.metadata else 1.0
+                )
         
         return ValidationItem(
             row_number=row_number,
@@ -212,17 +227,15 @@ class RuleEngineService:
             corrections=[correction_detail] if correction_detail else [],
             metadata={
                 "rule_id": result.rule_id,
-                "rule_name": result.rule_name or result.rule_id,
-                "execution_time": result.execution_time,
-                **( result.meta or {})
+                **(result.metadata or {})
             }
         )
     
     def _map_severity(self, result: RuleResult) -> Severity:
         """Map rule result to severity level."""
-        # Check meta for severity hint
-        if result.meta and "severity" in result.meta:
-            severity_str = result.meta["severity"].upper()
+        # Check metadata for severity hint
+        if result.metadata and "severity" in result.metadata:
+            severity_str = result.metadata["severity"].upper()
             if severity_str in ["CRITICAL", "ERROR"]:
                 return Severity.ERROR
             elif severity_str == "WARNING":

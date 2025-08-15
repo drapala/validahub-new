@@ -14,27 +14,59 @@ interface ApplyFixesBarProps {
 export function ApplyFixesBar({ results, file, marketplace, category }: ApplyFixesBarProps) {
   const [isLoading, setIsLoading] = useState(false);
   
-  const handlePreview = async () => {
-    if (!file || !marketplace || !category) {
-      toast.error("Arquivo e configurações necessários");
+  const handleReport = async () => {
+    if (!results) {
+      toast.error("Nenhum resultado para gerar relatório");
       return;
     }
     
     setIsLoading(true);
     try {
-      const preview = await api.correctionPreview(
-        { marketplace, category },
-        file
-      );
+      // Create report data
+      const report = {
+        timestamp: new Date().toISOString(),
+        marketplace,
+        category,
+        summary: {
+          total_rows: results.total_rows,
+          errors: errorCount,
+          warnings: warningCount,
+          total_issues: errorCount + warningCount,
+          processing_time: results.summary?.processing_time_seconds || results.processing_time_ms
+        },
+        issues: [] as any[]
+      };
       
-      toast.success(
-        `Preview: ${preview.summary.total_corrections} correções disponíveis (${preview.summary.success_rate.toFixed(1)}% de sucesso)`
-      );
+      // Extract all issues from validation_items
+      if (results.validation_items) {
+        results.validation_items.forEach(item => {
+          item.errors?.forEach(error => {
+            report.issues.push({
+              row: item.row_number,
+              severity: error.severity,
+              field: error.field,
+              message: error.message,
+              current_value: error.value,
+              expected: error.expected
+            });
+          });
+        });
+      }
       
-      // TODO: Mostrar modal com detalhes do preview
-      console.log("Preview details:", preview);
+      // Download as JSON
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `validation-report-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success("Relatório baixado com sucesso!");
     } catch (error: any) {
-      toast.error(error.message || "Erro ao gerar preview");
+      toast.error(error.message || "Erro ao gerar relatório");
     } finally {
       setIsLoading(false);
     }
@@ -73,24 +105,44 @@ export function ApplyFixesBar({ results, file, marketplace, category }: ApplyFix
     }
   };
 
-  const hasErrors = results.error_rows > 0;
+  // Count total problems from validation_items
+  let errorCount = 0;
+  let warningCount = 0;
+  
+  if (results.validation_items) {
+    results.validation_items.forEach(item => {
+      item.errors?.forEach(error => {
+        if (error.severity === 'ERROR') {
+          errorCount++;
+        } else if (error.severity === 'WARNING') {
+          warningCount++;
+        }
+      });
+    });
+  } else {
+    errorCount = results.summary?.total_errors || results.error_rows || 0;
+    warningCount = results.summary?.total_warnings || results.warnings_count || 0;
+  }
+  
+  const totalIssues = errorCount + warningCount;
+  const hasIssues = totalIssues > 0;
 
   return (
     <div className="sticky bottom-4 bg-card/80 backdrop-blur border border-border rounded-2xl p-4 flex items-center justify-between">
       <div className="text-zinc-400 text-sm">
-        {hasErrors 
-          ? `${results.error_rows} erros encontrados. Correção automática disponível.`
-          : "Nenhum erro encontrado. CSV está válido!"
+        {hasIssues 
+          ? `${totalIssues} problemas encontrados (${errorCount} erros, ${warningCount} alertas). Correção automática disponível.`
+          : "Nenhum problema encontrado. CSV está válido!"
         }
       </div>
-      {hasErrors && (
+      {hasIssues && (
         <div className="flex gap-3">
           <button 
             className="btn btn-ghost" 
-            onClick={handlePreview}
+            onClick={handleReport}
             disabled={isLoading}
           >
-            {isLoading ? "Processando..." : "Preview"}
+            {isLoading ? "Processando..." : "Baixar Relatório"}
           </button>
           <button 
             className="btn btn-primary" 

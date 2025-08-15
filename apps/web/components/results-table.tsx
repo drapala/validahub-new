@@ -28,7 +28,45 @@ const TableHeader = () => (
 export function ResultsTable({ results }: ResultsTableProps) {
   const parentRef = React.useRef<HTMLDivElement>(null);
 
-  const errors = results.errors || [];
+  // Extract errors and corrections from validation_items
+  const errors = React.useMemo(() => {
+    const extractedItems: any[] = [];
+    
+    // Handle new format with validation_items
+    if (results.validation_items) {
+      results.validation_items.forEach(item => {
+        // Add actual errors
+        item.errors?.forEach(error => {
+          extractedItems.push({
+            row: item.row_number,
+            column: error.field || 'unknown',
+            error: error.message,
+            value: error.value,
+            suggestion: error.expected,
+            severity: error.severity.toLowerCase()
+          });
+        });
+        
+        // Add corrections as warnings (they were auto-fixed)
+        item.corrections?.forEach(correction => {
+          extractedItems.push({
+            row: item.row_number,
+            column: correction.field,
+            error: `Auto-corrigido: ${correction.correction_type}`,
+            value: correction.original_value,
+            suggestion: correction.corrected_value,
+            severity: 'warning'
+          });
+        });
+      });
+    }
+    // Fallback to old format if exists
+    else if (results.errors) {
+      return results.errors;
+    }
+    
+    return extractedItems;
+  }, [results]);
 
   const rowVirtualizer = useVirtualizer({
     count: errors.length,

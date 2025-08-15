@@ -56,6 +56,10 @@ rules:
       type: "numeric_min"
       field: "price"
       value: 0.01
+    fix:
+      type: "set_default"
+      field: "price"
+      value: 0.01
     meta:
       severity: "ERROR"
       expected: "Price > 0"
@@ -104,4 +108,4 @@ rules:
       mapping: "status_mapping"
       default: "pending"
     meta:
-      severity: "INFO"
+      severity: "WARNING"

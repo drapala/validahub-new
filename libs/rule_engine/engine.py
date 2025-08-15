@@ -31,19 +31,22 @@ class RuleEngine:
         """Carrega regras e mappings de arquivos YAML"""
         logger.debug(f"Loading ruleset from {rules_path}")
         
-        # Carregar regras
+        # Carregar regras e mappings do mesmo arquivo
         with open(rules_path, 'r', encoding='utf-8') as f:
             rules_data = yaml.safe_load(f)
             self.rules = rules_data.get('rules', [])
+            # Carregar mappings do mesmo arquivo se existir
+            self.mappings = rules_data.get('mappings', {})
         
-        # Carregar mappings se fornecido
+        # Carregar mappings adicionais se fornecido
         if mappings_path:
-            logger.debug(f"Loading mappings from {mappings_path}")
+            logger.debug(f"Loading additional mappings from {mappings_path}")
             with open(mappings_path, 'r', encoding='utf-8') as f:
                 mappings_data = yaml.safe_load(f)
-                self.mappings = mappings_data.get('mappings', {})
+                # Merge com mappings existentes
+                self.mappings.update(mappings_data.get('mappings', {}))
         
-        logger.debug(f"Loaded {len(self.rules)} rules")
+        logger.debug(f"Loaded {len(self.rules)} rules and {len(self.mappings)} mappings")
     
     def execute(self, row: Dict[str, Any], auto_fix: bool = False) -> List[RuleResult]:
         """Executa todas as regras sobre um row"""
@@ -92,7 +95,7 @@ class RuleEngine:
             
         elif check_type == 'numeric_min':
             field = check['field']
-            min_val = check['min']
+            min_val = check['value']  # Changed from 'min' to 'value'
             if field in row and row[field] is not None:
                 try:
                     passed = float(row[field]) >= min_val
@@ -129,39 +132,86 @@ class RuleEngine:
                 return RuleResult(
                     rule_id=rule_id,
                     status="FIXED",
-                    message=f"{rule.get('name', rule_id)}: Fixed - set {field}={value}"
+                    message=f"{rule.get('name', rule_id)}: Fixed - set {field}={value}",
+                    metadata={
+                        'field': field,
+                        'fixed_value': value,
+                        'fix_type': 'set_default',
+                        'severity': rule.get('meta', {}).get('severity', 'INFO')
+                    }
                 )
                 
             elif fix_type == 'map_value':
                 field = fix['field']
                 mapping_name = fix.get('mapping')
+                default_value = fix.get('default')
+                
                 if mapping_name and mapping_name in self.mappings:
                     mapping_dict = self.mappings[mapping_name]
                     current_val = row.get(field)
+                    
+                    # Try to map the value
                     if current_val in mapping_dict:
-                        row[field] = mapping_dict[current_val]
+                        new_val = mapping_dict[current_val]
+                    elif default_value is not None:
+                        # Use default if value not in mapping
+                        new_val = default_value
+                    else:
+                        # No mapping found and no default
+                        new_val = None
+                    
+                    if new_val is not None:
+                        row[field] = new_val
                         return RuleResult(
                             rule_id=rule_id,
                             status="FIXED",
-                            message=f"{rule.get('name', rule_id)}: Fixed - mapped {current_val} to {mapping_dict[current_val]}"
+                            message=f"{rule.get('name', rule_id)}: Fixed - set {field}={new_val}",
+                            metadata={
+                                'field': field,
+                                'fixed_value': new_val,
+                                'original_value': current_val,
+                                'fix_type': 'map_value',
+                                'severity': rule.get('meta', {}).get('severity', 'INFO')
+                            }
                         )
         
         # Falhou sem correção
+        field = check.get('field', '')
         return RuleResult(
             rule_id=rule_id,
             status="FAIL",
-            message=f"{rule.get('name', rule_id)}: Failed - {rule.get('description', '')}"
+            message=f"{rule.get('name', rule_id)}: Failed",
+            metadata={
+                'field': field,
+                'value': row.get(field) if field else None,
+                'severity': rule.get('meta', {}).get('severity', 'ERROR'),
+                'expected': rule.get('meta', {}).get('expected')
+            }
         )
     
     def _eval_when(self, condition: str, row: Dict[str, Any]) -> bool:
         """Avalia condição 'when' de forma segura"""
         try:
-            # Implementação simplificada - só suporta field == value
+            # Se a condição é apenas um nome de campo, verifica se existe e não é vazio
+            if '==' not in condition and '!=' not in condition:
+                field = condition.strip()
+                value = row.get(field)
+                return value is not None and value != "" and value != []
+            
+            # Suporta field == value
             if '==' in condition:
                 field, value = condition.split('==')
                 field = field.strip()
                 value = value.strip().strip('"').strip("'")
                 return str(row.get(field)) == value
+                
+            # Suporta field != value
+            if '!=' in condition:
+                field, value = condition.split('!=')
+                field = field.strip()
+                value = value.strip().strip('"').strip("'")
+                return str(row.get(field)) != value
+                
             return True
         except:
             return True

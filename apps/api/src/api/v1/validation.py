@@ -210,6 +210,43 @@ async def validate_csv_v2(
         ))
 
 
+# Alias endpoint for compatibility with frontend
+@router.post(
+    "/validate_csv",
+    response_model=ValidationResult,
+    responses={
+        202: {"model": AsyncJobResponse, "description": "Request accepted for async processing"},
+        400: {"model": ProblemDetail, "description": "Bad request"},
+        413: {"model": FileSizeProblemDetail, "description": "File too large"},
+        415: {"model": ProblemDetail, "description": "Unsupported media type"},
+        422: {"model": ValidationProblemDetail, "description": "Validation error"},
+        429: {"model": RateLimitProblemDetail, "description": "Rate limit exceeded"}
+    },
+    operation_id="validateCsvAlias",
+    include_in_schema=False  # Hide from docs to avoid duplication
+)
+async def validate_csv_alias(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    marketplace: Marketplace = Query(...),
+    category: Category = Query(...),
+    auto_fix: bool = Query(True),
+    options: Optional[str] = Query(None),
+    correlation_id: str = Depends(get_correlation_id),
+):
+    """Alias for /validate endpoint for backward compatibility."""
+    # Call the main validate function with Form parameters converted to Query
+    return await validate_csv_v2(
+        background_tasks=background_tasks,
+        file=file,
+        marketplace=marketplace,
+        category=category,
+        auto_fix=auto_fix,
+        options=options,
+        correlation_id=correlation_id
+    )
+
+
 @router.post(
     "/validate_row",
     response_model=Dict[str, Any],
@@ -410,6 +447,129 @@ async def correct_csv_v2(
             status=500,
             detail=f"Error correcting CSV: {str(e)}",
             instance="/api/v1/correct",
+            correlation_id=correlation_id
+        ))
+
+
+# Alias endpoint for compatibility with frontend
+@router.post(
+    "/correct_csv",
+    response_model=None,
+    responses={
+        200: {"description": "Corrected CSV file", "content": {"text/csv": {}}},
+        202: {"model": AsyncJobResponse, "description": "Request accepted for async processing"},
+        400: {"model": ProblemDetail, "description": "Bad request"},
+        413: {"model": FileSizeProblemDetail, "description": "File too large"},
+        415: {"model": ProblemDetail, "description": "Unsupported media type"},
+        422: {"model": ValidationProblemDetail, "description": "Validation error"},
+    },
+    operation_id="correctCsvAlias",
+    include_in_schema=False
+)
+async def correct_csv_alias(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    marketplace: Marketplace = Query(...),
+    category: Category = Query(...),
+    options: Optional[str] = Query(None),
+    correlation_id: str = Depends(get_correlation_id),
+):
+    """Alias for /correct endpoint for backward compatibility."""
+    return await correct_csv_v2(
+        background_tasks=background_tasks,
+        file=file,
+        marketplace=marketplace,
+        category=category,
+        options=options,
+        correlation_id=correlation_id
+    )
+
+
+# Alias endpoint for correction preview
+@router.post(
+    "/correction_preview",
+    response_model=Dict[str, Any],
+    responses={
+        400: {"model": ProblemDetail, "description": "Bad request"},
+        413: {"model": FileSizeProblemDetail, "description": "File too large"},
+        422: {"model": ValidationProblemDetail, "description": "Validation error"},
+    },
+    operation_id="correctionPreview",
+    include_in_schema=False
+)
+async def correction_preview(
+    file: UploadFile = File(...),
+    marketplace: Marketplace = Query(...),
+    category: Category = Query(...),
+    sample_size: int = Query(100, ge=1, le=1000),
+    correlation_id: str = Depends(get_correlation_id),
+):
+    """Preview corrections that would be applied to a CSV file."""
+    try:
+        # Read and validate file
+        content = await file.read()
+        if len(content) > MAX_FILE_SIZE:
+            return problem_response(FileSizeProblemDetail(
+                detail=f"File too large. Maximum size is {MAX_FILE_SIZE/1024/1024:.1f}MB",
+                max_size_mb=MAX_FILE_SIZE/1024/1024,
+                provided_size_mb=len(content)/1024/1024,
+                instance="/api/v1/correction_preview",
+                correlation_id=correlation_id
+            ))
+        
+        # Process CSV with preview
+        df = pd.read_csv(io.BytesIO(content), nrows=sample_size)
+        
+        # Validate and get corrections
+        result = validation_pipeline.validate(
+            df=df,
+            marketplace=marketplace,
+            category=category,
+            auto_fix=True
+        )
+        
+        # Build preview response
+        preview_data = {
+            "sample_size": len(df),
+            "total_corrections": result.summary.total_corrections,
+            "corrections_by_field": {},
+            "preview_rows": []
+        }
+        
+        # Count corrections by field
+        for item in result.validation_items:
+            for correction in item.corrections:
+                field = correction.field
+                if field not in preview_data["corrections_by_field"]:
+                    preview_data["corrections_by_field"][field] = 0
+                preview_data["corrections_by_field"][field] += 1
+        
+        # Add first 10 rows with corrections
+        for item in result.validation_items[:10]:
+            if item.corrections:
+                preview_data["preview_rows"].append({
+                    "row": item.row_number,
+                    "corrections": [
+                        {
+                            "field": c.field,
+                            "before": c.original_value,
+                            "after": c.corrected_value,
+                            "type": c.correction_type
+                        }
+                        for c in item.corrections
+                    ]
+                })
+        
+        return preview_data
+        
+    except Exception as e:
+        logger.exception("Error in correction preview")
+        return problem_response(ProblemDetail(
+            type="https://validahub.com/errors/preview-error",
+            title="Preview Error",
+            status=500,
+            detail=f"Error generating preview: {str(e)}",
+            instance="/api/v1/correction_preview",
             correlation_id=correlation_id
         ))
 
