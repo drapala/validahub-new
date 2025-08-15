@@ -95,8 +95,12 @@ class RuleEngine:
             
         elif check_type == 'numeric_min':
             field = check['field']
-            min_val = check['value']  # Changed from 'min' to 'value'
-            if field in row and row[field] is not None:
+            # Support both 'value' and 'min' for backward compatibility
+            min_val = check.get('value', check.get('min'))
+            if min_val is None:
+                logger.error(f"Rule {rule_id}: 'numeric_min' check missing 'value' or 'min' field.")
+                passed = False
+            elif field in row and row[field] is not None:
                 try:
                     passed = float(row[field]) >= min_val
                 except (ValueError, TypeError):

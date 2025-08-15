@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from contextlib import asynccontextmanager
@@ -75,8 +75,13 @@ app.include_router(validation.router)  # Validation endpoints with YAML rule eng
 
 
 @app.get("/status")
-async def get_status():
+async def get_status(response: Response):
     """Legacy health check endpoint - use /health instead."""
+    # Add deprecation headers
+    response.headers["Deprecation"] = "true"
+    response.headers["Sunset"] = "2025-03-01"  # Set sunset date 3 months from now
+    response.headers["Link"] = '</health>; rel="successor-version"'
+    
     return {
         "ok": True,
         "version": settings.version,
@@ -86,7 +91,8 @@ async def get_status():
             "database": "up",
             "redis": "up",
             "s3": "up"
-        }
+        },
+        "deprecation_notice": "This endpoint is deprecated. Please use /health instead."
     }
 
 

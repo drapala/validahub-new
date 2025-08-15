@@ -12,8 +12,10 @@ import { AlertCircle, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { API_BASE } from '@/lib/env'
 
+const DEFAULT_MARKETPLACE = 'MERCADO_LIVRE'
+
 export default function ValidateRowPage() {
-  const [marketplace, setMarketplace] = useState('MERCADO_LIVRE')
+  const [marketplace, setMarketplace] = useState(DEFAULT_MARKETPLACE)
   const [category, setCategory] = useState('none')
   const [autoFix, setAutoFix] = useState(true)
   const [rowData, setRowData] = useState(`{

@@ -1,5 +1,42 @@
 # Technical Debt
 
+## Configuration Management
+
+### 1. Centralize Configuration Values
+**File:** `apps/api/src/api/v1/validation.py:50-51`
+
+**Issue:** Configuration values like MAX_SYNC_FILE_SIZE and MAX_FILE_SIZE are defined directly in the module rather than centralized in a settings/config module.
+
+**Current Code:**
+```python
+MAX_SYNC_FILE_SIZE = int(os.environ.get("MAX_SYNC_FILE_SIZE", 5 * 1024 * 1024))
+MAX_FILE_SIZE = int(os.environ.get("MAX_FILE_SIZE", 50 * 1024 * 1024))
+```
+
+**Impact:** Low - The current approach works but makes configuration management less organized.
+
+**Suggested Improvement:** Move these constants to `src/config.py` for centralized configuration management.
+
+---
+
+## Type System
+
+### 2. Python Typing Compatibility
+**File:** `apps/api/src/services/rule_engine_service.py`
+
+**Issue:** Using `tuple[...]` syntax requires Python 3.9+. For better compatibility, should use `Tuple` from typing module.
+
+**Current Code:**
+```python
+def validate_and_fix_row(...) -> tuple[Dict[str, Any], List[ValidationItem]]:
+```
+
+**Impact:** Low - CI/CD already uses Python 3.11, so this is not a current issue but could affect local development on older Python versions.
+
+**Suggested Improvement:** Use `from typing import Tuple` and change to `Tuple[Dict[str, Any], List[ValidationItem]]`
+
+---
+
 ## Code Quality Improvements
 
 ### 1. Rule Engine Mapping Logic Optimization
