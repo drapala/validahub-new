@@ -1,0 +1,126 @@
+version: "1.0"
+name: "Mercado Livre Validation Rules"
+description: "Validation rules specific to Mercado Livre marketplace"
+
+mappings:
+  ml_categories:
+    "Eletrônicos": "MLB1051"
+    "Moda": "MLB1430" 
+    "Casa": "MLB1459"
+    "Esportes": "MLB1276"
+    
+  ml_condition:
+    "new": "new"
+    "novo": "new"
+    "used": "used"
+    "usado": "used"
+    "refurbished": "refurbished"
+    "recondicionado": "refurbished"
+    
+  ml_listing_type:
+    "classico": "gold_special"
+    "premium": "gold_pro"
+    "gratis": "free"
+
+rules:
+  # Mercado Livre specific required fields
+  - id: "ml_id_required"
+    name: "ML ID is required"
+    check:
+      type: "required"
+      field: "ml_id"
+    meta:
+      severity: "ERROR"
+      marketplace: "mercadolivre"
+      
+  - id: "ml_category_id_required"
+    name: "ML Category ID is required"
+    check:
+      type: "required"
+      field: "category_id"
+    fix:
+      type: "set_default"
+      field: "category_id"
+      value: "MLB1430"  # Default to general category
+    meta:
+      severity: "ERROR"
+      
+  - id: "ml_title_length"
+    name: "Title must be between 10-60 characters"
+    check:
+      type: "required"
+      field: "title"
+    meta:
+      severity: "ERROR"
+      min_length: 10
+      max_length: 60
+      
+  - id: "ml_condition_valid"
+    name: "Product condition must be valid"
+    when: "condition"
+    check:
+      type: "in_set"
+      field: "condition"
+      values: ["new", "used", "refurbished", "novo", "usado", "recondicionado"]
+    fix:
+      type: "map_value"
+      field: "condition"
+      mapping: "ml_condition"
+      default: "new"
+    meta:
+      severity: "ERROR"
+      
+  - id: "ml_price_range"
+    name: "Price must be between R$ 0.01 and R$ 999999.99"
+    check:
+      type: "numeric_min"
+      field: "price"
+      value: 0.01
+    meta:
+      severity: "ERROR"
+      currency: "BRL"
+      max_value: 999999.99
+      
+  - id: "ml_quantity_range"
+    name: "Quantity must be between 1 and 999"
+    when: "available_quantity"
+    check:
+      type: "numeric_min"
+      field: "available_quantity"
+      value: 1
+    fix:
+      type: "set_default"
+      field: "available_quantity"
+      value: 1
+    meta:
+      severity: "WARNING"
+      max_value: 999
+      
+  - id: "ml_listing_type"
+    name: "Listing type must be valid"
+    when: "listing_type_id"
+    check:
+      type: "in_set"
+      field: "listing_type_id"
+      values: ["gold_special", "gold_pro", "free", "classico", "premium", "gratis"]
+    fix:
+      type: "map_value"
+      field: "listing_type_id"
+      mapping: "ml_listing_type"
+      default: "gold_special"
+    meta:
+      severity: "INFO"
+      
+  - id: "ml_shipping_mode"
+    name: "Shipping mode validation"
+    when: "shipping_mode"
+    check:
+      type: "in_set"
+      field: "shipping_mode"
+      values: ["me2", "not_specified", "custom"]
+    fix:
+      type: "set_default"
+      field: "shipping_mode"
+      value: "me2"  # Mercado Envios Full
+    meta:
+      severity: "INFO"

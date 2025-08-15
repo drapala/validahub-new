@@ -47,6 +47,9 @@ docs/workspace/CLAUDE.md
 *claude*.md
 .claude/
 
+# PR Review files
+PR_COPILOT_REVIEW.md
+
 # Python
 **/venv/
 **/venv_new/

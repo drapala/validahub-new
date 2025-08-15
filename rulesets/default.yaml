@@ -1,0 +1,111 @@
+version: "1.0"
+name: "Default Validation Rules"
+description: "Default ruleset for marketplace validation"
+
+mappings:
+  product_categories:
+    "Electronics": "ELETRONICOS"
+    "Clothing": "MODA"
+    "Home": "CASA"
+    "Sports": "ESPORTES"
+    
+  status_mapping:
+    "active": "ATIVO"
+    "inactive": "INATIVO"
+    "pending": "PENDENTE"
+
+rules:
+  # Required field validations
+  - id: "sku_required"
+    name: "SKU is required"
+    check:
+      type: "required"
+      field: "sku"
+    fix:
+      type: "set_default"
+      field: "sku"
+      value: "SKU-PENDING"
+    meta:
+      severity: "ERROR"
+      
+  - id: "title_required"
+    name: "Product title is required"
+    check:
+      type: "required"
+      field: "title"
+    meta:
+      severity: "ERROR"
+      
+  - id: "price_required"
+    name: "Price is required"
+    check:
+      type: "required" 
+      field: "price"
+    fix:
+      type: "set_default"
+      field: "price"
+      value: 0.01
+    meta:
+      severity: "ERROR"
+      
+  # Numeric validations
+  - id: "price_positive"
+    name: "Price must be positive"
+    when: "price"
+    check:
+      type: "numeric_min"
+      field: "price"
+      value: 0.01
+    fix:
+      type: "set_default"
+      field: "price"
+      value: 0.01
+    meta:
+      severity: "ERROR"
+      expected: "Price > 0"
+      
+  - id: "stock_non_negative"
+    name: "Stock cannot be negative"
+    when: "stock"
+    check:
+      type: "numeric_min"
+      field: "stock"
+      value: 0
+    fix:
+      type: "set_default"
+      field: "stock"
+      value: 0
+    meta:
+      severity: "WARNING"
+      
+  # Category validation
+  - id: "category_valid"
+    name: "Category must be valid"
+    when: "category"
+    check:
+      type: "in_set"
+      field: "category"
+      values: ["Electronics", "Clothing", "Home", "Sports", "Other"]
+    fix:
+      type: "map_value"
+      field: "category"
+      mapping: "product_categories"
+      default: "Other"
+    meta:
+      severity: "WARNING"
+      
+  # Status validation
+  - id: "status_valid"
+    name: "Status must be valid"
+    when: "status"
+    check:
+      type: "in_set"
+      field: "status"
+      values: ["active", "inactive", "pending"]
+    fix:
+      type: "map_value"
+      field: "status"
+      mapping: "status_mapping"
+      default: "pending"
+    meta:
+      severity: "WARNING"

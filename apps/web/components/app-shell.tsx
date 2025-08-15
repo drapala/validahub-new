@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Upload, ListChecks, ServerCog, Webhook, Code2, Settings, FileText } from "lucide-react";
+import { Upload, ListChecks, ServerCog, Webhook, Code2, Settings, FileText, CheckSquare } from "lucide-react";
 
 const NAV = [
   { href: "/upload", label: "Upload", icon: Upload },
+  { href: "/validate-row", label: "Validar Linha", icon: CheckSquare },
   { href: "/jobs", label: "Jobs", icon: ListChecks },
   { href: "/connectors", label: "Conectores", icon: ServerCog },
   { href: "/webhooks", label: "Webhooks", icon: Webhook },

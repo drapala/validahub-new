@@ -1,1 +1,0 @@
-"""Marketplace rules initialization"""
