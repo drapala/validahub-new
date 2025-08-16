@@ -312,6 +312,11 @@ class DatabaseRulesetRepository(IRulesetRepository):
         self.db_session = db_session
         logger.info("Database repository initialized")
     
+    def _get_session(self):
+        """Get database session."""
+        if self.db_session is None:
+            raise RuntimeError("Database session not configured. Please provide a valid session.")
+    
     async def get_ruleset(self, marketplace: str) -> Dict[str, Any]:
         """
         Load ruleset from database.
@@ -322,14 +327,30 @@ class DatabaseRulesetRepository(IRulesetRepository):
         Returns:
             Dict containing ruleset configuration
         """
-        # TODO: Implement database loading
-        logger.warning("Database repository not fully implemented")
-        return {
-            "version": "1.0",
-            "name": f"{marketplace} Rules",
-            "rules": [],
-            "mappings": {}
-        }
+        # Note: This is a placeholder implementation
+        # The actual implementation would depend on your ORM and database schema
+        logger.warning(f"Database loading for {marketplace} - implementation pending database schema")
+        
+        # Example implementation with SQLAlchemy (commented out):
+        # try:
+        #     async with self.db_session() as session:
+        #         from sqlalchemy import select
+        #         from ..models import Ruleset  # Assuming you have a Ruleset model
+        #         
+        #         stmt = select(Ruleset).where(Ruleset.marketplace == marketplace.lower())
+        #         result = await session.execute(stmt)
+        #         ruleset_obj = result.scalar_one_or_none()
+        #         
+        #         if ruleset_obj is None:
+        #             logger.warning(f"No ruleset found for {marketplace} in database")
+        #             return self._empty_ruleset(marketplace)
+        #         
+        #         return json.loads(ruleset_obj.data) if isinstance(ruleset_obj.data, str) else ruleset_obj.data
+        # except Exception as e:
+        #     logger.error(f"Error loading ruleset from database for {marketplace}: {e}")
+        #     return self._empty_ruleset(marketplace)
+        
+        return self._empty_ruleset(marketplace)
     
     async def save_ruleset(self, marketplace: str, ruleset: Dict[str, Any]) -> None:
         """
