@@ -182,8 +182,29 @@ async def validate_csv_v2(
     # Synchronous processing for small files
     try:
         # Read CSV file
-        content = await file.read()
-        csv_str = content.decode('utf-8', errors='replace')
+        try:
+            content = await file.read()
+        except OSError as e:
+            return problem_response(ProblemDetail(
+                type="https://validahub.com/errors/file-os-error",
+                title="File Access Error",
+                status=400,
+                detail=f"An OS error occurred while reading the file: {str(e)}",
+                instance="/api/v1/validate",
+                correlation_id=correlation_id
+            ))
+        
+        try:
+            csv_str = content.decode('utf-8', errors='strict')
+        except UnicodeDecodeError as e:
+            return problem_response(ProblemDetail(
+                type="https://validahub.com/errors/file-decode-error",
+                title="File Decode Error",
+                status=400,
+                detail="The uploaded file could not be decoded as UTF-8. Please ensure the file is a valid UTF-8 encoded CSV.",
+                instance="/api/v1/validate",
+                correlation_id=correlation_id
+            ))
         
         # Parse CSV to DataFrame
         df = pd.read_csv(io.StringIO(csv_str))
@@ -420,8 +441,29 @@ async def correct_csv_v2(
     # Synchronous processing
     try:
         # Read CSV file
-        content = await file.read()
-        csv_str = content.decode('utf-8', errors='replace')
+        try:
+            content = await file.read()
+        except OSError as e:
+            return problem_response(ProblemDetail(
+                type="https://validahub.com/errors/file-os-error",
+                title="File Access Error",
+                status=400,
+                detail=f"An OS error occurred while reading the file: {str(e)}",
+                instance="/api/v1/validate",
+                correlation_id=correlation_id
+            ))
+        
+        try:
+            csv_str = content.decode('utf-8', errors='strict')
+        except UnicodeDecodeError as e:
+            return problem_response(ProblemDetail(
+                type="https://validahub.com/errors/file-decode-error",
+                title="File Decode Error",
+                status=400,
+                detail="The uploaded file could not be decoded as UTF-8. Please ensure the file is a valid UTF-8 encoded CSV.",
+                instance="/api/v1/validate",
+                correlation_id=correlation_id
+            ))
         
         # Parse CSV to DataFrame
         df = pd.read_csv(io.StringIO(csv_str))
