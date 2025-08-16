@@ -58,15 +58,16 @@ class CeleryQueuePublisher:
     ) -> str:
         """Publish task to Celery queue."""
         
-        # Map task name to Celery task
+        # Map task name to full Celery task path
         task_mapping = {
-            "validate_csv": "validate_csv_job",
-            "correct_csv": "correct_csv_job",
-            "sync_connector": "sync_connector_job",
-            "generate_report": "generate_report_job"
+            "validate_csv_job": "src.workers.tasks.validate_csv_job",
+            "correct_csv_job": "src.workers.tasks.correct_csv_job",
+            "sync_connector_job": "src.workers.tasks.sync_connector_job",
+            "generate_report_job": "src.workers.tasks.generate_report_job"
         }
         
-        celery_task_name = task_mapping.get(task_name, task_name)
+        # Use full task path for Celery
+        celery_task_name = task_mapping.get(task_name, f"src.workers.tasks.{task_name}")
         
         # Generate job ID
         job_id = str(uuid.uuid4())

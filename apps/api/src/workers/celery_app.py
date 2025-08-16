@@ -209,9 +209,10 @@ def task_failure_handler(task_id, exception, args, kwargs, traceback, einfo, **k
                 job_id = args[0]
                 params = args[1] if isinstance(args[1], dict) else {}
                 telemetry = get_job_telemetry()
+                sender = kw.get('sender')
                 telemetry.emit_job_failed(
                     job_id=job_id,
-                    task_name=kw.get('sender', {}).name.split('.')[-1] if kw.get('sender') else "unknown",
+                    task_name=sender.name.split('.')[-1] if sender and hasattr(sender, 'name') else "unknown",
                     error=exception,
                     params=params,
                     correlation_id=job.correlation_id

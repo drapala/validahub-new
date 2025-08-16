@@ -6,6 +6,7 @@ Create Date: 2025-08-16 12:00:00.000000
 
 """
 from typing import Sequence, Union
+from datetime import datetime
 
 from alembic import op
 import sqlalchemy as sa
@@ -66,7 +67,7 @@ def upgrade() -> None:
     op.execute("CREATE INDEX idx_telemetry_events_metrics ON telemetry_events USING GIN (metrics)")
     
     # Create initial partitions (monthly)
-    current_year = 2025
+    current_year = datetime.now().year
     for month in range(1, 13):
         partition_name = f"telemetry_events_{current_year}_{month:02d}"
         start_date = f"{current_year}-{month:02d}-01"
@@ -169,7 +170,7 @@ def downgrade() -> None:
     op.drop_table('telemetry_metrics_hourly')
     
     # Drop all partitions
-    current_year = 2025
+    current_year = datetime.now().year
     for month in range(1, 13):
         partition_name = f"telemetry_events_{current_year}_{month:02d}"
         op.execute(f"DROP TABLE IF EXISTS {partition_name}")

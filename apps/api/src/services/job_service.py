@@ -15,7 +15,8 @@ from src.schemas.job import (
     JobCreate, JobOut, JobResultOut, JobListQuery, 
     JobListResponse, JobStatusUpdate, JobPlan
 )
-from src.workers.celery_app import celery_app
+from src.infrastructure.queue_publisher import QueuePublisher
+from src.infrastructure.queue_factory import get_queue_publisher
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,9 @@ logger = logging.getLogger(__name__)
 class JobService:
     """Service for managing asynchronous jobs with idempotency."""
     
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, queue_publisher: Optional[QueuePublisher] = None):
         self.db = db
+        self.queue_publisher = queue_publisher or get_queue_publisher()
     
     def create_job(
         self,
@@ -83,27 +85,37 @@ class JobService:
         self.db.add(job)
         self.db.flush()  # Get the ID before committing
         
-        # Submit to Celery
+        # Submit to queue via publisher
         try:
-            task = self._get_task_for_name(job_data.task)
+            # Validate task name
+            self._validate_task_name(job_data.task)
             
-            # Apply async with proper routing
-            result = task.apply_async(
-                args=[str(job.id), job_data.params],
-                task_id=str(job.id),  # Use job ID as task ID for easy correlation
+            # Prepare job context for task
+            job_context = {
+                "job_id": str(job.id),
+                "user_id": str(user_id),
+                "marketplace": job_data.params.get("marketplace", "unknown"),
+                "category": job_data.params.get("category", "unknown"),
+                "region": job_data.params.get("region", "default")
+            }
+            
+            # Merge context with params
+            task_payload = {**job_data.params, **job_context}
+            
+            # Publish to queue
+            task_id = self.queue_publisher.publish(
+                task_name=job_data.task,
+                payload=task_payload,
                 queue=queue,
                 priority=job_data.priority,
-                headers={
-                    "correlation_id": job.correlation_id,
-                    "user_id": str(user_id)
-                }
+                correlation_id=job.correlation_id
             )
             
-            # Store Celery task ID
-            job.celery_task_id = result.id
+            # Store task ID for tracking
+            job.celery_task_id = task_id
             
         except Exception as e:
-            logger.error(f"Failed to submit job to Celery: {e}")
+            logger.error(f"Failed to submit job to queue: {e}")
             job.status = JobStatus.FAILED
             job.error = f"Failed to queue job: {e}"
             self.db.commit()
@@ -236,16 +248,19 @@ class JobService:
                 detail=f"Cannot cancel job in {job.status.value} state"
             )
         
-        # Try to revoke from Celery
+        # Try to cancel task in queue
         if job.celery_task_id:
             try:
+                # For now, we still need Celery for cancellation
+                # This could be abstracted to QueuePublisher.cancel() in future
+                from src.workers.celery_app import celery_app
                 celery_app.control.revoke(
                     job.celery_task_id,
                     terminate=False  # Graceful termination
                 )
-                logger.info(f"Revoked Celery task {job.celery_task_id}")
+                logger.info(f"Revoked task {job.celery_task_id}")
             except Exception as e:
-                logger.error(f"Failed to revoke Celery task: {e}")
+                logger.error(f"Failed to revoke task: {e}")
         
         # Update job status
         job.status = JobStatus.CANCELLED
@@ -391,29 +406,18 @@ class JobService:
             JobPlan.ENTERPRISE: "queue:enterprise"
         }.get(plan, "queue:free")
     
-    def _get_task_for_name(self, task_name: str):
-        """Get Celery task by name."""
+    def _validate_task_name(self, task_name: str) -> None:
+        """Validate that task name is supported."""
         
-        from ..workers.tasks import (
-            validate_csv_job,
-            correct_csv_job,
-            sync_connector_job,
-            generate_report_job
-        )
+        supported_tasks = [
+            "validate_csv_job",
+            "correct_csv_job",
+            "sync_connector_job",
+            "generate_report_job"
+        ]
         
-        task_map = {
-            "validate_csv_job": validate_csv_job,
-            "correct_csv_job": correct_csv_job,
-            "sync_connector_job": sync_connector_job,
-            "generate_report_job": generate_report_job,
-        }
-        
-        task = task_map.get(task_name)
-        
-        if not task:
+        if task_name not in supported_tasks:
             raise ValueError(f"Unknown task: {task_name}")
-        
-        return task
     
     def _sync_job_status(self, job: Job) -> None:
         """Sync job status with Celery."""
@@ -422,6 +426,9 @@ class JobService:
             return
         
         try:
+            # Still need Celery for status sync
+            # This could be abstracted to QueuePublisher.get_status() in future
+            from src.workers.celery_app import celery_app
             from celery.result import AsyncResult
             
             result = AsyncResult(job.celery_task_id, app=celery_app)

@@ -19,15 +19,9 @@ from ..core.pipeline.validation_pipeline import ValidationPipeline
 from ..services.csv_validation_service import CSVValidationService
 from ..exceptions import TransientError
 from ..telemetry.job_telemetry import get_job_telemetry
+from ..telemetry.metrics import MetricsCollector, ValidationMetrics
 
 logger = logging.getLogger(__name__)
-
-# Mock CSV data for development/testing
-MOCK_CSV_DATA = """sku,title,price,stock,category
-SKU001,Product 1,10.99,5,Electronics
-SKU002,Product 2,25.50,0,Clothing
-,Product 3,-5,10,Electronics
-SKU004,,30.00,-1,"""
 
 
 @celery_app.task(
@@ -71,13 +65,24 @@ def validate_csv_job(
     logger.info(f"Starting validate_csv_job: job_id={job_id}, task_id={task_id}")
     
     try:
+        # Track start time for metrics
+        start_time = datetime.utcnow()
+        
         # Initialize services
         validation_service = CSVValidationService()
         telemetry = get_job_telemetry()
         
         # Update progress: Starting
         update_job_progress(task_id, 10, "Downloading input file")
-        telemetry.emit_job_progress(job_id, "validate_csv_job", 10, "Downloading input file", params)
+        
+        # Emit progress with enhanced metrics
+        telemetry.emit_job_progress(
+            job_id=job_id, 
+            task_name="validate_csv_job", 
+            progress=10, 
+            message="Downloading input file", 
+            params=params
+        )
         
         # Get input file
         input_uri = params.get("input_uri")
@@ -89,13 +94,30 @@ def validate_csv_job(
         
         # Update progress: File loaded
         update_job_progress(task_id, 30, "File loaded, starting validation")
-        telemetry.emit_job_progress(job_id, "validate_csv_job", 30, "File loaded, starting validation", params)
+        
+        # Emit progress with payload size metric
+        progress_metrics = {
+            "payload_size_bytes": len(csv_content.encode('utf-8'))
+        }
+        telemetry.emit_job_progress(
+            job_id=job_id,
+            task_name="validate_csv_job",
+            progress=30,
+            message=f"File loaded ({progress_metrics['payload_size_bytes']} bytes), starting validation",
+            params={**params, "metrics": progress_metrics}
+        )
         
         logger.info(f"Loaded CSV with {len(csv_content)} bytes")
         
         # Update progress: Validating
         update_job_progress(task_id, 50, "Validating data")
-        telemetry.emit_job_progress(job_id, "validate_csv_job", 50, "Validating data", params)
+        telemetry.emit_job_progress(
+            job_id=job_id,
+            task_name="validate_csv_job",
+            progress=50,
+            message="Validating data",
+            params=params
+        )
         
         # Extract parameters
         marketplace = params.get("marketplace", "mercado_livre")
@@ -112,12 +134,39 @@ def validate_csv_job(
             auto_fix=auto_fix
         )
         
-        # Calculate business metrics
-        metrics = validation_service.calculate_metrics(csv_content, validation_result)
+        # Calculate standardized business metrics
+        validation_metrics = MetricsCollector.collect_validation_metrics(
+            csv_content=csv_content,
+            validation_result=validation_result,
+            processing_time_ms=int((datetime.utcnow() - start_time).total_seconds() * 1000) if 'start_time' in locals() else None
+        )
         
-        # Update progress: Saving results
+        # Enrich with business context
+        validation_metrics = MetricsCollector.enrich_with_business_context(
+            validation_metrics, params
+        )
+        
+        # Calculate error rates
+        error_rates = MetricsCollector.calculate_error_rates(validation_metrics)
+        
+        # Convert to dict for serialization
+        metrics = validation_metrics.to_dict()
+        metrics.update(error_rates)
+        
+        # Update progress: Saving results with metrics
         update_job_progress(task_id, 80, "Saving validation results")
-        telemetry.emit_job_progress(job_id, "validate_csv_job", 80, "Saving validation results", params)
+        
+        # Emit progress with preliminary metrics
+        telemetry.emit_job_progress(
+            job_id=job_id,
+            task_name="validate_csv_job",
+            progress=80,
+            message=f"Saving results ({validation_result['total_rows']} rows processed)",
+            params={**params, "preliminary_metrics": {
+                "total_rows": validation_result["total_rows"],
+                "error_rows": validation_result["error_rows"]
+            }}
+        )
         
         # Add metadata to validation result
         validation_result["job_id"] = job_id
@@ -261,9 +310,9 @@ def _download_file(uri: str) -> str:
             return f.read()
     
     else:
-        # For MVP, return mock CSV data
-        logger.warning(f"File not found, returning mock data for: {uri}")
-        return MOCK_CSV_DATA
+        # Raise exception instead of silently using mock data
+        logger.error(f"File not found: {uri}")
+        raise FileNotFoundError(f"File not found: {uri}")
 
 
 def _save_result(job_id: str, result: Dict[str, Any]) -> str:
@@ -334,34 +383,83 @@ def _save_file(path: str, content: bytes) -> str:
 
 
 def _is_transient_error(error: Exception) -> bool:
-    """Check if error is transient and should be retried."""
+    """
+    Check if error is transient and should be retried.
     
-    # Check for known transient exception types
-    from botocore.exceptions import EndpointConnectionError, ConnectTimeoutError, ReadTimeoutError, ConnectionClosedError
+    Uses exception type checking for reliable detection of transient errors.
+    String matching is avoided to prevent false positives.
+    """
     
+    # Import AWS exceptions only if needed
+    try:
+        from botocore.exceptions import (
+            EndpointConnectionError, 
+            ConnectTimeoutError, 
+            ReadTimeoutError, 
+            ConnectionClosedError,
+            ClientError
+        )
+        
+        # Check for specific AWS transient errors
+        if isinstance(error, ClientError):
+            error_code = error.response.get('Error', {}).get('Code', '')
+            transient_error_codes = [
+                'ThrottlingException',
+                'TooManyRequestsException',
+                'RequestLimitExceeded',
+                'ServiceUnavailable',
+                'RequestTimeout',
+                'InternalServerError',
+                'InternalError'
+            ]
+            if error_code in transient_error_codes:
+                return True
+        
+        # AWS connection errors
+        aws_transient_types = (
+            EndpointConnectionError,
+            ConnectTimeoutError,
+            ReadTimeoutError,
+            ConnectionClosedError,
+        )
+        if isinstance(error, aws_transient_types):
+            return True
+            
+    except ImportError:
+        # botocore not available, skip AWS-specific checks
+        pass
+    
+    # Standard Python transient exception types
     transient_types = (
-        EndpointConnectionError,
-        ConnectTimeoutError,
-        ReadTimeoutError,
-        ConnectionClosedError,
-        ConnectionError,  # built-in
-        TimeoutError,     # built-in
-        OSError,          # network-related OS errors
+        ConnectionError,      # Network connection errors
+        TimeoutError,        # Operation timeouts
+        BrokenPipeError,     # Broken network pipe
+        ConnectionResetError, # Connection reset by peer
+        ConnectionAbortedError, # Connection aborted
     )
     
     if isinstance(error, transient_types):
         return True
     
-    # Fallback to string matching for unknown cases
-    transient_messages = [
-        "connection",
-        "timeout",
-        "temporarily",
-        "try again",
-        "service unavailable",
-        "too many requests",
-        "rate limit"
-    ]
+    # Check for specific OSError types that are transient
+    if isinstance(error, OSError):
+        # errno values that indicate transient network issues
+        import errno
+        transient_errno = [
+            errno.EAGAIN,      # Resource temporarily unavailable
+            errno.EWOULDBLOCK, # Operation would block
+            errno.EINPROGRESS, # Operation in progress
+            errno.ETIMEDOUT,   # Connection timed out
+            errno.ECONNRESET,  # Connection reset by peer
+            errno.ECONNREFUSED, # Connection refused
+            errno.EHOSTUNREACH, # No route to host
+            errno.ENETUNREACH,  # Network unreachable
+            errno.ENETDOWN,     # Network is down
+        ]
+        if hasattr(error, 'errno') and error.errno in transient_errno:
+            return True
     
-    error_str = str(error).lower()
-    return any(msg in error_str for msg in transient_messages)
+    # Default: not a transient error
+    # Avoid string matching to prevent false positives
+    logger.debug(f"Error not identified as transient: {type(error).__name__}: {error}")
+    return False

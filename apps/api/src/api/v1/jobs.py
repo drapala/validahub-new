@@ -2,7 +2,6 @@
 Job queue API endpoints.
 """
 
-import os
 import logging
 from typing import Optional
 from uuid import UUID
@@ -18,24 +17,11 @@ from src.schemas.job import (
     JobCreate, JobOut, JobResultOut, 
     JobListQuery, JobListResponse
 )
+from src.api.dependencies import get_current_user_id
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/jobs", tags=["jobs"])
-
-
-def get_current_user_id() -> str:
-    """
-    Get current user ID from authentication.
-    DEVELOPMENT ONLY: Returns a mock user ID. Raises error if not in development environment.
-    """
-    # TODO: Implement proper authentication
-    if os.environ.get("ENV") not in ["development", "dev", "local", None]:
-        raise RuntimeError(
-            "Mock user ID is only allowed in development. "
-            "Implement proper authentication for production use."
-        )
-    return "00000000-0000-0000-0000-000000000001"
 
 
 def get_correlation_id(

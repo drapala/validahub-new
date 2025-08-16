@@ -19,8 +19,12 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create enum types
-    op.execute("DO $$ BEGIN CREATE TYPE jobstatus AS ENUM ('queued', 'running', 'succeeded', 'failed', 'cancelled', 'expired', 'retrying'); EXCEPTION WHEN duplicate_object THEN null; END $$")
+    # Create enum types using SQLAlchemy for better Alembic integration
+    jobstatus_enum = sa.Enum(
+        'queued', 'running', 'succeeded', 'failed', 'cancelled', 'expired', 'retrying',
+        name='jobstatus'
+    )
+    jobstatus_enum.create(op.get_bind(), checkfirst=True)
     
     # Create jobs table
     op.create_table(
@@ -31,8 +35,7 @@ def upgrade() -> None:
         sa.Column('task_name', sa.String(100), nullable=False, index=True),
         sa.Column('queue', sa.String(50), nullable=False, server_default='queue:free'),
         sa.Column('priority', sa.Integer(), server_default='5'),
-        sa.Column('status', sa.Enum('queued', 'running', 'succeeded', 'failed', 'cancelled', 'expired', 'retrying', 
-                                   name='jobstatus', create_type=False), 
+        sa.Column('status', jobstatus_enum, 
                   nullable=False, server_default='queued', index=True),
         sa.Column('params_json', sa.JSON(), nullable=False, server_default='{}'),
         sa.Column('result_ref', sa.String(500)),
@@ -71,4 +74,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_table('job_results')
     op.drop_table('jobs')
-    op.execute('DROP TYPE jobstatus')
+    
+    # Drop enum type using SQLAlchemy
+    jobstatus_enum = sa.Enum(name='jobstatus')
+    jobstatus_enum.drop(op.get_bind(), checkfirst=True)
