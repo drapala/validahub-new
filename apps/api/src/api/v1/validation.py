@@ -136,7 +136,7 @@ async def validate_csv_v2(
             ))
     
     # Validate file type
-    if not file.filename.endswith(('.csv', '.CSV')):
+    if not file.filename or not file.filename.endswith(('.csv', '.CSV')):
         return problem_response(ProblemDetail(
             type="https://validahub.com/errors/invalid-file-type",
             title="Invalid File Type",
@@ -376,7 +376,7 @@ async def correct_csv_v2(
             ))
     
     # Validate file type
-    if not file.filename.endswith(('.csv', '.CSV')):
+    if not file.filename or not file.filename.endswith(('.csv', '.CSV')):
         return problem_response(ProblemDetail(
             type="https://validahub.com/errors/invalid-file-type",
             title="Invalid File Type",

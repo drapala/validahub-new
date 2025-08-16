@@ -182,10 +182,10 @@ class S3RulesetRepository(IRulesetRepository):
             ruleset = yaml.safe_load(content)
             return ruleset or self._empty_ruleset(marketplace)
             
-        except client.exceptions.NoSuchKey:
-            logger.warning(f"No ruleset found for {marketplace} in S3")
-            return self._empty_ruleset(marketplace)
         except Exception as e:
+            if 'NoSuchKey' in str(e.__class__.__name__):
+                logger.warning(f"No ruleset found for {marketplace} in S3")
+                return self._empty_ruleset(marketplace)
             logger.error(f"Error loading ruleset from S3 for {marketplace}: {e}")
             return self._empty_ruleset(marketplace)
     
@@ -275,9 +275,9 @@ class S3RulesetRepository(IRulesetRepository):
                 lambda: client.head_object(Bucket=self.bucket_name, Key=key)
             )
             return True
-        except client.exceptions.ClientError:
-            return False
         except Exception as e:
+            if 'ClientError' in str(e.__class__.__name__):
+                return False
             logger.error(f"Error checking existence in S3 for {marketplace}: {e}")
             return False
     
