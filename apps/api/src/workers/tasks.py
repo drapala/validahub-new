@@ -107,7 +107,7 @@ def validate_csv_job(
             import urllib.parse
             
             # Decode any URL-encoded sequences (handles all encoding variants)
-            decoded_uri = urllib.parse.unquote(input_uri, errors='strict')
+            decoded_uri = urllib.parse.unquote(input_uri, errors='replace')
             
             # Resolve to absolute path - this canonicalizes the path and resolves any '..' components
             # Path.resolve() is the most robust way to prevent path traversal
