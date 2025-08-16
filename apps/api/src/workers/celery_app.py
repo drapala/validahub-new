@@ -10,9 +10,11 @@ import logging
 from typing import Any, Dict
 import uuid
 
-from ..core.database import SessionLocal
-from ..models.job import Job, JobStatus
-from ..core.config import settings
+from src.db.base import SessionLocal
+from src.models.job import Job, JobStatus
+from src.config import settings
+from src.config.queue_config import get_queue_config
+from src.telemetry.job_telemetry import get_job_telemetry
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +32,16 @@ def create_celery_app() -> Celery:
         backend=REDIS_URL,
         include=["src.workers.tasks"]
     )
+    
+    # Load external queue configuration
+    queue_config = get_queue_config()
+    task_routes = queue_config.get_celery_task_routes()
+    
+    # Add full task names to routes
+    full_task_routes = {}
+    for task_name, route in task_routes.items():
+        full_task_name = f"src.workers.tasks.{task_name}"
+        full_task_routes[full_task_name] = route
     
     # Celery configuration
     celery_app.conf.update(
@@ -57,16 +69,11 @@ def create_celery_app() -> Celery:
         result_expires=86400,  # 24 hours
         result_persistent=True,
         
-        # Queue routing
-        task_routes={
-            "src.workers.tasks.validate_csv_job": {"queue": "queue:pro"},
-            "src.workers.tasks.correct_csv_job": {"queue": "queue:pro"},
-            "src.workers.tasks.sync_connector_job": {"queue": "queue:business"},
-            "src.workers.tasks.generate_report_job": {"queue": "queue:free"},
-        },
+        # Queue routing from external config
+        task_routes=full_task_routes,
         
         # Queue configuration
-        task_default_queue="queue:free",
+        task_default_queue=queue_config.get_queue_name("default"),
         task_queues={
             "queue:free": {
                 "routing_key": "free.#",
@@ -125,6 +132,18 @@ def task_prerun_handler(task_id, task, args, kwargs, **kw):
             job.message = "Task started"
             db.commit()
             logger.info(f"Job {job.id} started (task_id: {task_id})")
+            
+            # Emit telemetry event
+            if len(args) >= 2:
+                job_id = args[0]
+                params = args[1] if isinstance(args[1], dict) else {}
+                telemetry = get_job_telemetry()
+                telemetry.emit_job_started(
+                    job_id=job_id,
+                    task_name=task.name.split('.')[-1],
+                    params=params,
+                    correlation_id=job.correlation_id
+                )
         
         db.close()
     except Exception as e:
@@ -147,6 +166,19 @@ def task_postrun_handler(task_id, task, args, kwargs, retval, state, **kw):
                 # Store result reference if returned
                 if isinstance(retval, dict) and "result_ref" in retval:
                     job.result_ref = retval["result_ref"]
+                    
+                # Emit telemetry event
+                if len(args) >= 2:
+                    job_id = args[0]
+                    telemetry = get_job_telemetry()
+                    metrics = retval.get("metrics") if isinstance(retval, dict) else None
+                    telemetry.emit_job_completed(
+                        job_id=job_id,
+                        task_name=task.name.split('.')[-1],
+                        result=retval if isinstance(retval, dict) else {"status": "success"},
+                        metrics=metrics,
+                        correlation_id=job.correlation_id
+                    )
             
             job.finished_at = datetime.utcnow()
             db.commit()
@@ -171,6 +203,19 @@ def task_failure_handler(task_id, exception, args, kwargs, traceback, einfo, **k
             job.message = f"Task failed: {exception}"
             db.commit()
             logger.error(f"Job {job.id} failed (task_id: {task_id}): {exception}")
+            
+            # Emit telemetry event
+            if len(args) >= 2:
+                job_id = args[0]
+                params = args[1] if isinstance(args[1], dict) else {}
+                telemetry = get_job_telemetry()
+                telemetry.emit_job_failed(
+                    job_id=job_id,
+                    task_name=kw.get('sender', {}).name.split('.')[-1] if kw.get('sender') else "unknown",
+                    error=exception,
+                    params=params,
+                    correlation_id=job.correlation_id
+                )
         
         db.close()
     except Exception as e:
@@ -190,6 +235,22 @@ def task_retry_handler(task_id, reason, einfo, **kw):
             job.message = f"Retrying: {reason}"
             db.commit()
             logger.warning(f"Job {job.id} retrying (task_id: {task_id}): {reason}")
+            
+            # Emit telemetry event
+            telemetry = get_job_telemetry()
+            request = kw.get('request')
+            if request and hasattr(request, 'args') and len(request.args) >= 2:
+                job_id = request.args[0]
+                params = request.args[1] if isinstance(request.args[1], dict) else {}
+                telemetry.emit_job_retrying(
+                    job_id=job_id,
+                    task_name=request.task.split('.')[-1] if hasattr(request, 'task') else "unknown",
+                    retry_count=job.retry_count,
+                    max_retries=job.max_retries,
+                    error=einfo.exception if einfo else Exception(reason),
+                    params=params,
+                    correlation_id=job.correlation_id
+                )
         
         db.close()
     except Exception as e:

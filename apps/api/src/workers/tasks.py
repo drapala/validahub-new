@@ -16,13 +16,18 @@ from botocore.exceptions import ClientError
 from .celery_app import celery_app, DatabaseTask, update_job_progress
 from ..services.rule_engine_service import RuleEngineService
 from ..core.pipeline.validation_pipeline import ValidationPipeline
+from ..services.csv_validation_service import CSVValidationService
+from ..exceptions import TransientError
+from ..telemetry.job_telemetry import get_job_telemetry
 
 logger = logging.getLogger(__name__)
 
-# Transient errors that should trigger retry
-class TransientError(Exception):
-    """Transient error that should be retried."""
-    pass
+# Mock CSV data for development/testing
+MOCK_CSV_DATA = """sku,title,price,stock,category
+SKU001,Product 1,10.99,5,Electronics
+SKU002,Product 2,25.50,0,Clothing
+,Product 3,-5,10,Electronics
+SKU004,,30.00,-1,"""
 
 
 @celery_app.task(
@@ -66,8 +71,13 @@ def validate_csv_job(
     logger.info(f"Starting validate_csv_job: job_id={job_id}, task_id={task_id}")
     
     try:
+        # Initialize services
+        validation_service = CSVValidationService()
+        telemetry = get_job_telemetry()
+        
         # Update progress: Starting
         update_job_progress(task_id, 10, "Downloading input file")
+        telemetry.emit_job_progress(job_id, "validate_csv_job", 10, "Downloading input file", params)
         
         # Get input file
         input_uri = params.get("input_uri")
@@ -79,56 +89,45 @@ def validate_csv_job(
         
         # Update progress: File loaded
         update_job_progress(task_id, 30, "File loaded, starting validation")
+        telemetry.emit_job_progress(job_id, "validate_csv_job", 30, "File loaded, starting validation", params)
         
-        # Parse CSV
-        df = pd.read_csv(io.StringIO(csv_content))
-        total_rows = len(df)
-        
-        logger.info(f"Loaded CSV with {total_rows} rows")
-        
-        # Initialize validation pipeline
-        rule_engine = RuleEngineService()
-        pipeline = ValidationPipeline(rule_engine_service=rule_engine)
+        logger.info(f"Loaded CSV with {len(csv_content)} bytes")
         
         # Update progress: Validating
-        update_job_progress(task_id, 50, f"Validating {total_rows} rows")
+        update_job_progress(task_id, 50, "Validating data")
+        telemetry.emit_job_progress(job_id, "validate_csv_job", 50, "Validating data", params)
         
-        # Perform validation
+        # Extract parameters
         marketplace = params.get("marketplace", "mercado_livre")
         category = params.get("category", "general")
+        ruleset = params.get("ruleset", "default")
         auto_fix = params.get("auto_fix", False)
         
-        result = pipeline.validate(
-            df=df,
+        # Use domain service for validation
+        validation_result, corrected_csv = validation_service.validate_csv_content(
+            csv_content=csv_content,
             marketplace=marketplace,
             category=category,
+            ruleset=ruleset,
             auto_fix=auto_fix
         )
         
+        # Calculate business metrics
+        metrics = validation_service.calculate_metrics(csv_content, validation_result)
+        
         # Update progress: Saving results
         update_job_progress(task_id, 80, "Saving validation results")
+        telemetry.emit_job_progress(job_id, "validate_csv_job", 80, "Saving validation results", params)
         
-        # Prepare result
-        validation_result = {
-            "job_id": job_id,
-            "timestamp": datetime.utcnow().isoformat(),
-            "total_rows": result.total_rows,
-            "valid_rows": result.valid_rows,
-            "error_rows": result.error_rows,
-            "warning_rows": result.warning_rows,
-            "summary": result.summary.model_dump() if hasattr(result.summary, 'model_dump') else result.summary,
-            "validation_items": [
-                item.model_dump() if hasattr(item, 'model_dump') else item
-                for item in result.validation_items[:100]  # Limit for storage
-            ]
-        }
+        # Add metadata to validation result
+        validation_result["job_id"] = job_id
+        validation_result["timestamp"] = datetime.utcnow().isoformat()
         
         # Save result to storage
         result_ref = _save_result(job_id, validation_result)
         
         # Save corrected data if available
-        if auto_fix and result.corrected_data is not None:
-            corrected_csv = result.corrected_data.to_csv(index=False)
+        if corrected_csv:
             corrected_ref = _save_file(
                 f"corrected/{job_id}.csv",
                 corrected_csv.encode('utf-8')
@@ -143,12 +142,15 @@ def validate_csv_job(
         return {
             "result_ref": result_ref,
             "summary": {
-                "total_rows": result.total_rows,
-                "valid_rows": result.valid_rows,
-                "error_rows": result.error_rows,
-                "warning_rows": result.warning_rows
+                "total_rows": validation_result["total_rows"],
+                "valid_rows": validation_result["valid_rows"],
+                "error_rows": validation_result["error_rows"],
+                "warning_rows": validation_result["warning_rows"]
             },
-            "status": "success"
+            "status": "success",
+            "marketplace": marketplace,
+            "category": category,
+            "metrics": metrics
         }
         
     except Exception as e:
@@ -261,11 +263,7 @@ def _download_file(uri: str) -> str:
     else:
         # For MVP, return mock CSV data
         logger.warning(f"File not found, returning mock data for: {uri}")
-        return """sku,title,price,stock,category
-SKU001,Product 1,10.99,5,Electronics
-SKU002,Product 2,25.50,0,Clothing
-,Product 3,-5,10,Electronics
-SKU004,,30.00,-1,"""
+        return MOCK_CSV_DATA
 
 
 def _save_result(job_id: str, result: Dict[str, Any]) -> str:
@@ -338,12 +336,31 @@ def _save_file(path: str, content: bytes) -> str:
 def _is_transient_error(error: Exception) -> bool:
     """Check if error is transient and should be retried."""
     
+    # Check for known transient exception types
+    from botocore.exceptions import EndpointConnectionError, ConnectTimeoutError, ReadTimeoutError, ConnectionClosedError
+    
+    transient_types = (
+        EndpointConnectionError,
+        ConnectTimeoutError,
+        ReadTimeoutError,
+        ConnectionClosedError,
+        ConnectionError,  # built-in
+        TimeoutError,     # built-in
+        OSError,          # network-related OS errors
+    )
+    
+    if isinstance(error, transient_types):
+        return True
+    
+    # Fallback to string matching for unknown cases
     transient_messages = [
         "connection",
         "timeout",
         "temporarily",
         "try again",
-        "service unavailable"
+        "service unavailable",
+        "too many requests",
+        "rate limit"
     ]
     
     error_str = str(error).lower()

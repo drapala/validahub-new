@@ -10,12 +10,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
 from fastapi import HTTPException, status
 
-from ..models.job import Job, JobStatus, JobResult
-from ..schemas.job import (
+from src.models.job import Job, JobStatus, JobResult
+from src.schemas.job import (
     JobCreate, JobOut, JobResultOut, JobListQuery, 
     JobListResponse, JobStatusUpdate, JobPlan
 )
-from ..workers.celery_app import celery_app
+from src.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 

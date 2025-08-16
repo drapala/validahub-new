@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Create enum types
-    op.execute("CREATE TYPE jobstatus AS ENUM ('queued', 'running', 'succeeded', 'failed', 'cancelled', 'expired', 'retrying')")
+    op.execute("DO $$ BEGIN CREATE TYPE jobstatus AS ENUM ('queued', 'running', 'succeeded', 'failed', 'cancelled', 'expired', 'retrying'); EXCEPTION WHEN duplicate_object THEN null; END $$")
     
     # Create jobs table
     op.create_table(
@@ -41,7 +41,7 @@ def upgrade() -> None:
         sa.Column('message', sa.Text()),
         sa.Column('idempotency_key', sa.String(255), index=True),
         sa.Column('correlation_id', sa.String(100), index=True),
-        sa.Column('celery_task_id', sa.String(155), unique=True, index=True),
+        sa.Column('celery_task_id', sa.String(255), unique=True, index=True),
         sa.Column('retry_count', sa.Integer(), server_default='0'),
         sa.Column('max_retries', sa.Integer(), server_default='3'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), index=True),
@@ -49,7 +49,7 @@ def upgrade() -> None:
         sa.Column('started_at', sa.DateTime(timezone=True)),
         sa.Column('finished_at', sa.DateTime(timezone=True)),
         sa.Column('expires_at', sa.DateTime(timezone=True)),
-        sa.Column('metadata', sa.JSON(), server_default='{}'),
+        sa.Column('job_metadata', sa.JSON(), server_default='{}'),
     )
     
     # Add composite indexes and constraints

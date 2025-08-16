@@ -12,7 +12,7 @@ from datetime import datetime
 import enum
 import uuid
 
-from ..core.database import Base
+from src.db.base import Base
 
 
 class JobStatus(str, enum.Enum):
@@ -51,7 +51,7 @@ class Job(Base):
     queue = Column(String(50), nullable=False, default="queue:free")
     priority = Column(Integer, default=JobPriority.NORMAL.value)
     status = Column(
-        SQLEnum(JobStatus), 
+        SQLEnum(JobStatus, values_callable=lambda x: [e.value for e in x]), 
         nullable=False, 
         default=JobStatus.QUEUED,
         index=True
@@ -73,7 +73,7 @@ class Job(Base):
     correlation_id = Column(String(100), index=True)
     
     # Celery integration
-    celery_task_id = Column(String(155), unique=True, index=True)
+    celery_task_id = Column(String(255), unique=True, index=True)
     
     # Retry tracking
     retry_count = Column(Integer, default=0)
@@ -87,7 +87,7 @@ class Job(Base):
     expires_at = Column(DateTime(timezone=True))
     
     # Metadata
-    metadata = Column(JSON, default={})
+    job_metadata = Column(JSON, default={})
     
     # Constraints
     __table_args__ = (
@@ -121,7 +121,7 @@ class Job(Base):
             "started_at": self.started_at.isoformat() if self.started_at else None,
             "finished_at": self.finished_at.isoformat() if self.finished_at else None,
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
-            "metadata": self.metadata
+            "metadata": self.job_metadata
         }
 
 
