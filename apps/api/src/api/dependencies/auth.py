@@ -29,8 +29,23 @@ def get_current_user_id() -> str:
     is_development = env in ["development", "dev", "local", "test"]
     
     if is_development:
-        # Return mock user ID for development
-        mock_user_id = "00000000-0000-0000-0000-000000000001"
+        # Return mock user ID for development (can be overridden by env var)
+        mock_user_id = os.environ.get(
+            "MOCK_USER_ID", 
+            "00000000-0000-0000-0000-000000000001"
+        )
+        
+        # Additional safety check: ensure we're truly in development
+        if not os.environ.get("ALLOW_MOCK_AUTH"):
+            logger.warning(
+                "Mock authentication attempted without ALLOW_MOCK_AUTH=true. "
+                "Set this environment variable to enable mock auth in development."
+            )
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required. Set ALLOW_MOCK_AUTH=true for development."
+            )
+        
         logger.debug(f"Using mock user ID: {mock_user_id}")
         return mock_user_id
     

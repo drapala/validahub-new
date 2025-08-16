@@ -24,7 +24,7 @@ from ..services.rule_engine_service import RuleEngineService
 from ..core.pipeline.validation_pipeline import ValidationPipeline
 from ..services.csv_validation_service import CSVValidationService
 from ..services.storage_service import get_storage_service
-from ..exceptions import TransientError
+from ..exceptions import TransientError, MissingParameterError
 from ..telemetry.job_telemetry import get_job_telemetry
 from ..telemetry.metrics import MetricsCollector, ValidationMetrics
 
@@ -95,7 +95,10 @@ def validate_csv_job(
         # Get input file
         input_uri = params.get("input_uri")
         if not input_uri:
-            raise ValueError("input_uri is required")
+            raise MissingParameterError(
+                "input_uri is required in params for validate_csv_job",
+                parameter_name="input_uri"
+            )
         
         # Download or read file using storage service
         csv_content = storage_service.download_file(input_uri)

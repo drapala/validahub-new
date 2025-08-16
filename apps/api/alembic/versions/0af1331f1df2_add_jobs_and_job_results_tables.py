@@ -56,7 +56,14 @@ def upgrade() -> None:
     )
     
     # Add composite indexes and constraints
-    op.create_unique_constraint('uq_user_idempotency', 'jobs', ['user_id', 'idempotency_key'])
+    # Create partial unique index that only applies when idempotency_key is not NULL
+    op.create_index(
+        'uq_user_idempotency_nonnull',
+        'jobs',
+        ['user_id', 'idempotency_key'],
+        unique=True,
+        postgresql_where=sa.text('idempotency_key IS NOT NULL')
+    )
     op.create_index('ix_jobs_user_status', 'jobs', ['user_id', 'status'])
     op.create_index('ix_jobs_created_at_desc', 'jobs', [sa.text('created_at DESC')])
     

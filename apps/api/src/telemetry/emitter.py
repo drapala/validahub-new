@@ -5,6 +5,7 @@ Telemetry emitter interface and implementations.
 import json
 import logging
 import uuid
+import os
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, Any, Optional, Protocol
@@ -84,10 +85,22 @@ class LoggingTelemetryEmitter:
 class FileBasedTelemetryEmitter:
     """Telemetry emitter that writes to JSON files (for development/testing)."""
     
-    def __init__(self, output_dir: str = "/tmp/telemetry"):
+    def __init__(self, output_dir: Optional[str] = None):
         """Initialize with output directory."""
+        if output_dir is None:
+            # Use a secure, user-specific default directory
+            output_dir = os.path.expanduser("~/.local/share/validahub/telemetry")
+        else:
+            output_dir = os.path.expanduser(output_dir)
+        
         self.output_dir = Path(output_dir)
+        # Create directory with restrictive permissions (0700)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            os.chmod(self.output_dir, 0o700)
+        except OSError:
+            # May fail on some systems, but directory was created
+            pass
         
     def emit(
         self,

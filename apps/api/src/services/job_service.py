@@ -50,6 +50,9 @@ class JobService:
             Tuple of (JobOut, is_new) where is_new indicates if job was created
         """
         
+        # Validate task name before any database operations
+        self._validate_task_name(job_data.task)
+        
         # Check idempotency if key provided
         if job_data.idempotency_key:
             existing_job = self._check_idempotency(user_id, job_data.idempotency_key)
@@ -99,8 +102,6 @@ class JobService:
         
         # Submit to queue via publisher
         try:
-            # Validate task name
-            self._validate_task_name(job_data.task)
             
             # Prepare job context for task
             job_context = {

@@ -97,7 +97,7 @@ class Job(Base):
             'user_id',
             'idempotency_key',
             unique=True,
-            postgresql_where=(idempotency_key != None)
+            postgresql_where=(idempotency_key.isnot(None))
         ),
         Index('ix_jobs_user_status', 'user_id', 'status'),
         Index('ix_jobs_created_at_desc', created_at.desc()),
