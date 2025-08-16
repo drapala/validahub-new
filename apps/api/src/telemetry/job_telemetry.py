@@ -19,8 +19,22 @@ class JobTelemetry:
     def __init__(self, emitter=None):
         """Initialize with optional emitter."""
         self.emitter = emitter or get_telemetry_emitter()
-        self._start_times: Dict[str, float] = {}
-        self._queue_times: Dict[str, float] = {}
+        # Use thread-local storage for timing data to avoid race conditions
+        self._local = threading.local()
+    
+    @property
+    def _start_times(self) -> Dict[str, float]:
+        """Get thread-local start times dictionary."""
+        if not hasattr(self._local, 'start_times'):
+            self._local.start_times = {}
+        return self._local.start_times
+    
+    @property
+    def _queue_times(self) -> Dict[str, float]:
+        """Get thread-local queue times dictionary."""
+        if not hasattr(self._local, 'queue_times'):
+            self._local.queue_times = {}
+        return self._local.queue_times
         
     def emit_job_queued(
         self,

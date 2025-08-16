@@ -195,6 +195,8 @@ def validate_csv_job(
         )
         
         # Calculate error rates
+        # Note: For very large CSV files (>1GB), consider streaming metrics calculation
+        # or deferring detailed metrics to a separate background task
         error_rates = MetricsCollector.calculate_error_rates(validation_metrics)
         
         # Convert to dict for serialization (optimized)
