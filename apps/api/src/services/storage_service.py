@@ -9,6 +9,7 @@ import logging
 from typing import Optional, Dict, Any
 from datetime import datetime
 import tempfile
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +48,12 @@ class StorageService:
         
         if uri.startswith("s3://"):
             return self._download_from_s3(uri)
-        elif os.path.exists(uri):
+        elif self._is_safe_path(self.temp_dir, uri) and os.path.exists(uri):
             return self._read_local_file(uri)
         else:
             # Log sanitized error for security (only filename, no full path)
             safe_name = os.path.basename(uri) if uri else "unknown"
-            logger.error(f"File not found: {safe_name}")
+            logger.error(f"File not found or access denied: {safe_name}")
             raise FileNotFoundError("File not found")
     
     def save_result(self, job_id: str, result: Dict[str, Any]) -> str:
@@ -131,8 +132,36 @@ class StorageService:
             logger.error(f"Error downloading from S3: {type(e).__name__}")
             raise
     
+    def _is_safe_path(self, base_dir: str, path: str) -> bool:
+        """
+        Check if path is safe and within allowed directory.
+        
+        Args:
+            base_dir: Base directory that path must be within
+            path: Path to validate
+            
+        Returns:
+            True if path is safe, False otherwise
+        """
+        try:
+            # Resolve both paths to absolute, normalized paths
+            base = Path(base_dir).resolve()
+            target = Path(path).resolve()
+            
+            # Check if target is within base directory
+            return target.is_relative_to(base)
+        except Exception:
+            # If we can't resolve paths, consider it unsafe
+            return False
+    
     def _read_local_file(self, path: str) -> str:
-        """Read local file."""
+        """Read local file with path validation."""
+        
+        # Validate path is within allowed directory
+        if not self._is_safe_path(self.temp_dir, path):
+            safe_name = os.path.basename(path) if path else "unknown"
+            logger.error(f"Attempted path traversal or access outside allowed directory: {safe_name}")
+            raise FileNotFoundError("File not found")
         
         try:
             with open(path, "r", encoding="utf-8") as f:

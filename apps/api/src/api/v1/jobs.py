@@ -250,8 +250,20 @@ async def list_jobs(
     # Build query object
     from ...models.job import JobStatus
     
+    # Validate and convert status with proper error handling
+    job_status = None
+    if status:
+        try:
+            job_status = JobStatus(status)
+        except ValueError:
+            allowed = [e.value for e in JobStatus]
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Invalid status value '{status}'. Allowed values are: {allowed}"
+            )
+    
     query = JobListQuery(
-        status=JobStatus(status) if status else None,
+        status=job_status,
         task_name=task_name,
         limit=limit,
         offset=offset,

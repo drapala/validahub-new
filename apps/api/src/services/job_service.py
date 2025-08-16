@@ -263,14 +263,12 @@ class JobService:
         # Try to cancel task in queue
         if job.celery_task_id:
             try:
-                # For now, we still need Celery for cancellation
-                # This could be abstracted to QueuePublisher.cancel() in future
-                from src.workers.celery_app import celery_app
-                celery_app.control.revoke(
-                    job.celery_task_id,
-                    terminate=False  # Graceful termination
-                )
-                logger.info(f"Revoked task {job.celery_task_id}")
+                queue_publisher = get_queue_publisher()
+                success = queue_publisher.cancel(job.celery_task_id, terminate=False)
+                if success:
+                    logger.info(f"Revoked task {job.celery_task_id}")
+                else:
+                    logger.warning(f"Failed to revoke task {job.celery_task_id}")
             except Exception as e:
                 logger.error(f"Failed to revoke task: {e}")
         
@@ -432,44 +430,46 @@ class JobService:
             raise ValueError(f"Unknown task: {task_name}")
     
     def _sync_job_status(self, job: Job) -> None:
-        """Sync job status with Celery."""
+        """Sync job status with the queue backend via QueuePublisher."""
         
         if not job.celery_task_id:
             return
         
         try:
-            # Still need Celery for status sync
-            # This could be abstracted to QueuePublisher.get_status() in future
-            from src.workers.celery_app import celery_app
-            from celery.result import AsyncResult
+            queue_publisher = get_queue_publisher()
+            status_info = queue_publisher.get_status(job.celery_task_id)
             
-            result = AsyncResult(job.celery_task_id, app=celery_app)
+            if status_info is None:
+                # Task not found or still pending
+                return
             
-            # Map Celery state to JobStatus
-            if result.state == "PENDING":
-                job.status = JobStatus.QUEUED
-            elif result.state == "STARTED":
-                job.status = JobStatus.RUNNING
-            elif result.state == "SUCCESS":
-                job.status = JobStatus.SUCCEEDED
-                job.progress = 100.0
-            elif result.state == "FAILURE":
-                job.status = JobStatus.FAILED
-                if result.info:
-                    job.error = str(result.info)
-            elif result.state == "RETRY":
-                job.status = JobStatus.RETRYING
-            elif result.state == "REVOKED":
-                job.status = JobStatus.CANCELLED
+            # Map queue status to JobStatus
+            status_map = {
+                'queued': JobStatus.QUEUED,
+                'processing': JobStatus.RUNNING,
+                'completed': JobStatus.SUCCEEDED,
+                'failed': JobStatus.FAILED,
+                'cancelled': JobStatus.CANCELLED,
+                'retrying': JobStatus.RETRYING
+            }
             
-            # Get progress from result info if available
-            if result.info and isinstance(result.info, dict):
-                if "progress" in result.info:
-                    job.progress = result.info["progress"]
-                if "message" in result.info:
-                    job.message = result.info["message"]
+            if 'status' in status_info:
+                new_status = status_map.get(status_info['status'])
+                if new_status:
+                    job.status = new_status
+                    if new_status == JobStatus.SUCCEEDED:
+                        job.progress = 100.0
+            
+            if 'progress' in status_info and status_info['progress'] is not None:
+                job.progress = float(status_info['progress'])
+            
+            if 'message' in status_info and status_info['message']:
+                job.message = status_info['message']
+            
+            if 'error' in status_info and status_info['error']:
+                job.error = status_info['error']
             
             self.db.commit()
             
         except Exception as e:
-            logger.error(f"Failed to sync job status from Celery: {e}")
+            logger.error(f"Failed to sync job status from queue backend: {e}")

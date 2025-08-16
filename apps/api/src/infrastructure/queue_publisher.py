@@ -38,6 +38,32 @@ class QueuePublisher(Protocol):
             Task ID for tracking
         """
         ...
+    
+    def cancel(self, task_id: str, terminate: bool = False) -> bool:
+        """
+        Cancel a queued or running task.
+        
+        Args:
+            task_id: Task ID to cancel
+            terminate: If True, forcefully terminate. If False, graceful cancellation.
+            
+        Returns:
+            True if cancellation was successful, False otherwise
+        """
+        ...
+    
+    def get_status(self, task_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get the status of a task.
+        
+        Args:
+            task_id: Task ID to check
+            
+        Returns:
+            Status info dict with keys: status, progress, message, error
+            or None if task not found
+        """
+        ...
 
 
 class CeleryQueuePublisher:
@@ -72,11 +98,14 @@ class CeleryQueuePublisher:
         # Generate job ID
         job_id = str(uuid.uuid4())
         
+        # Generate a single task ID for both Celery and job tracking
+        task_id = str(uuid.uuid4())
+        
         # Prepare Celery options
         apply_options = {
             "queue": queue,
             "priority": priority,
-            "task_id": str(uuid.uuid4())  # Celery task ID
+            "task_id": task_id  # Celery task ID
         }
         
         if delay_seconds:
@@ -98,6 +127,48 @@ class CeleryQueuePublisher:
         )
         
         return task.id
+    
+    def cancel(self, task_id: str, terminate: bool = False) -> bool:
+        """Cancel a Celery task."""
+        try:
+            self.celery_app.control.revoke(
+                task_id,
+                terminate=terminate
+            )
+            logger.info(f"Cancelled task {task_id} (terminate={terminate})")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to cancel task {task_id}: {e}")
+            return False
+    
+    def get_status(self, task_id: str) -> Optional[Dict[str, Any]]:
+        """Get Celery task status."""
+        try:
+            from celery.result import AsyncResult
+            result = AsyncResult(task_id, app=self.celery_app)
+            
+            if result.state == 'PENDING':
+                # Task not found or waiting
+                return None
+            
+            status_map = {
+                'PENDING': 'queued',
+                'STARTED': 'processing',
+                'SUCCESS': 'completed',
+                'FAILURE': 'failed',
+                'RETRY': 'processing',
+                'REVOKED': 'cancelled'
+            }
+            
+            return {
+                'status': status_map.get(result.state, result.state.lower()),
+                'progress': result.info.get('current', 0) if isinstance(result.info, dict) else None,
+                'message': result.info.get('status', '') if isinstance(result.info, dict) else str(result.info),
+                'error': str(result.info) if result.state == 'FAILURE' else None
+            }
+        except Exception as e:
+            logger.error(f"Failed to get status for task {task_id}: {e}")
+            return None
 
 
 class SQSQueuePublisher:
@@ -151,6 +222,20 @@ class SQSQueuePublisher:
         logger.info(f"Published task {task_name} to SQS queue {queue} with message_id={message_id}")
         
         return message_id
+    
+    def cancel(self, task_id: str, terminate: bool = False) -> bool:
+        """Cancel an SQS message (not fully supported by SQS)."""
+        # SQS doesn't support true task cancellation
+        # Would need to implement a cancellation token pattern
+        logger.warning(f"SQS cancellation not fully supported for task {task_id}")
+        return False
+    
+    def get_status(self, task_id: str) -> Optional[Dict[str, Any]]:
+        """Get SQS task status (limited support)."""
+        # SQS doesn't maintain task state
+        # Would need external state store (DynamoDB, Redis, etc.)
+        logger.warning(f"SQS status checking not fully supported for task {task_id}")
+        return None
 
 
 class InMemoryQueuePublisher:
@@ -197,3 +282,27 @@ class InMemoryQueuePublisher:
     def get_queue(self, queue: str = "default") -> list:
         """Get all tasks in a queue (for testing)."""
         return self.queues.get(queue, [])
+    
+    def cancel(self, task_id: str, terminate: bool = False) -> bool:
+        """Cancel a task in the in-memory queue."""
+        for queue_name, tasks in self.queues.items():
+            for i, task in enumerate(tasks):
+                if task['id'] == task_id:
+                    del tasks[i]
+                    logger.info(f"Cancelled task {task_id} from queue {queue_name}")
+                    return True
+        logger.warning(f"Task {task_id} not found in any queue")
+        return False
+    
+    def get_status(self, task_id: str) -> Optional[Dict[str, Any]]:
+        """Get status of a task in the in-memory queue."""
+        for queue_name, tasks in self.queues.items():
+            for task in tasks:
+                if task['id'] == task_id:
+                    return {
+                        'status': 'queued',
+                        'progress': 0,
+                        'message': f"In queue {queue_name}",
+                        'error': None
+                    }
+        return None

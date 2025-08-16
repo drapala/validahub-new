@@ -41,10 +41,10 @@ def get_current_user_id() -> str:
     # 3. Extract user ID from token claims
     # 4. Optional: Check user permissions/roles
     
-    # For now, raise an error to prevent unintentional production use
-    raise RuntimeError(
-        "Authentication not implemented for production. "
-        "Please implement proper authentication before deploying to production."
+    # For now, raise an HTTP error to prevent unintentional production use
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Authentication not implemented for production. Please implement proper authentication before deploying to production."
     )
 
 

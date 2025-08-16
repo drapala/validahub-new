@@ -63,20 +63,12 @@ def upgrade() -> None:
     op.execute("CREATE INDEX idx_telemetry_events_payload ON telemetry_events USING GIN (payload)")
     op.execute("CREATE INDEX idx_telemetry_events_metrics ON telemetry_events USING GIN (metrics)")
     
-    # Create initial partitions (monthly)
-    current_year = datetime.now().year
-    for month in range(1, 13):
-        partition_name = f"telemetry_events_{current_year}_{month:02d}"
-        start_date = f"{current_year}-{month:02d}-01"
-        if month == 12:
-            end_date = f"{current_year + 1}-01-01"
-        else:
-            end_date = f"{current_year}-{month + 1:02d}-01"
-            
-        op.execute(f"""
-            CREATE TABLE {partition_name} PARTITION OF telemetry_events
-            FOR VALUES FROM ('{start_date}') TO ('{end_date}');
-        """)
+    # Create a single default partition covering a wide date range
+    # This avoids migration failures at year boundaries and simplifies management
+    op.execute("""
+        CREATE TABLE telemetry_events_default PARTITION OF telemetry_events
+        FOR VALUES FROM ('2020-01-01') TO ('2100-01-01');
+    """)
     
     # Create aggregated metrics table for dashboard queries
     op.create_table(

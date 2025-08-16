@@ -91,7 +91,14 @@ class Job(Base):
     
     # Constraints
     __table_args__ = (
-        UniqueConstraint('user_id', 'idempotency_key', name='uq_user_idempotency'),
+        # Create a partial unique constraint that only applies when idempotency_key is not NULL
+        Index(
+            'uq_user_idempotency_nonnull',
+            'user_id',
+            'idempotency_key',
+            unique=True,
+            postgresql_where=(idempotency_key != None)
+        ),
         Index('ix_jobs_user_status', 'user_id', 'status'),
         Index('ix_jobs_created_at_desc', created_at.desc()),
     )

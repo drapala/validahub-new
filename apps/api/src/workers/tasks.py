@@ -133,6 +133,12 @@ def validate_csv_job(
         ruleset = params.get("ruleset", "default")
         auto_fix = params.get("auto_fix", False)
         
+        # Validate ruleset against whitelist to prevent path traversal/injection
+        ALLOWED_RULESETS = {"default", "strict", "lenient", "minimal", "comprehensive"}
+        if ruleset not in ALLOWED_RULESETS:
+            logger.warning(f"Invalid ruleset '{ruleset}' provided. Falling back to 'default'.")
+            ruleset = "default"
+        
         # Use domain service for validation
         validation_result, corrected_csv = validation_service.validate_csv_content(
             csv_content=csv_content,
@@ -294,14 +300,10 @@ def generate_report_job(
 
 # Helper functions
 
-def _is_transient_error(error: Exception) -> bool:
+def _is_aws_transient_error(error: Exception) -> bool:
     """
-    Check if error is transient and should be retried.
-    
-    Uses exception type checking for reliable detection of transient errors.
-    String matching is avoided to prevent false positives.
+    Check if error is an AWS-specific transient error.
     """
-    
     # Check for specific AWS transient errors
     if isinstance(error, ClientError):
         error_code = error.response.get('Error', {}).get('Code', '')
@@ -327,6 +329,13 @@ def _is_transient_error(error: Exception) -> bool:
     if isinstance(error, aws_transient_types):
         return True
     
+    return False
+
+
+def _is_network_transient_error(error: Exception) -> bool:
+    """
+    Check if error is a network-related transient error.
+    """
     # Standard Python transient exception types
     transient_types = (
         ConnectionError,      # Network connection errors
@@ -356,6 +365,24 @@ def _is_transient_error(error: Exception) -> bool:
         ]
         if hasattr(error, 'errno') and error.errno in transient_errno:
             return True
+    
+    return False
+
+
+def _is_transient_error(error: Exception) -> bool:
+    """
+    Check if error is transient and should be retried.
+    
+    Uses exception type checking for reliable detection of transient errors.
+    String matching is avoided to prevent false positives.
+    """
+    # Check AWS-specific transient errors
+    if _is_aws_transient_error(error):
+        return True
+    
+    # Check network-related transient errors
+    if _is_network_transient_error(error):
+        return True
     
     # Default: not a transient error
     # Avoid string matching to prevent false positives
