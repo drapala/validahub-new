@@ -46,6 +46,16 @@ class QueueConfig:
         "generate_report_job": "src.workers.tasks.generate_report_job"
     }
     
+    # Celery task time limits (in seconds)
+    VALIDATE_CSV_JOB_TIME_LIMIT = int(os.getenv("VALIDATE_CSV_JOB_TIME_LIMIT", "300"))
+    VALIDATE_CSV_JOB_SOFT_TIME_LIMIT = int(os.getenv("VALIDATE_CSV_JOB_SOFT_TIME_LIMIT", "270"))
+    
+    CORRECT_CSV_JOB_TIME_LIMIT = int(os.getenv("CORRECT_CSV_JOB_TIME_LIMIT", "600"))
+    CORRECT_CSV_JOB_SOFT_TIME_LIMIT = int(os.getenv("CORRECT_CSV_JOB_SOFT_TIME_LIMIT", "570"))
+    
+    DEFAULT_JOB_TIME_LIMIT = int(os.getenv("DEFAULT_JOB_TIME_LIMIT", "300"))
+    DEFAULT_JOB_SOFT_TIME_LIMIT = int(os.getenv("DEFAULT_JOB_SOFT_TIME_LIMIT", "270"))
+    
     @classmethod
     def get_task_mappings(cls) -> Dict[str, str]:
         """

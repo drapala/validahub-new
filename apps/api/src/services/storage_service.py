@@ -19,7 +19,22 @@ class StorageService:
     
     def __init__(self):
         """Initialize storage service with configuration."""
-        self.temp_dir = os.getenv("TEMP_STORAGE_PATH", "/tmp/validahub")
+        # Use secure default temp directory
+        default_temp_dir = os.path.join(tempfile.gettempdir(), "validahub")
+        self.temp_dir = os.getenv("TEMP_STORAGE_PATH", default_temp_dir)
+        
+        # Ensure the temp_dir exists with secure permissions
+        if not os.path.exists(self.temp_dir):
+            os.makedirs(self.temp_dir, mode=0o700, exist_ok=True)
+        else:
+            # Ensure permissions are restrictive
+            try:
+                current_mode = os.stat(self.temp_dir).st_mode
+                if (current_mode & 0o777) != 0o700:
+                    os.chmod(self.temp_dir, 0o700)
+            except OSError as e:
+                logger.warning(f"Could not set permissions on temp directory: {type(e).__name__}: {e}")
+        
         self.s3_bucket = os.getenv("S3_BUCKET", "validahub")
         self._s3_client = None
     

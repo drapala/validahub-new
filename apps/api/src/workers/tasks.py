@@ -19,6 +19,7 @@ from ..services.storage_service import get_storage_service
 from ..exceptions import TransientError, MissingParameterError
 from ..telemetry.job_telemetry import get_job_telemetry
 from ..telemetry.metrics import MetricsCollector, ValidationMetrics
+from ..core.config import QueueConfig
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,8 @@ logger = logging.getLogger(__name__)
     retry_backoff=2,
     retry_jitter=True,
     max_retries=5,
-    time_limit=300,
-    soft_time_limit=270
+    time_limit=QueueConfig.VALIDATE_CSV_JOB_TIME_LIMIT,
+    soft_time_limit=QueueConfig.VALIDATE_CSV_JOB_SOFT_TIME_LIMIT
 )
 def validate_csv_job(
     self,
@@ -222,7 +223,9 @@ def validate_csv_job(
     name="correct_csv_job",
     autoretry_for=(TransientError,),
     retry_backoff=2,
-    max_retries=3
+    max_retries=3,
+    time_limit=QueueConfig.CORRECT_CSV_JOB_TIME_LIMIT,
+    soft_time_limit=QueueConfig.CORRECT_CSV_JOB_SOFT_TIME_LIMIT
 )
 def correct_csv_job(
     self,
@@ -239,6 +242,8 @@ def correct_csv_job(
     bind=True,
     base=DatabaseTask,
     name="sync_connector_job",
+    time_limit=QueueConfig.DEFAULT_JOB_TIME_LIMIT,
+    soft_time_limit=QueueConfig.DEFAULT_JOB_SOFT_TIME_LIMIT,
     autoretry_for=(TransientError,),
     retry_backoff=2,
     max_retries=3
@@ -266,7 +271,9 @@ def sync_connector_job(
 @celery_app.task(
     bind=True,
     base=DatabaseTask,
-    name="generate_report_job"
+    name="generate_report_job",
+    time_limit=QueueConfig.DEFAULT_JOB_TIME_LIMIT,
+    soft_time_limit=QueueConfig.DEFAULT_JOB_SOFT_TIME_LIMIT
 )
 def generate_report_job(
     self,

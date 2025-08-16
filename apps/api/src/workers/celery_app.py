@@ -20,8 +20,14 @@ logger = logging.getLogger(__name__)
 
 # Redis URL from environment
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
 # DATABASE_URL must be explicitly set for workers
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL is None:
+    raise RuntimeError(
+        "The environment variable DATABASE_URL must be set for Celery workers. "
+        "Example: DATABASE_URL=postgresql://user:password@localhost:5432/dbname"
+    )
 
 
 def create_celery_app() -> Celery:

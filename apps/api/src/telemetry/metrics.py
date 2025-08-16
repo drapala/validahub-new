@@ -21,8 +21,8 @@ class ValidationMetrics:
     records_warning: int = 0
     
     # Field-level error tracking
-    errors_by_field: Dict[str, int] = None
-    warnings_by_field: Dict[str, int] = None
+    errors_by_field: Optional[Dict[str, int]] = None
+    warnings_by_field: Optional[Dict[str, int]] = None
     
     # Performance metrics
     processing_time_ms: Optional[int] = None
@@ -87,9 +87,9 @@ class ReportMetrics:
     file_size_bytes: Optional[int] = None
     
     # Filters applied
-    marketplaces: List[str] = None
-    categories: List[str] = None
-    regions: List[str] = None
+    marketplaces: Optional[List[str]] = None
+    categories: Optional[List[str]] = None
+    regions: Optional[List[str]] = None
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""

@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/jobs", tags=["jobs"])
 
 # Cache allowed JobStatus values
-from ...models.job import JobStatus
+from src.models.job import JobStatus
 ALLOWED_JOB_STATUS_VALUES = [e.value for e in JobStatus]
 
 

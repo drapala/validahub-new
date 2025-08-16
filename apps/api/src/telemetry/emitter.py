@@ -119,7 +119,10 @@ class FileBasedTelemetryEmitter:
             os.chmod(self.output_dir, 0o700)
         except OSError as e:
             # May fail on some systems, but directory was created
-            logger.warning(f"Could not set permissions to 0o700 for telemetry directory {self.output_dir}: {e}")
+            logger.warning(
+                f"Could not set permissions to 0o700 for telemetry directory {self.output_dir}: "
+                f"{type(e).__name__}: {e}"
+            )
         
     def emit(
         self,
