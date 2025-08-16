@@ -21,8 +21,9 @@ class DataFrameUtils:
         Returns:
             Cleaned DataFrame
         """
-        df = df.replace([np.inf, -np.inf], None)
-        df = df.where(pd.notnull(df), None)
+        # Explicitly immutable operations (inplace=False is default, but being explicit)
+        df = df.replace([np.inf, -np.inf], None, inplace=False)
+        df = df.where(pd.notnull(df), None, inplace=False)
         return df
     
     @staticmethod

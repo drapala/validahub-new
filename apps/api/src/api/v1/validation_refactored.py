@@ -55,14 +55,30 @@ router = APIRouter(prefix="/api/v1", tags=["validation-refactored"])
 MAX_SYNC_FILE_SIZE = int(os.environ.get("MAX_SYNC_FILE_SIZE", 5 * 1024 * 1024))  # 5MB default
 MAX_FILE_SIZE = int(os.environ.get("MAX_FILE_SIZE", 50 * 1024 * 1024))           # 50MB default
 
-# Initialize dependencies
-rule_engine_service = RuleEngineService()
-validation_pipeline = ValidationPipeline(rule_engine_service=rule_engine_service)
+# Dependency provider functions for better DI and testing
+def get_rule_engine_service() -> RuleEngineService:
+    """Get or create rule engine service instance."""
+    return RuleEngineService()
 
-# Initialize use cases
-validate_csv_use_case = ValidateCsvUseCase(validation_pipeline)
-correct_csv_use_case = CorrectCsvUseCase(validation_pipeline)
-validate_row_use_case = ValidateRowUseCase(validation_pipeline)
+
+def get_validation_pipeline() -> ValidationPipeline:
+    """Get or create validation pipeline instance."""
+    return ValidationPipeline(rule_engine_service=get_rule_engine_service())
+
+
+def get_validate_csv_use_case() -> ValidateCsvUseCase:
+    """Get or create validate CSV use case instance."""
+    return ValidateCsvUseCase(get_validation_pipeline())
+
+
+def get_correct_csv_use_case() -> CorrectCsvUseCase:
+    """Get or create correct CSV use case instance."""
+    return CorrectCsvUseCase(get_validation_pipeline())
+
+
+def get_validate_row_use_case() -> ValidateRowUseCase:
+    """Get or create validate row use case instance."""
+    return ValidateRowUseCase(get_validation_pipeline())
 
 
 def get_correlation_id(
@@ -247,7 +263,8 @@ async def validate_csv_clean(
             options=parsed_options
         )
         
-        result = await validate_csv_use_case.execute(use_case_input)
+        use_case = get_validate_csv_use_case()
+        result = await use_case.execute(use_case_input)
         return result
         
     except ValueError as e:
@@ -378,7 +395,8 @@ async def correct_csv_clean(
             original_filename=file.filename
         )
         
-        result = await correct_csv_use_case.execute(use_case_input)
+        use_case = get_correct_csv_use_case()
+        result = await use_case.execute(use_case_input)
         
         # HTTP Layer: Prepare response with streaming
         def csv_streamer(csv_text: str, chunk_size: int = 8192):
@@ -457,7 +475,8 @@ async def validate_row_clean(
             auto_fix=auto_fix
         )
         
-        result = await validate_row_use_case.execute(use_case_input)
+        use_case = get_validate_row_use_case()
+        result = await use_case.execute(use_case_input)
         
         # HTTP Layer: Format response
         return {

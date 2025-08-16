@@ -69,7 +69,7 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
             # Parse CSV to DataFrame
             df = self._parse_csv(input_data.csv_content)
             
-            # Clean data using shared utility
+            # Clean data using shared utility (required: pipeline doesn't clean data)
             df = DataFrameUtils.clean_dataframe(df)
             
             # Validate using pipeline with job_id
