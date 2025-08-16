@@ -27,7 +27,6 @@ from ..services.storage_service import get_storage_service
 from ..exceptions import TransientError, MissingParameterError
 from ..telemetry.job_telemetry import get_job_telemetry
 from ..telemetry.metrics import MetricsCollector, ValidationMetrics
-from ..core.config import ValidationConfig
 
 logger = logging.getLogger(__name__)
 
@@ -136,11 +135,6 @@ def validate_csv_job(
         category = params.get("category", "general")
         ruleset = params.get("ruleset", "default")
         auto_fix = params.get("auto_fix", False)
-        
-        # Validate ruleset against whitelist to prevent path traversal/injection
-        if not ValidationConfig.is_valid_ruleset(ruleset):
-            logger.warning(f"Invalid ruleset '{ruleset}' provided. Falling back to 'default'.")
-            ruleset = "default"
         
         # Use domain service for validation
         validation_result, corrected_csv = validation_service.validate_csv_content(

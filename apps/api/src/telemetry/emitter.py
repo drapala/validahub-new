@@ -6,6 +6,7 @@ import json
 import logging
 import uuid
 import os
+import re
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, Any, Optional, Protocol
@@ -88,33 +89,37 @@ class FileBasedTelemetryEmitter:
     def __init__(self, output_dir: Optional[str] = None):
         """Initialize with output directory."""
         # Define the secure base directory
-        base_dir = os.path.expanduser("~/.local/share/validahub")
+        base_dir = Path(os.path.expanduser("~/.local/share/validahub")).resolve()
         
         if output_dir is None:
             # Use default telemetry subdirectory
-            output_dir = os.path.join(base_dir, "telemetry")
+            output_path = (base_dir / "telemetry").resolve()
         else:
             # Validate user-provided path
-            output_dir = os.path.expanduser(output_dir)
-            output_path = Path(output_dir).resolve()
-            base_path = Path(base_dir).resolve()
+            # Only allow alphanumerics, underscores, hyphens, slashes, periods, and tilde
+            if not re.match(r'^[\w\-/\.~]+$', output_dir):
+                raise ValueError("Output directory contains invalid characters.")
             
-            # Ensure output_dir is within the base directory
+            output_path = Path(os.path.expanduser(output_dir)).resolve()
+            
+            # Ensure no '..' components after resolution
+            if any(part == '..' for part in output_path.parts):
+                raise ValueError("Output directory path must not contain '..' components.")
+            
+            # Ensure output_path is within the base directory
             try:
-                output_path.relative_to(base_path)
+                output_path.relative_to(base_dir)
             except ValueError:
                 raise ValueError(f"Output directory must be within {base_dir}")
-            
-            output_dir = str(output_path)
         
-        self.output_dir = Path(output_dir)
+        self.output_dir = output_path
         # Create directory with restrictive permissions (0700)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         try:
             os.chmod(self.output_dir, 0o700)
-        except OSError:
+        except OSError as e:
             # May fail on some systems, but directory was created
-            pass
+            logger.warning(f"Could not set permissions to 0o700 for telemetry directory {self.output_dir}: {e}")
         
     def emit(
         self,

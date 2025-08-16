@@ -6,7 +6,8 @@ Create Date: 2025-08-16 12:00:00.000000
 
 """
 from typing import Sequence, Union
-from datetime import datetime
+from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 
 from alembic import op
 import sqlalchemy as sa
@@ -17,6 +18,22 @@ revision: str = '002_add_telemetry_events'
 down_revision: Union[str, None] = '0af1331f1df2'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
+
+def create_monthly_partitions(start_year: int, start_month: int, num_months: int):
+    """Create monthly partitions for telemetry_events table."""
+    current = date(start_year, start_month, 1)
+    
+    for _ in range(num_months):
+        next_month = current + relativedelta(months=1)
+        partition_name = f"telemetry_events_p{current.strftime('%Y%m')}"
+        
+        op.execute(f"""
+            CREATE TABLE {partition_name} PARTITION OF telemetry_events
+            FOR VALUES FROM ('{current.strftime('%Y-%m-%d')}') TO ('{next_month.strftime('%Y-%m-%d')}');
+        """)
+        
+        current = next_month
 
 
 def upgrade() -> None:
@@ -63,11 +80,74 @@ def upgrade() -> None:
     op.execute("CREATE INDEX idx_telemetry_events_payload ON telemetry_events USING GIN (payload)")
     op.execute("CREATE INDEX idx_telemetry_events_metrics ON telemetry_events USING GIN (metrics)")
     
-    # Create a single default partition covering a wide date range
-    # This avoids migration failures at year boundaries and simplifies management
+    # Create monthly partitions for current year and next 6 months
+    now = datetime.now()
+    # Create partitions for past 3 months, current month, and next 12 months
+    start_date = now - relativedelta(months=3)
+    create_monthly_partitions(start_date.year, start_date.month, 16)
+    
+    # Create a default partition for out-of-range data
     op.execute("""
         CREATE TABLE telemetry_events_default PARTITION OF telemetry_events
-        FOR VALUES FROM ('2020-01-01') TO ('2100-01-01');
+        DEFAULT;
+    """)
+    
+    # Create function to automatically create new partitions
+    op.execute("""
+        CREATE OR REPLACE FUNCTION create_telemetry_partition()
+        RETURNS void AS $$
+        DECLARE
+            start_date date;
+            end_date date;
+            partition_name text;
+        BEGIN
+            -- Create partition for next month if it doesn't exist
+            start_date := date_trunc('month', CURRENT_DATE + interval '1 month');
+            end_date := start_date + interval '1 month';
+            partition_name := 'telemetry_events_p' || to_char(start_date, 'YYYYMM');
+            
+            -- Check if partition already exists
+            IF NOT EXISTS (
+                SELECT 1 FROM pg_class 
+                WHERE relname = partition_name
+            ) THEN
+                EXECUTE format(
+                    'CREATE TABLE %I PARTITION OF telemetry_events FOR VALUES FROM (%L) TO (%L)',
+                    partition_name,
+                    start_date,
+                    end_date
+                );
+                RAISE NOTICE 'Created partition %', partition_name;
+            END IF;
+        END;
+        $$ LANGUAGE plpgsql;
+    """)
+    
+    # Create function to drop old partitions (keep last 6 months)
+    op.execute("""
+        CREATE OR REPLACE FUNCTION drop_old_telemetry_partitions()
+        RETURNS void AS $$
+        DECLARE
+            partition_record record;
+            cutoff_date date;
+        BEGIN
+            cutoff_date := date_trunc('month', CURRENT_DATE - interval '6 months');
+            
+            FOR partition_record IN
+                SELECT tablename 
+                FROM pg_tables 
+                WHERE schemaname = 'public' 
+                AND tablename LIKE 'telemetry_events_p%'
+                AND tablename != 'telemetry_events_default'
+            LOOP
+                -- Extract date from partition name (format: telemetry_events_pYYYYMM)
+                IF substring(partition_record.tablename from 20 for 6)::date < cutoff_date THEN
+                    EXECUTE format('DROP TABLE %I', partition_record.tablename);
+                    RAISE NOTICE 'Dropped old partition %', partition_record.tablename;
+                END IF;
+            END LOOP;
+        END;
+        $$ LANGUAGE plpgsql;
     """)
     
     # Create aggregated metrics table for dashboard queries
@@ -149,6 +229,10 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # Drop functions
+    op.execute("DROP FUNCTION IF EXISTS create_telemetry_partition()")
+    op.execute("DROP FUNCTION IF EXISTS drop_old_telemetry_partitions()")
+    
     # Drop materialized view
     op.execute("DROP MATERIALIZED VIEW IF EXISTS telemetry_daily_stats")
     
@@ -159,10 +243,21 @@ def downgrade() -> None:
     op.drop_table('telemetry_metrics_hourly')
     
     # Drop all partitions
-    current_year = datetime.now().year
-    for month in range(1, 13):
-        partition_name = f"telemetry_events_{current_year}_{month:02d}"
-        op.execute(f"DROP TABLE IF EXISTS {partition_name}")
+    op.execute("""
+        DO $$
+        DECLARE
+            partition_name text;
+        BEGIN
+            FOR partition_name IN
+                SELECT tablename 
+                FROM pg_tables 
+                WHERE schemaname = 'public' 
+                AND (tablename LIKE 'telemetry_events_p%' OR tablename = 'telemetry_events_default')
+            LOOP
+                EXECUTE format('DROP TABLE IF EXISTS %I', partition_name);
+            END LOOP;
+        END $$;
+    """)
     
     # Drop main table
     op.execute("DROP TABLE IF EXISTS telemetry_events")

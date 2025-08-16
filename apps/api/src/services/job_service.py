@@ -18,6 +18,7 @@ from src.schemas.job import (
 from src.infrastructure.queue_publisher import QueuePublisher
 from src.infrastructure.queue_factory import get_queue_publisher
 from src.telemetry.job_telemetry import get_job_telemetry
+from src.core.config import ValidationConfig
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,15 @@ class JobService:
         
         # Validate task name before any database operations
         self._validate_task_name(job_data.task)
+        
+        # Validate ruleset if it's a CSV validation/correction task
+        if job_data.task in ["validate_csv_job", "correct_csv_job"]:
+            ruleset = job_data.params.get("ruleset", "default")
+            if not ValidationConfig.is_valid_ruleset(ruleset):
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=f"Invalid ruleset '{ruleset}'. Allowed values are: {ValidationConfig.get_allowed_rulesets()}"
+                )
         
         # Check idempotency if key provided
         if job_data.idempotency_key:

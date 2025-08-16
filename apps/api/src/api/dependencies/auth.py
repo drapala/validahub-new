@@ -36,10 +36,10 @@ def get_current_user_id() -> str:
         )
         
         # Additional safety check: ensure we're truly in development
-        if not os.environ.get("ALLOW_MOCK_AUTH"):
+        if os.environ.get("ALLOW_MOCK_AUTH") != "true":
             logger.warning(
                 "Mock authentication attempted without ALLOW_MOCK_AUTH=true. "
-                "Set this environment variable to enable mock auth in development."
+                "Set this environment variable to exactly 'true' to enable mock auth in development."
             )
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

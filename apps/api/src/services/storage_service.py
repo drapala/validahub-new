@@ -221,14 +221,10 @@ class StorageService:
         
         os.makedirs(self.temp_dir, exist_ok=True)
         
-        file_path = os.path.join(self.temp_dir, path)
+        full_path = os.path.join(self.temp_dir, path)
         
         # Create subdirectories if needed
-        dir_path = os.path.dirname(file_path)
-        if dir_path:
-            os.makedirs(os.path.join(self.temp_dir, dir_path), exist_ok=True)
-        
-        full_path = os.path.join(self.temp_dir, path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
         
         with open(full_path, "wb") as f:
             f.write(content)
