@@ -18,8 +18,42 @@ from src.telemetry.job_telemetry import get_job_telemetry
 
 logger = logging.getLogger(__name__)
 
-# Redis URL from environment
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+# Redis URL from environment with security validation
+ENV = os.getenv("ENV", "development").lower()
+REDIS_URL = os.getenv("REDIS_URL")
+
+def is_redis_url_secure(url: str) -> bool:
+    """Check if Redis URL uses TLS and authentication."""
+    if not url:
+        return False
+    # Secure if using TLS (rediss://) and has password
+    if url.startswith("rediss://") and "@" in url:
+        # Check for password in auth section
+        auth_section = url.split("@")[0]
+        if ":" in auth_section.replace("rediss://", ""):
+            return True
+    return False
+
+if ENV == "production":
+    if not REDIS_URL:
+        raise RuntimeError(
+            "In production, the environment variable REDIS_URL must be set and must use TLS and authentication. "
+            "Example: REDIS_URL=rediss://:password@host:port/0"
+        )
+    if not is_redis_url_secure(REDIS_URL):
+        raise RuntimeError(
+            f"In production, REDIS_URL must use TLS (rediss://) and include authentication. "
+            f"Current URL appears insecure."
+        )
+else:
+    # Development: allow insecure default, but warn if insecure
+    if not REDIS_URL:
+        REDIS_URL = "redis://localhost:6379/0"
+    if not is_redis_url_secure(REDIS_URL):
+        logger.warning(
+            f"Using insecure Redis URL in {ENV} environment. "
+            "Do not use this configuration in production!"
+        )
 
 # DATABASE_URL must be explicitly set for workers
 DATABASE_URL = os.getenv("DATABASE_URL")

@@ -5,12 +5,12 @@ Authentication dependencies for API endpoints.
 import os
 import logging
 from typing import Optional
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Request, Depends
 
 logger = logging.getLogger(__name__)
 
 
-def get_current_user_id() -> str:
+def get_current_user_id(request: Request) -> str:
     """
     Get current user ID from authentication context.
     
@@ -49,6 +49,18 @@ def get_current_user_id() -> str:
                 detail="Authentication required. Set BOTH ALLOW_MOCK_AUTH=true and CONFIRM_MOCK_AUTH=true for development."
             )
         
+        # Restrict mock auth to requests from localhost only
+        client_host = request.client.host if request and request.client else None
+        if client_host not in ("127.0.0.1", "::1", "localhost"):
+            logger.warning(
+                f"Mock authentication attempted from non-localhost IP: {client_host}. "
+                "Mock authentication is only allowed from localhost."
+            )
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Mock authentication is only allowed from localhost (127.0.0.1 or ::1)."
+            )
+        
         logger.debug(f"Using mock user ID: {mock_user_id}")
         return mock_user_id
     
@@ -66,18 +78,18 @@ def get_current_user_id() -> str:
     )
 
 
-def get_optional_user_id() -> Optional[str]:
+def get_optional_user_id(request: Request) -> Optional[str]:
     """
     Get current user ID if available, otherwise return None.
     Useful for endpoints that support both authenticated and anonymous access.
     """
     try:
-        return get_current_user_id()
+        return get_current_user_id(request)
     except (RuntimeError, HTTPException):
         return None
 
 
-def require_admin_user() -> str:
+def require_admin_user(request: Request) -> str:
     """
     Require admin user authentication.
     
@@ -87,7 +99,7 @@ def require_admin_user() -> str:
     Raises:
         HTTPException: If user is not authenticated or not an admin
     """
-    user_id = get_current_user_id()
+    user_id = get_current_user_id(request)
     
     # TODO: Check if user has admin role
     # This would typically check against a database or token claims

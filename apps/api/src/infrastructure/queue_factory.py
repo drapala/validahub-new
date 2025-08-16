@@ -4,6 +4,7 @@ Factory for creating queue publisher instances based on configuration.
 
 import os
 import logging
+import threading
 from typing import Optional
 
 from .queue_publisher import (
@@ -76,13 +77,14 @@ def create_queue_publisher(backend: Optional[str] = None) -> QueuePublisher:
         raise ValueError(f"Unsupported queue backend: {backend}")
 
 
-# Singleton instance (lazy initialization)
+# Singleton instance (lazy initialization) with thread safety
 _queue_publisher_instance: Optional[QueuePublisher] = None
+_queue_publisher_lock = threading.Lock()
 
 
 def get_queue_publisher() -> QueuePublisher:
     """
-    Get the singleton queue publisher instance.
+    Get the singleton queue publisher instance (thread-safe).
     
     Returns:
         QueuePublisher instance
@@ -90,7 +92,10 @@ def get_queue_publisher() -> QueuePublisher:
     global _queue_publisher_instance
     
     if _queue_publisher_instance is None:
-        _queue_publisher_instance = create_queue_publisher()
+        with _queue_publisher_lock:
+            # Double-check locking pattern
+            if _queue_publisher_instance is None:
+                _queue_publisher_instance = create_queue_publisher()
     
     return _queue_publisher_instance
 

@@ -4,6 +4,7 @@ Job-specific telemetry helpers.
 
 import time
 import logging
+import threading
 from typing import Dict, Any, Optional
 from datetime import datetime
 
@@ -297,13 +298,17 @@ class JobTelemetry:
         )
 
 
-# Global instance
+# Global instance with thread safety
 _job_telemetry: Optional[JobTelemetry] = None
+_job_telemetry_lock = threading.Lock()
 
 
 def get_job_telemetry() -> JobTelemetry:
-    """Get or create global job telemetry instance."""
+    """Get or create global job telemetry instance (thread-safe)."""
     global _job_telemetry
     if _job_telemetry is None:
-        _job_telemetry = JobTelemetry()
+        with _job_telemetry_lock:
+            # Double-check locking pattern
+            if _job_telemetry is None:
+                _job_telemetry = JobTelemetry()
     return _job_telemetry

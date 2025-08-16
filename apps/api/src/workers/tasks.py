@@ -97,8 +97,42 @@ def validate_csv_job(
         if not isinstance(input_uri, str):
             raise ValueError(f"input_uri must be a string, got {type(input_uri).__name__}")
         
-        # Validate URI scheme
-        if not (input_uri.startswith("s3://") or input_uri.startswith("/") or input_uri.startswith("./")):
+        # Validate URI scheme and path safety
+        if input_uri.startswith("s3://"):
+            # S3 URIs are handled by storage service
+            pass
+        elif input_uri.startswith("/") or input_uri.startswith("./"):
+            # Local file paths - validate for path traversal
+            from pathlib import Path
+            import urllib.parse
+            
+            # Decode any URL-encoded sequences
+            decoded_uri = urllib.parse.unquote(input_uri)
+            
+            # Check for path traversal attempts
+            if '..' in decoded_uri or '%2e%2e' in input_uri.lower():
+                raise ValueError(f"Path traversal detected in input_uri: {input_uri[:50]}")
+            
+            # Resolve to absolute path and ensure it's within allowed directories
+            file_path = Path(decoded_uri).resolve()
+            
+            # Define allowed base directories for input files
+            allowed_dirs = [
+                Path(tempfile.gettempdir()).resolve(),
+                Path(os.path.expanduser("~/.local/share/validahub")).resolve(),
+            ]
+            
+            # Check if file is within any allowed directory
+            is_allowed = any(
+                file_path.is_relative_to(allowed_dir) or file_path == allowed_dir
+                for allowed_dir in allowed_dirs
+            )
+            
+            if not is_allowed:
+                raise ValueError(
+                    f"Input file must be within allowed directories (temp or validahub data dir): {input_uri[:50]}"
+                )
+        else:
             raise ValueError(
                 f"Invalid input_uri format. Must be an S3 URI (s3://...) or absolute/relative file path, got: {input_uri[:50]}"
             )
@@ -163,9 +197,8 @@ def validate_csv_job(
         # Calculate error rates
         error_rates = MetricsCollector.calculate_error_rates(validation_metrics)
         
-        # Convert to dict for serialization
-        metrics = validation_metrics.to_dict()
-        metrics.update(error_rates)
+        # Convert to dict for serialization (optimized)
+        metrics = {**validation_metrics.to_dict(), **error_rates}
         
         # Update progress: Saving results with metrics
         update_job_progress(task_id, 80, "Saving validation results")

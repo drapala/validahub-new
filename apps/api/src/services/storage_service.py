@@ -64,19 +64,28 @@ class StorageService:
         
         if uri.startswith("s3://"):
             return self._download_from_s3(uri)
-        elif self._is_safe_path(self.temp_dir, uri):
-            if os.path.exists(uri):
-                return self._read_local_file(uri)
+        else:
+            # For local files, check if it's an absolute path outside temp_dir
+            if os.path.isabs(uri) and not self._is_safe_path(self.temp_dir, uri):
+                # Absolute path outside temp_dir is not allowed
+                safe_hash = self._hash_string(uri) if uri else "unknown"
+                logger.error(f"Absolute path outside allowed directory. File hash: {safe_hash}")
+                raise FileNotFoundError("File not found")
+            
+            # Check if path is safe (handles both relative and absolute paths)
+            if self._is_safe_path(self.temp_dir, uri):
+                if os.path.exists(uri):
+                    return self._read_local_file(uri)
+                else:
+                    # Hash the URI for secure logging
+                    safe_hash = self._hash_string(uri) if uri else "unknown"
+                    logger.error(f"File not found or access denied. File hash: {safe_hash}")
+                    raise FileNotFoundError("File not found")
             else:
-                # Hash the URI for secure logging
+                # Log sanitized error for security using hash
                 safe_hash = self._hash_string(uri) if uri else "unknown"
                 logger.error(f"File not found or access denied. File hash: {safe_hash}")
                 raise FileNotFoundError("File not found")
-        else:
-            # Log sanitized error for security using hash
-            safe_hash = self._hash_string(uri) if uri else "unknown"
-            logger.error(f"File not found or access denied. File hash: {safe_hash}")
-            raise FileNotFoundError("File not found")
     
     def save_result(self, job_id: str, result: Dict[str, Any]) -> str:
         """

@@ -461,11 +461,16 @@ class JobService:
         if task_name not in supported_tasks:
             raise ValueError(f"Unknown task: {task_name}")
     
-    def _sync_job_status(self, job: Job) -> None:
-        """Sync job status with the queue backend via QueuePublisher."""
+    def _sync_job_status(self, job: Job) -> bool:
+        """
+        Sync job status with the queue backend via QueuePublisher.
+        
+        Returns:
+            True if sync succeeded, False if an error occurred or no action was taken.
+        """
         
         if not job.celery_task_id:
-            return
+            return False
         
         try:
             queue_publisher = get_queue_publisher()
@@ -473,7 +478,7 @@ class JobService:
             
             if status_info is None:
                 # Task not found or still pending
-                return
+                return False
             
             # Map queue status to JobStatus
             status_map = {
@@ -502,6 +507,8 @@ class JobService:
                 job.error = status_info['error']
             
             self.db.commit()
+            return True
             
         except Exception as e:
             logger.error(f"Failed to sync job status from queue backend: {e}")
+            return False
