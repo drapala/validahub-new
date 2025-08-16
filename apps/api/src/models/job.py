@@ -4,7 +4,7 @@ SQLAlchemy models for job queue system.
 
 from sqlalchemy import (
     Column, String, DateTime, Enum as SQLEnum, Text, Integer, 
-    JSON, UniqueConstraint, Index, Float
+    JSON, UniqueConstraint, Index, Float, text
 )
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
@@ -97,7 +97,7 @@ class Job(Base):
             'user_id',
             'idempotency_key',
             unique=True,
-            postgresql_where=(idempotency_key.isnot(None))
+            postgresql_where=text('idempotency_key IS NOT NULL')
         ),
         Index('ix_jobs_user_status', 'user_id', 'status'),
         Index('ix_jobs_created_at_desc', created_at.desc()),

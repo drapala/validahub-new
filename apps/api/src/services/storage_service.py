@@ -148,8 +148,12 @@ class StorageService:
             base = Path(base_dir).resolve()
             target = Path(path).resolve()
             
-            # Check if target is within base directory
-            return target.is_relative_to(base)
+            # Check if target is within base directory (Python 3.8+ compatible)
+            try:
+                target.relative_to(base)
+                return True
+            except ValueError:
+                return False
         except Exception:
             # If we can't resolve paths, consider it unsafe
             return False

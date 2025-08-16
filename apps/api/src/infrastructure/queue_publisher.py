@@ -95,8 +95,10 @@ class CeleryQueuePublisher:
         # Use full task path for Celery
         celery_task_name = task_mapping.get(task_name, f"src.workers.tasks.{task_name}")
         
-        # Generate job ID
-        job_id = str(uuid.uuid4())
+        # Extract job ID from payload (required)
+        job_id = payload.get("job_id")
+        if not job_id:
+            raise ValueError("Payload must contain a 'job_id' key")
         
         # Generate a single task ID for both Celery and job tracking
         task_id = str(uuid.uuid4())

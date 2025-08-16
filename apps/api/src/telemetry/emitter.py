@@ -87,11 +87,25 @@ class FileBasedTelemetryEmitter:
     
     def __init__(self, output_dir: Optional[str] = None):
         """Initialize with output directory."""
+        # Define the secure base directory
+        base_dir = os.path.expanduser("~/.local/share/validahub")
+        
         if output_dir is None:
-            # Use a secure, user-specific default directory
-            output_dir = os.path.expanduser("~/.local/share/validahub/telemetry")
+            # Use default telemetry subdirectory
+            output_dir = os.path.join(base_dir, "telemetry")
         else:
+            # Validate user-provided path
             output_dir = os.path.expanduser(output_dir)
+            output_path = Path(output_dir).resolve()
+            base_path = Path(base_dir).resolve()
+            
+            # Ensure output_dir is within the base directory
+            try:
+                output_path.relative_to(base_path)
+            except ValueError:
+                raise ValueError(f"Output directory must be within {base_dir}")
+            
+            output_dir = str(output_path)
         
         self.output_dir = Path(output_dir)
         # Create directory with restrictive permissions (0700)
