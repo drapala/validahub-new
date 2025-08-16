@@ -17,6 +17,7 @@ from src.schemas.job import (
 )
 from src.infrastructure.queue_publisher import QueuePublisher
 from src.infrastructure.queue_factory import get_queue_publisher
+from src.telemetry.job_telemetry import get_job_telemetry
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class JobService:
     def __init__(self, db: Session, queue_publisher: Optional[QueuePublisher] = None):
         self.db = db
         self.queue_publisher = queue_publisher or get_queue_publisher()
+        self.telemetry = get_job_telemetry()
     
     def create_job(
         self,
@@ -84,6 +86,16 @@ class JobService:
         
         self.db.add(job)
         self.db.flush()  # Get the ID before committing
+        
+        # Emit job.queued event for queue wait time tracking
+        self.telemetry.emit_job_queued(
+            job_id=str(job.id),
+            task_name=job_data.task,
+            params=job_data.params,
+            queue=queue,
+            priority=job_data.priority,
+            correlation_id=job.correlation_id
+        )
         
         # Submit to queue via publisher
         try:

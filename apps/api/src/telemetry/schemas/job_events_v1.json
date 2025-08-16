@@ -1,0 +1,247 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Job Events Schema v1",
+  "description": "Standard schema definitions for job lifecycle events",
+  
+  "definitions": {
+    "basePayload": {
+      "type": "object",
+      "required": ["job_id", "task", "marketplace", "category", "region", "timestamp"],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique job identifier"
+        },
+        "task": {
+          "type": "string",
+          "description": "Task name being executed"
+        },
+        "marketplace": {
+          "type": "string",
+          "description": "Target marketplace"
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category"
+        },
+        "region": {
+          "type": "string",
+          "description": "Geographic region"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Event timestamp in ISO 8601 format"
+        }
+      }
+    },
+    
+    "errorObject": {
+      "type": "object",
+      "required": ["type", "message"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Error class name"
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message"
+        }
+      }
+    },
+    
+    "metricsObject": {
+      "type": "object",
+      "properties": {
+        "latency_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Processing latency in milliseconds"
+        },
+        "payload_size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Size of processed payload in bytes"
+        },
+        "records_total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of records processed"
+        },
+        "records_valid": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of valid records"
+        },
+        "records_error": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of records with errors"
+        },
+        "error_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Error rate as a decimal (0-1)"
+        },
+        "errors_by_field": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Error count by field name"
+        }
+      }
+    }
+  },
+  
+  "oneOf": [
+    {
+      "title": "job.queued",
+      "allOf": [
+        {"$ref": "#/definitions/basePayload"},
+        {
+          "type": "object",
+          "required": ["queue", "priority"],
+          "properties": {
+            "queue": {
+              "type": "string",
+              "description": "Queue name"
+            },
+            "priority": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "description": "Job priority (1-10)"
+            }
+          }
+        }
+      ]
+    },
+    
+    {
+      "title": "job.started",
+      "allOf": [
+        {"$ref": "#/definitions/basePayload"},
+        {
+          "type": "object",
+          "required": ["params"],
+          "properties": {
+            "params": {
+              "type": "object",
+              "description": "Job parameters"
+            },
+            "queue_wait_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Time spent waiting in queue (milliseconds)"
+            }
+          }
+        }
+      ]
+    },
+    
+    {
+      "title": "job.progress",
+      "allOf": [
+        {"$ref": "#/definitions/basePayload"},
+        {
+          "type": "object",
+          "required": ["progress", "message"],
+          "properties": {
+            "progress": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Progress percentage (0-100)"
+            },
+            "message": {
+              "type": "string",
+              "description": "Progress status message"
+            }
+          }
+        }
+      ]
+    },
+    
+    {
+      "title": "job.retrying",
+      "allOf": [
+        {"$ref": "#/definitions/basePayload"},
+        {
+          "type": "object",
+          "required": ["retry_count", "max_retries", "error"],
+          "properties": {
+            "retry_count": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Current retry attempt number"
+            },
+            "max_retries": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum number of retry attempts"
+            },
+            "error": {"$ref": "#/definitions/errorObject"}
+          }
+        }
+      ]
+    },
+    
+    {
+      "title": "job.completed",
+      "allOf": [
+        {"$ref": "#/definitions/basePayload"},
+        {
+          "type": "object",
+          "required": ["metrics", "result_summary"],
+          "properties": {
+            "metrics": {"$ref": "#/definitions/metricsObject"},
+            "result_summary": {
+              "type": "object",
+              "required": ["status"],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": ["success", "partial", "warning"],
+                  "description": "Overall result status"
+                },
+                "result_ref": {
+                  "type": "string",
+                  "description": "Reference to detailed results"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    
+    {
+      "title": "job.failed",
+      "allOf": [
+        {"$ref": "#/definitions/basePayload"},
+        {
+          "type": "object",
+          "required": ["error"],
+          "properties": {
+            "error": {"$ref": "#/definitions/errorObject"},
+            "metrics": {
+              "type": "object",
+              "properties": {
+                "latency_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Time until failure (milliseconds)"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -17,6 +17,7 @@ from .celery_app import celery_app, DatabaseTask, update_job_progress
 from ..services.rule_engine_service import RuleEngineService
 from ..core.pipeline.validation_pipeline import ValidationPipeline
 from ..services.csv_validation_service import CSVValidationService
+from ..services.storage_service import get_storage_service
 from ..exceptions import TransientError
 from ..telemetry.job_telemetry import get_job_telemetry
 from ..telemetry.metrics import MetricsCollector, ValidationMetrics
@@ -70,6 +71,7 @@ def validate_csv_job(
         
         # Initialize services
         validation_service = CSVValidationService()
+        storage_service = get_storage_service()
         telemetry = get_job_telemetry()
         
         # Update progress: Starting
@@ -89,8 +91,8 @@ def validate_csv_job(
         if not input_uri:
             raise ValueError("input_uri is required")
         
-        # Download or read file
-        csv_content = _download_file(input_uri)
+        # Download or read file using storage service
+        csv_content = storage_service.download_file(input_uri)
         
         # Update progress: File loaded
         update_job_progress(task_id, 30, "File loaded, starting validation")
@@ -172,12 +174,12 @@ def validate_csv_job(
         validation_result["job_id"] = job_id
         validation_result["timestamp"] = datetime.utcnow().isoformat()
         
-        # Save result to storage
-        result_ref = _save_result(job_id, validation_result)
+        # Save result to storage using storage service
+        result_ref = storage_service.save_result(job_id, validation_result)
         
         # Save corrected data if available
         if corrected_csv:
-            corrected_ref = _save_file(
+            corrected_ref = storage_service.save_file(
                 f"corrected/{job_id}.csv",
                 corrected_csv.encode('utf-8')
             )
@@ -285,102 +287,6 @@ def generate_report_job(
 
 
 # Helper functions
-
-def _download_file(uri: str) -> str:
-    """Download file from S3 or local path."""
-    
-    if uri.startswith("s3://"):
-        # Parse S3 URI
-        parts = uri.replace("s3://", "").split("/", 1)
-        bucket = parts[0]
-        key = parts[1] if len(parts) > 1 else ""
-        
-        # Download from S3
-        s3 = boto3.client("s3")
-        try:
-            response = s3.get_object(Bucket=bucket, Key=key)
-            return response["Body"].read().decode("utf-8")
-        except ClientError as e:
-            logger.error(f"Error downloading from S3: {e}")
-            raise
-    
-    elif os.path.exists(uri):
-        # Read local file
-        with open(uri, "r", encoding="utf-8") as f:
-            return f.read()
-    
-    else:
-        # Raise exception instead of silently using mock data
-        logger.error(f"File not found: {uri}")
-        raise FileNotFoundError(f"File not found: {uri}")
-
-
-def _save_result(job_id: str, result: Dict[str, Any]) -> str:
-    """Save job result to storage."""
-    
-    # For MVP, save to local temp file
-    # In production, this would upload to S3
-    
-    result_json = json.dumps(result, indent=2, default=str)
-    
-    # Check if S3 is configured
-    if os.getenv("AWS_ACCESS_KEY_ID"):
-        try:
-            s3 = boto3.client("s3")
-            bucket = os.getenv("S3_BUCKET", "validahub")
-            key = f"results/{job_id}.json"
-            
-            s3.put_object(
-                Bucket=bucket,
-                Key=key,
-                Body=result_json.encode("utf-8"),
-                ContentType="application/json"
-            )
-            
-            return f"s3://{bucket}/{key}"
-        except Exception as e:
-            logger.error(f"Error saving to S3: {e}")
-    
-    # Fallback to local storage
-    temp_dir = os.getenv("TEMP_STORAGE_PATH", "/tmp/validahub")
-    os.makedirs(temp_dir, exist_ok=True)
-    
-    file_path = os.path.join(temp_dir, f"{job_id}.json")
-    with open(file_path, "w") as f:
-        f.write(result_json)
-    
-    return f"file://{file_path}"
-
-
-def _save_file(path: str, content: bytes) -> str:
-    """Save file to storage."""
-    
-    # Similar to _save_result but for binary files
-    if os.getenv("AWS_ACCESS_KEY_ID"):
-        try:
-            s3 = boto3.client("s3")
-            bucket = os.getenv("S3_BUCKET", "validahub")
-            
-            s3.put_object(
-                Bucket=bucket,
-                Key=path,
-                Body=content
-            )
-            
-            return f"s3://{bucket}/{path}"
-        except Exception as e:
-            logger.error(f"Error saving file to S3: {e}")
-    
-    # Fallback to local
-    temp_dir = os.getenv("TEMP_STORAGE_PATH", "/tmp/validahub")
-    os.makedirs(os.path.dirname(os.path.join(temp_dir, path)), exist_ok=True)
-    
-    file_path = os.path.join(temp_dir, path)
-    with open(file_path, "wb") as f:
-        f.write(content)
-    
-    return f"file://{file_path}"
-
 
 def _is_transient_error(error: Exception) -> bool:
     """

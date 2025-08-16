@@ -50,7 +50,7 @@ def upgrade() -> None:
             error JSONB,
             
             -- Indexes for queries
-            CHECK (event_name IN ('job.started', 'job.completed', 'job.failed', 'job.retrying', 'job.progress'))
+            CHECK (event_name IN ('job.queued', 'job.started', 'job.completed', 'job.failed', 'job.retrying', 'job.progress'))
         ) PARTITION BY RANGE (created_at);
     """)
     
