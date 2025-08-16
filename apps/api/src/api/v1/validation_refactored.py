@@ -94,7 +94,7 @@ def problem_response(problem: ProblemDetail) -> JSONResponse:
 
 async def validate_file_type(file: UploadFile, correlation_id: str) -> Optional[JSONResponse]:
     """Validate that the uploaded file is a CSV."""
-    if not file.filename.endswith(('.csv', '.CSV')):
+    if not file.filename or not file.filename.endswith(('.csv', '.CSV')):
         return problem_response(ProblemDetail(
             type="https://validahub.com/errors/invalid-file-type",
             title="Invalid File Type",
@@ -206,13 +206,33 @@ async def validate_csv_clean(
     # HTTP Layer: Read file content
     try:
         content = await file.read()
-        csv_str = content.decode('utf-8', errors='replace')
+    except OSError as e:
+        return problem_response(ProblemDetail(
+            type="https://validahub.com/errors/file-os-error",
+            title="File Access Error",
+            status=400,
+            detail=f"An OS error occurred while reading the file: {str(e)}. Please check the file and try again.",
+            instance="/api/v1/validate-clean",
+            correlation_id=correlation_id
+        ))
     except Exception as e:
         return problem_response(ProblemDetail(
             type="https://validahub.com/errors/file-read-error",
             title="File Read Error",
             status=400,
-            detail=f"Error reading file: {str(e)}",
+            detail=f"An unexpected error occurred while reading the file: {str(e)}. Please try again or contact support if the problem persists.",
+            instance="/api/v1/validate-clean",
+            correlation_id=correlation_id
+        ))
+    
+    try:
+        csv_str = content.decode('utf-8', errors='strict')
+    except UnicodeDecodeError as e:
+        return problem_response(ProblemDetail(
+            type="https://validahub.com/errors/file-decode-error",
+            title="File Decode Error",
+            status=400,
+            detail="The uploaded file could not be decoded as UTF-8. Please ensure the file is a valid UTF-8 encoded CSV.",
             instance="/api/v1/validate-clean",
             correlation_id=correlation_id
         ))
@@ -317,13 +337,33 @@ async def correct_csv_clean(
     # HTTP Layer: Read file content
     try:
         content = await file.read()
-        csv_str = content.decode('utf-8', errors='replace')
+    except OSError as e:
+        return problem_response(ProblemDetail(
+            type="https://validahub.com/errors/file-os-error",
+            title="File Access Error",
+            status=400,
+            detail=f"An OS error occurred while reading the file: {str(e)}. Please check the file and try again.",
+            instance="/api/v1/correct-clean",
+            correlation_id=correlation_id
+        ))
     except Exception as e:
         return problem_response(ProblemDetail(
             type="https://validahub.com/errors/file-read-error",
             title="File Read Error",
             status=400,
-            detail=f"Error reading file: {str(e)}",
+            detail=f"An unexpected error occurred while reading the file: {str(e)}. Please try again or contact support if the problem persists.",
+            instance="/api/v1/correct-clean",
+            correlation_id=correlation_id
+        ))
+    
+    try:
+        csv_str = content.decode('utf-8', errors='strict')
+    except UnicodeDecodeError as e:
+        return problem_response(ProblemDetail(
+            type="https://validahub.com/errors/file-decode-error",
+            title="File Decode Error",
+            status=400,
+            detail="The uploaded file could not be decoded as UTF-8. Please ensure the file is a valid UTF-8 encoded CSV.",
             instance="/api/v1/correct-clean",
             correlation_id=correlation_id
         ))

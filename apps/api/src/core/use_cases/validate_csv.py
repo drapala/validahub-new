@@ -10,10 +10,10 @@ import logging
 from typing import Optional, Dict, Any
 from dataclasses import dataclass
 import pandas as pd
-import numpy as np
 
 from .base import UseCase
 from ..pipeline.validation_pipeline import ValidationPipeline
+from ..utils import DataFrameUtils
 from ...schemas.validate import (
     ValidationResult,
     Marketplace,
@@ -69,25 +69,21 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
             # Parse CSV to DataFrame
             df = self._parse_csv(input_data.csv_content)
             
-            # Clean data
-            df = self._clean_dataframe(df)
+            # Clean data using shared utility
+            df = DataFrameUtils.clean_dataframe(df)
             
-            # Validate using pipeline
+            # Validate using pipeline with job_id
             result = self.validation_pipeline.validate(
                 df=df,
                 marketplace=input_data.marketplace,
                 category=input_data.category,
-                auto_fix=input_data.auto_fix
+                auto_fix=input_data.auto_fix,
+                job_id=input_data.job_id
             )
             
-            # Add job_id for tracking (immutably)
-            result = result.model_copy(update={"job_id": input_data.job_id})
-            
-            # Convert corrected DataFrame to dict if present
+            # Convert corrected DataFrame to dict using shared utility
             if result.corrected_data is not None:
-                df = result.corrected_data
-                df = self._clean_dataframe(df)
-                result.corrected_data = df.to_dict('records')
+                result.corrected_data = DataFrameUtils.dataframe_to_dict(result.corrected_data)
             
             return result
             
@@ -104,8 +100,3 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
         except Exception as e:
             raise ValueError(f"Failed to parse CSV: {str(e)}")
     
-    def _clean_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Clean DataFrame by handling NaN and inf values."""
-        df = df.replace([np.inf, -np.inf], None)
-        df = df.where(pd.notnull(df), None)
-        return df

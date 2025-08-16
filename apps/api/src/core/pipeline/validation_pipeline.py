@@ -38,7 +38,8 @@ class ValidationPipeline:
         df: pd.DataFrame, 
         marketplace: Marketplace, 
         category: Category,
-        auto_fix: bool = None
+        auto_fix: bool = None,
+        job_id: Optional[str] = None
     ) -> ValidationResult:
         """Validate a DataFrame using the rule engine."""
         start_time = time.time()
@@ -115,7 +116,8 @@ class ValidationPipeline:
             corrected_data=corrected_df,
             marketplace=marketplace_str,
             category=category.value if category else None,
-            auto_fix_applied=auto_fix
+            auto_fix_applied=auto_fix,
+            job_id=job_id
         )
     
     def validate_single_row(

@@ -9,10 +9,10 @@ import logging
 from typing import Optional, Dict, Any
 from dataclasses import dataclass
 import pandas as pd
-import numpy as np
 
 from .base import UseCase
 from ..pipeline.validation_pipeline import ValidationPipeline
+from ..utils import DataFrameUtils
 from ...schemas.validate import (
     Marketplace,
     Category
@@ -76,21 +76,22 @@ class CorrectCsvUseCase(UseCase[CorrectCsvInput, CorrectCsvOutput]):
             # Parse CSV to DataFrame
             df = self._parse_csv(input_data.csv_content)
             
-            # Clean data
-            df = self._clean_dataframe(df)
+            # Clean data using shared utility
+            df = DataFrameUtils.clean_dataframe(df)
             
-            # Validate and fix using pipeline
+            # Validate and fix using pipeline with job_id
+            job_id = str(uuid.uuid4())
             result = self.validation_pipeline.validate(
                 df=df,
                 marketplace=input_data.marketplace,
                 category=input_data.category,
-                auto_fix=True  # Always fix for correction use case
+                auto_fix=True,  # Always fix for correction use case
+                job_id=job_id
             )
             
-            # Convert corrected DataFrame to CSV
-            if result.corrected_data is not None:
-                corrected_csv = result.corrected_data.to_csv(index=False)
-            else:
+            # Convert corrected DataFrame to CSV using shared utility
+            corrected_csv = DataFrameUtils.dataframe_to_csv(result.corrected_data)
+            if corrected_csv is None:
                 # If no corrections, return original
                 corrected_csv = input_data.csv_content
             
@@ -101,7 +102,7 @@ class CorrectCsvUseCase(UseCase[CorrectCsvInput, CorrectCsvOutput]):
                 total_errors=result.summary.total_errors,
                 total_warnings=result.summary.total_warnings,
                 processing_time=result.summary.processing_time_seconds,
-                job_id=str(uuid.uuid4())
+                job_id=job_id
             )
             
         except pd.errors.EmptyDataError:
@@ -117,8 +118,3 @@ class CorrectCsvUseCase(UseCase[CorrectCsvInput, CorrectCsvOutput]):
         except Exception as e:
             raise ValueError(f"Failed to parse CSV: {str(e)}")
     
-    def _clean_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Clean DataFrame by handling NaN and inf values."""
-        df = df.replace([np.inf, -np.inf], None)
-        df = df.where(pd.notnull(df), None)
-        return df
