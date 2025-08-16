@@ -160,7 +160,10 @@ class CeleryQueuePublisher:
                 'status': status_map.get(result.state, result.state.lower()),
                 'progress': result.info.get('current', 0) if isinstance(result.info, dict) else None,
                 'message': result.info.get('status', '') if isinstance(result.info, dict) else str(result.info),
-                'error': str(result.info) if result.state == 'FAILURE' else None
+                'error': (
+                    result.info.get('exc_message', 'Task failed') if (result.state == 'FAILURE' and isinstance(result.info, dict))
+                    else ('Task failed' if result.state == 'FAILURE' else None)
+                )
             }
         except Exception as e:
             logger.error(f"Failed to get status for task {task_id}: {e}")
