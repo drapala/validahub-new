@@ -229,10 +229,10 @@ async def correction_preview(
         
         return {
             "summary": {
-                "total_corrections": sum(1 for item in result.validation_items if item.corrected_value),
+                "total_corrections": sum(1 for item in result.validation_items if item.corrections),
                 "success_rate": (result.valid_rows / result.total_rows * 100) if result.total_rows > 0 else 0,
                 "corrections_by_rule": {},  # Would need to aggregate from validation items
-                "affected_rows": [item.row_number for item in result.validation_items if item.corrected_value][:100]
+                "affected_rows": [item.row_number for item in result.validation_items if item.corrections][:100]
             },
             "preview_data": result.corrected_data[:request.sample_size] if result.corrected_data else [],
             "changes": [item.dict() for item in preview_items],

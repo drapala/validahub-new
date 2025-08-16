@@ -113,8 +113,11 @@ class ValidateRowUseCase(UseCase[ValidateRowInput, ValidateRowOutput]):
         corrected = row_data.copy()
         
         for item in validation_items:
-            if item.status == ValidationStatus.ERROR and item.corrected_value is not None:
-                corrected[item.field] = item.corrected_value
+            if item.status == ValidationStatus.ERROR and item.corrections:
+                # Apply the first correction if available
+                correction = item.corrections[0]
+                if correction.corrected_value is not None:
+                    corrected[correction.field] = correction.corrected_value
         
         return corrected
     
@@ -127,19 +130,21 @@ class ValidateRowUseCase(UseCase[ValidateRowInput, ValidateRowOutput]):
         warnings_by_field = {}
         
         for item in validation_items:
-            if item.status == ValidationStatus.ERROR:
-                if item.field not in errors_by_field:
-                    errors_by_field[item.field] = []
-                errors_by_field[item.field].append(item.message)
-            elif item.status == ValidationStatus.WARNING:
-                if item.field not in warnings_by_field:
-                    warnings_by_field[item.field] = []
-                warnings_by_field[item.field].append(item.message)
+            if item.errors:
+                for error_detail in item.errors:
+                    if item.status == ValidationStatus.ERROR:
+                        if error_detail.field not in errors_by_field:
+                            errors_by_field[error_detail.field] = []
+                        errors_by_field[error_detail.field].append(error_detail.message)
+                    elif item.status == ValidationStatus.WARNING:
+                        if error_detail.field not in warnings_by_field:
+                            warnings_by_field[error_detail.field] = []
+                        warnings_by_field[error_detail.field].append(error_detail.message)
         
         return ValidationSummary(
             total_errors=error_count,
             total_warnings=warning_count,
-            errors_by_field=errors_by_field,
-            warnings_by_field=warnings_by_field,
-            processing_time_ms=0  # Will be set by the endpoint
+            total_corrections=sum(1 for item in validation_items if item.corrections),
+            error_types=errors_by_field,
+            processing_time_seconds=0.0  # Will be set by the endpoint
         )

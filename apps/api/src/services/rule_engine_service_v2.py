@@ -44,16 +44,17 @@ class RuleEngineAdapter(IRuleEngine):
         # TODO: Modify rule_engine library to accept dict directly
         import tempfile
         import yaml
+        import os
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            yaml.dump(ruleset, f)
-            temp_path = f.name
-        
+        temp_path = None
         try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+                yaml.dump(ruleset, f)
+                temp_path = f.name
             self._engine.load_ruleset(temp_path)
         finally:
-            import os
-            os.unlink(temp_path)
+            if temp_path is not None and os.path.exists(temp_path):
+                os.unlink(temp_path)
     
     def execute(self, data: Dict[str, Any], auto_fix: bool = False) -> List[Any]:
         """Execute rules against data."""
