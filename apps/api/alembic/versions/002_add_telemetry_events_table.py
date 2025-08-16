@@ -47,10 +47,7 @@ def upgrade() -> None:
             -- Event payload
             payload JSONB NOT NULL,
             metrics JSONB,
-            error JSONB,
-            
-            -- Indexes for queries
-            CHECK (event_name IN ('job.queued', 'job.started', 'job.completed', 'job.failed', 'job.retrying', 'job.progress'))
+            error JSONB
         ) PARTITION BY RANGE (created_at);
     """)
     

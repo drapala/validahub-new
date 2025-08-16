@@ -50,8 +50,9 @@ class StorageService:
         elif os.path.exists(uri):
             return self._read_local_file(uri)
         else:
-            # Log sanitized error for security
-            logger.error("File not found at specified location")
+            # Log sanitized error for security (only filename, no full path)
+            safe_name = os.path.basename(uri) if uri else "unknown"
+            logger.error(f"File not found: {safe_name}")
             raise FileNotFoundError("File not found")
     
     def save_result(self, job_id: str, result: Dict[str, Any]) -> str:

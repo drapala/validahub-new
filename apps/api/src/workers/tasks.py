@@ -11,7 +11,13 @@ from datetime import datetime
 import pandas as pd
 import io
 import boto3
-from botocore.exceptions import ClientError
+from botocore.exceptions import (
+    ClientError,
+    EndpointConnectionError,
+    ConnectTimeoutError,
+    ReadTimeoutError,
+    ConnectionClosedError
+)
 
 from .celery_app import celery_app, DatabaseTask, update_job_progress
 from ..services.rule_engine_service import RuleEngineService
@@ -140,7 +146,7 @@ def validate_csv_job(
         validation_metrics = MetricsCollector.collect_validation_metrics(
             csv_content=csv_content,
             validation_result=validation_result,
-            processing_time_ms=int((datetime.utcnow() - start_time).total_seconds() * 1000) if 'start_time' in locals() else None
+            processing_time_ms=int((datetime.utcnow() - start_time).total_seconds() * 1000)
         )
         
         # Enrich with business context
@@ -296,44 +302,30 @@ def _is_transient_error(error: Exception) -> bool:
     String matching is avoided to prevent false positives.
     """
     
-    # Import AWS exceptions only if needed
-    try:
-        from botocore.exceptions import (
-            EndpointConnectionError, 
-            ConnectTimeoutError, 
-            ReadTimeoutError, 
-            ConnectionClosedError,
-            ClientError
-        )
-        
-        # Check for specific AWS transient errors
-        if isinstance(error, ClientError):
-            error_code = error.response.get('Error', {}).get('Code', '')
-            transient_error_codes = [
-                'ThrottlingException',
-                'TooManyRequestsException',
-                'RequestLimitExceeded',
-                'ServiceUnavailable',
-                'RequestTimeout',
-                'InternalServerError',
-                'InternalError'
-            ]
-            if error_code in transient_error_codes:
-                return True
-        
-        # AWS connection errors
-        aws_transient_types = (
-            EndpointConnectionError,
-            ConnectTimeoutError,
-            ReadTimeoutError,
-            ConnectionClosedError,
-        )
-        if isinstance(error, aws_transient_types):
+    # Check for specific AWS transient errors
+    if isinstance(error, ClientError):
+        error_code = error.response.get('Error', {}).get('Code', '')
+        transient_error_codes = [
+            'ThrottlingException',
+            'TooManyRequestsException',
+            'RequestLimitExceeded',
+            'ServiceUnavailable',
+            'RequestTimeout',
+            'InternalServerError',
+            'InternalError'
+        ]
+        if error_code in transient_error_codes:
             return True
-            
-    except ImportError:
-        # botocore not available, skip AWS-specific checks
-        pass
+    
+    # AWS connection errors
+    aws_transient_types = (
+        EndpointConnectionError,
+        ConnectTimeoutError,
+        ReadTimeoutError,
+        ConnectionClosedError,
+    )
+    if isinstance(error, aws_transient_types):
+        return True
     
     # Standard Python transient exception types
     transient_types = (
