@@ -9,6 +9,9 @@ from fastapi import HTTPException, status, Request, Depends
 
 logger = logging.getLogger(__name__)
 
+# Get environment at module level for safety checks
+ENV = os.environ.get("ENV", "development").lower()
+
 
 def get_current_user_id(request: Request) -> str:
     """
@@ -25,8 +28,7 @@ def get_current_user_id(request: Request) -> str:
         HTTPException: If authentication fails in production
     """
     # Check if we're in a development environment
-    env = os.environ.get("ENV", "development")
-    is_development = env in ["development", "dev", "local", "test"]
+    is_development = ENV in ["development", "dev", "local", "test"]
     
     if is_development:
         # Return mock user ID for development (can be overridden by env var)
@@ -70,6 +72,16 @@ def get_current_user_id(request: Request) -> str:
     # 2. Verify token signature and expiration
     # 3. Extract user ID from token claims
     # 4. Optional: Check user permissions/roles
+    
+    # Additional safety check: Ensure this code is not running in production
+    # This will cause the application to fail fast if deployed without proper auth
+    if ENV == "production" and not os.environ.get("PRODUCTION_AUTH_IMPLEMENTED"):
+        import sys
+        logger.critical(
+            "CRITICAL: Production deployment detected without proper authentication! "
+            "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
+        )
+        sys.exit(1)  # Exit immediately to prevent insecure production deployment
     
     # For now, raise an HTTP error to prevent unintentional production use
     raise HTTPException(

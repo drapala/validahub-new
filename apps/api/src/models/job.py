@@ -93,6 +93,11 @@ class Job(Base):
     # Constraints
     __table_args__ = (
         # Create a partial unique constraint that only applies when idempotency_key is not NULL
+        # NOTE: This uses PostgreSQL-specific partial index syntax (postgresql_where).
+        # Database portability consideration: If migrating to another database system,
+        # this constraint will need to be reimplemented using that database's equivalent
+        # feature (e.g., filtered index in SQL Server, function-based index in Oracle,
+        # or application-level enforcement for databases without partial index support).
         Index(
             'uq_user_idempotency_nonnull',
             'user_id',

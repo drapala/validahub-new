@@ -463,35 +463,13 @@ class JobService:
     
     def _sync_job_status(self, job: Job) -> bool:
         """
-        Sync job status with the queue backend via QueuePublisher.
+        Sync job status with the queue backend.
+        
+        Fetches current status from queue backend and updates job's status, progress,
+        message, and error fields. Maps queue status to JobStatus enum values.
         
         Returns:
-        Synchronize the job's status and related fields with the queue backend via QueuePublisher.
-
-        This method fetches the current status of the job from the queue backend using the job's
-        `celery_task_id` and updates the `Job` object's status, progress, message, and error fields
-        accordingly. The mapping between queue backend status strings and `JobStatus` enum values is:
-
-            - 'queued'     -> JobStatus.QUEUED
-            - 'processing' -> JobStatus.RUNNING
-            - 'completed'  -> JobStatus.SUCCEEDED
-            - 'failed'     -> JobStatus.FAILED
-            - 'cancelled'  -> JobStatus.CANCELLED
-            - 'retrying'   -> JobStatus.RETRYING
-
-        If the queue backend returns a status not in the above mapping, the job's status is not updated.
-        If the status is 'completed', the job's progress is set to 100.0.
-        The method also updates the job's `progress`, `message`, and `error` fields if present in the
-        status info from the queue backend.
-
-        Error Handling:
-            - If the job has no `celery_task_id`, the method returns False.
-            - If the queue backend returns None or the task is not found, the method returns False.
-            - If an exception occurs during the sync process, the error is logged and the method returns False.
-
-        Returns:
-            True if the job was successfully synchronized and the database was updated.
-            False if an error occurred or no action was taken (e.g., missing task ID, task not found, exception).
+            True if sync succeeded and DB was updated, False if error or no action taken.
         """
         
         if not job.celery_task_id:

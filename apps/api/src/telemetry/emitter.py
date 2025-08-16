@@ -98,14 +98,11 @@ class FileBasedTelemetryEmitter:
             # Validate user-provided path
             import urllib.parse
             
-            # Decode any URL-encoded sequences first
-            decoded_dir = urllib.parse.unquote(output_dir)
-            
-            # Check for any form of parent directory traversal
-            if '..' in decoded_dir or '%2e%2e' in output_dir.lower() or '%252e%252e' in output_dir.lower():
-                raise ValueError("Output directory path must not contain path traversal sequences.")
+            # Decode any URL-encoded sequences (handles all encoding variants)
+            decoded_dir = urllib.parse.unquote(output_dir, errors='strict')
             
             # Expand user home directory and resolve to absolute path
+            # Path.resolve() canonicalizes the path and safely handles any '..' components
             output_path = Path(os.path.expanduser(decoded_dir)).resolve()
             
             # Ensure the resolved path is within the allowed base directory

@@ -63,6 +63,10 @@ class StorageService:
         """
         
         if uri.startswith("s3://"):
+            if not self._is_valid_s3_uri(uri):
+                safe_hash = self._hash_string(uri) if uri else "unknown"
+                logger.error(f"Invalid S3 URI format. File hash: {safe_hash}")
+                raise ValueError("Invalid S3 URI format")
             return self._download_from_s3(uri)
         else:
             # For local files, check if it's an absolute path outside temp_dir
@@ -166,6 +170,47 @@ class StorageService:
     def _hash_string(self, s: str) -> str:
         """Create a secure hash of a string for logging purposes."""
         return hashlib.sha256(s.encode()).hexdigest()[:16]
+    
+    def _is_valid_s3_uri(self, uri: str) -> bool:
+        """
+        Validate S3 URI format.
+        
+        Valid S3 URI format: s3://bucket-name/key/path
+        Bucket naming rules:
+        - 3-63 characters long
+        - Lowercase letters, numbers, hyphens
+        - Must start and end with letter or number
+        - No consecutive periods or hyphens
+        """
+        import re
+        
+        if not uri.startswith("s3://"):
+            return False
+        
+        # Remove the s3:// prefix
+        path = uri[5:]
+        
+        # Split into bucket and key
+        parts = path.split("/", 1)
+        if not parts:
+            return False
+        
+        bucket = parts[0]
+        
+        # Validate bucket name
+        if len(bucket) < 3 or len(bucket) > 63:
+            return False
+        
+        # Bucket name pattern
+        bucket_pattern = r'^[a-z0-9][a-z0-9\-]*[a-z0-9]$'
+        if not re.match(bucket_pattern, bucket):
+            return False
+        
+        # No consecutive periods or hyphens
+        if '..' in bucket or '--' in bucket:
+            return False
+        
+        return True
     
     def _is_safe_path(self, base_dir: str, path: str) -> bool:
         """

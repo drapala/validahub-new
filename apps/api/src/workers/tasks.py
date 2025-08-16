@@ -106,14 +106,11 @@ def validate_csv_job(
             from pathlib import Path
             import urllib.parse
             
-            # Decode any URL-encoded sequences
-            decoded_uri = urllib.parse.unquote(input_uri)
+            # Decode any URL-encoded sequences (handles all encoding variants)
+            decoded_uri = urllib.parse.unquote(input_uri, errors='strict')
             
-            # Check for path traversal attempts
-            if '..' in decoded_uri or '%2e%2e' in input_uri.lower():
-                raise ValueError(f"Path traversal detected in input_uri: {input_uri[:50]}")
-            
-            # Resolve to absolute path and ensure it's within allowed directories
+            # Resolve to absolute path - this canonicalizes the path and resolves any '..' components
+            # Path.resolve() is the most robust way to prevent path traversal
             file_path = Path(decoded_uri).resolve()
             
             # Define allowed base directories for input files
@@ -139,6 +136,15 @@ def validate_csv_job(
         
         # Download or read file using storage service
         csv_content = storage_service.download_file(input_uri)
+        
+        # Check file size to prevent memory issues
+        content_size = len(csv_content.encode('utf-8'))
+        if content_size > ValidationConfig.MAX_CSV_FILE_SIZE:
+            raise ValueError(
+                f"CSV file size ({content_size / (1024*1024):.2f}MB) exceeds maximum allowed size "
+                f"({ValidationConfig.MAX_CSV_FILE_SIZE / (1024*1024):.2f}MB). "
+                "Consider splitting the file or using batch processing."
+            )
         
         # Update progress: File loaded
         update_job_progress(task_id, 30, "File loaded, starting validation")

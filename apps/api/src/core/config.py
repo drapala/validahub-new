@@ -17,6 +17,10 @@ class ValidationConfig:
         "comprehensive"
     }
     
+    # File size limits (in bytes)
+    MAX_CSV_FILE_SIZE = int(os.getenv("MAX_CSV_FILE_SIZE", str(1 * 1024 * 1024 * 1024)))  # 1GB default
+    STREAMING_THRESHOLD = int(os.getenv("STREAMING_THRESHOLD", str(100 * 1024 * 1024)))  # 100MB default
+    
     @classmethod
     def get_allowed_rulesets(cls) -> Set[str]:
         """
