@@ -140,8 +140,19 @@ class S3RulesetRepository(IRulesetRepository):
         """
         self.bucket_name = bucket_name
         self.prefix = prefix
-        # TODO: Initialize boto3 client
+        self._client = None
         logger.info(f"S3 repository initialized with bucket: {bucket_name}")
+    
+    def _get_client(self):
+        """Lazy initialization of boto3 client."""
+        if self._client is None:
+            try:
+                import boto3
+                self._client = boto3.client('s3')
+            except ImportError:
+                logger.error("boto3 not installed. Install with: pip install boto3")
+                raise ImportError("boto3 is required for S3 storage")
+        return self._client
     
     async def get_ruleset(self, marketplace: str) -> Dict[str, Any]:
         """
@@ -153,14 +164,32 @@ class S3RulesetRepository(IRulesetRepository):
         Returns:
             Dict containing ruleset configuration
         """
-        # TODO: Implement S3 loading
-        logger.warning("S3 repository not fully implemented")
-        return {
-            "version": "1.0",
-            "name": f"{marketplace} Rules",
-            "rules": [],
-            "mappings": {}
-        }
+        import asyncio
+        
+        key = f"{self.prefix}{marketplace.lower()}.yaml"
+        
+        try:
+            client = self._get_client()
+            loop = asyncio.get_event_loop()
+            
+            # Run boto3 call in executor since it's not async
+            response = await loop.run_in_executor(
+                None,
+                client.get_object,
+                self.bucket_name,
+                key
+            )
+            
+            content = response['Body'].read().decode('utf-8')
+            ruleset = yaml.safe_load(content)
+            return ruleset or self._empty_ruleset(marketplace)
+            
+        except client.exceptions.NoSuchKey:
+            logger.warning(f"No ruleset found for {marketplace} in S3")
+            return self._empty_ruleset(marketplace)
+        except Exception as e:
+            logger.error(f"Error loading ruleset from S3 for {marketplace}: {e}")
+            return self._empty_ruleset(marketplace)
     
     async def save_ruleset(self, marketplace: str, ruleset: Dict[str, Any]) -> None:
         """
@@ -170,8 +199,28 @@ class S3RulesetRepository(IRulesetRepository):
             marketplace: The marketplace identifier
             ruleset: The ruleset configuration to save
         """
-        # TODO: Implement S3 saving
-        logger.warning("S3 save not implemented")
+        import asyncio
+        
+        key = f"{self.prefix}{marketplace.lower()}.yaml"
+        content = yaml.dump(ruleset, default_flow_style=False, sort_keys=False)
+        
+        try:
+            client = self._get_client()
+            loop = asyncio.get_event_loop()
+            
+            await loop.run_in_executor(
+                None,
+                client.put_object,
+                Bucket=self.bucket_name,
+                Key=key,
+                Body=content.encode('utf-8'),
+                ContentType='application/x-yaml'
+            )
+            
+            logger.info(f"Saved ruleset for {marketplace} to S3")
+        except Exception as e:
+            logger.error(f"Error saving ruleset to S3 for {marketplace}: {e}")
+            raise
     
     async def list_marketplaces(self) -> List[str]:
         """
@@ -180,8 +229,31 @@ class S3RulesetRepository(IRulesetRepository):
         Returns:
             List of marketplace identifiers
         """
-        # TODO: Implement S3 listing
-        return []
+        import asyncio
+        
+        try:
+            client = self._get_client()
+            loop = asyncio.get_event_loop()
+            
+            response = await loop.run_in_executor(
+                None,
+                client.list_objects_v2,
+                self.bucket_name,
+                self.prefix
+            )
+            
+            marketplaces = []
+            if 'Contents' in response:
+                for obj in response['Contents']:
+                    key = obj['Key']
+                    if key.startswith(self.prefix) and key.endswith('.yaml'):
+                        marketplace = key[len(self.prefix):-5]  # Remove prefix and .yaml
+                        marketplaces.append(marketplace)
+            
+            return marketplaces
+        except Exception as e:
+            logger.error(f"Error listing marketplaces from S3: {e}")
+            return []
     
     async def exists(self, marketplace: str) -> bool:
         """
@@ -193,8 +265,35 @@ class S3RulesetRepository(IRulesetRepository):
         Returns:
             True if ruleset exists, False otherwise
         """
-        # TODO: Implement S3 existence check
-        return False
+        import asyncio
+        
+        key = f"{self.prefix}{marketplace.lower()}.yaml"
+        
+        try:
+            client = self._get_client()
+            loop = asyncio.get_event_loop()
+            
+            await loop.run_in_executor(
+                None,
+                client.head_object,
+                self.bucket_name,
+                key
+            )
+            return True
+        except client.exceptions.ClientError:
+            return False
+        except Exception as e:
+            logger.error(f"Error checking existence in S3 for {marketplace}: {e}")
+            return False
+    
+    def _empty_ruleset(self, marketplace: str) -> Dict[str, Any]:
+        """Return empty ruleset structure."""
+        return {
+            "version": "1.0",
+            "name": f"{marketplace} Rules",
+            "rules": [],
+            "mappings": {}
+        }
 
 
 class DatabaseRulesetRepository(IRulesetRepository):
