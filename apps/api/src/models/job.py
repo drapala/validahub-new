@@ -8,6 +8,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.inspection import inspect
 from datetime import datetime
 import enum
 import uuid
@@ -103,33 +104,38 @@ class Job(Base):
         Index('ix_jobs_created_at_desc', created_at.desc()),
     )
     
+    @property
+    def is_terminal(self) -> bool:
+        """Check if job is in a terminal state."""
+        return self.status in [
+            JobStatus.SUCCEEDED,
+            JobStatus.FAILED,
+            JobStatus.CANCELLED,
+            JobStatus.EXPIRED
+        ]
+    
     def to_dict(self):
-        """Convert to dictionary."""
-        return {
-            "id": str(self.id),
-            "user_id": str(self.user_id),
-            "organization_id": str(self.organization_id) if self.organization_id else None,
-            "task_name": self.task_name,
-            "queue": self.queue,
-            "priority": self.priority,
-            "status": self.status.value if self.status else None,
-            "params": self.params_json,
-            "result_ref": self.result_ref,
-            "error": self.error,
-            "progress": self.progress,
-            "message": self.message,
-            "idempotency_key": self.idempotency_key,
-            "correlation_id": self.correlation_id,
-            "celery_task_id": self.celery_task_id,
-            "retry_count": self.retry_count,
-            "max_retries": self.max_retries,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            "started_at": self.started_at.isoformat() if self.started_at else None,
-            "finished_at": self.finished_at.isoformat() if self.finished_at else None,
-            "expires_at": self.expires_at.isoformat() if self.expires_at else None,
-            "metadata": self.job_metadata
-        }
+        """Convert to dictionary using SQLAlchemy inspection."""
+        result = {}
+        for column in inspect(self).mapper.column_attrs:
+            value = getattr(self, column.key)
+            # Handle special types
+            if isinstance(value, uuid.UUID):
+                result[column.key] = str(value)
+            elif isinstance(value, datetime):
+                result[column.key] = value.isoformat()
+            elif isinstance(value, enum.Enum):
+                result[column.key] = value.value
+            else:
+                result[column.key] = value
+        
+        # For backward compatibility, rename some fields
+        if "params_json" in result:
+            result["params"] = result.pop("params_json")
+        if "job_metadata" in result:
+            result["metadata"] = result.pop("job_metadata")
+        
+        return result
 
 
 class JobResult(Base):

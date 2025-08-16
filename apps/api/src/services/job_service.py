@@ -64,20 +64,13 @@ class JobService:
                 )
         
         # Check idempotency if key provided
-        if job_data.idempotency_key:
-            existing_job = self._check_idempotency(user_id, job_data.idempotency_key)
-            
-            if existing_job:
-                # Job already exists
-                if not prefer_representation and not existing_job.is_terminal:
-                    # Conflict - job still in progress
-                    raise HTTPException(
-                        status_code=status.HTTP_409_CONFLICT,
-                        detail=f"Job with idempotency_key already exists and is {existing_job.status.value}"
-                    )
-                
-                # Return existing job
-                return JobOut.model_validate(existing_job), False
+        idempotency_result = self._handle_idempotency_check(
+            user_id=user_id,
+            idempotency_key=job_data.idempotency_key,
+            prefer_representation=prefer_representation
+        )
+        if idempotency_result is not None:
+            return idempotency_result
         
         # Map plan to queue
         queue = self._get_queue_for_plan(job_data.plan)
@@ -416,6 +409,33 @@ class JobService:
                 Job.idempotency_key == idempotency_key
             )
         ).first()
+    
+    def _handle_idempotency_check(
+        self,
+        user_id: str,
+        idempotency_key: Optional[str],
+        prefer_representation: bool
+    ) -> Optional[Tuple[JobOut, bool]]:
+        """Handle idempotency check and return result if job exists."""
+        
+        if not idempotency_key:
+            return None
+        
+        existing_job = self._check_idempotency(user_id, idempotency_key)
+        
+        if existing_job:
+            # Job already exists
+            if not prefer_representation and not existing_job.is_terminal:
+                # Conflict - job still in progress
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Job with idempotency_key already exists and is {existing_job.status.value}"
+                )
+            
+            # Return existing job
+            return JobOut.model_validate(existing_job), False
+        
+        return None
     
     def _get_queue_for_plan(self, plan: JobPlan) -> str:
         """Map user plan to queue name."""

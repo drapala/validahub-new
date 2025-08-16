@@ -162,8 +162,11 @@ class HTTPTelemetryEmitter:
     
     def __init__(self, endpoint: str, api_key: Optional[str] = None):
         """Initialize with HTTP endpoint."""
+        import requests
+        
         self.endpoint = endpoint
         self.api_key = api_key
+        self.session = requests.Session()
         
     def emit(
         self,
@@ -176,8 +179,6 @@ class HTTPTelemetryEmitter:
         parent_id: Optional[str] = None
     ) -> None:
         """Send event via HTTP POST."""
-        
-        import requests
         
         # Create event envelope
         envelope = {
@@ -197,7 +198,7 @@ class HTTPTelemetryEmitter:
             headers["X-API-Key"] = self.api_key
             
         try:
-            response = requests.post(
+            response = self.session.post(
                 self.endpoint,
                 json=envelope,
                 headers=headers,

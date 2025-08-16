@@ -48,8 +48,13 @@ class StorageService:
         
         if uri.startswith("s3://"):
             return self._download_from_s3(uri)
-        elif self._is_safe_path(self.temp_dir, uri) and os.path.exists(uri):
-            return self._read_local_file(uri)
+        elif self._is_safe_path(self.temp_dir, uri):
+            if os.path.exists(uri):
+                return self._read_local_file(uri)
+            else:
+                safe_name = os.path.basename(uri) if uri else "unknown"
+                logger.error(f"File not found or access denied: {safe_name}")
+                raise FileNotFoundError("File not found")
         else:
             # Log sanitized error for security (only filename, no full path)
             safe_name = os.path.basename(uri) if uri else "unknown"

@@ -23,6 +23,10 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/jobs", tags=["jobs"])
 
+# Cache allowed JobStatus values
+from ...models.job import JobStatus
+ALLOWED_JOB_STATUS_VALUES = [e.value for e in JobStatus]
+
 
 def get_correlation_id(
     x_correlation_id: Optional[str] = Header(None, alias="X-Correlation-Id")
@@ -248,7 +252,6 @@ async def list_jobs(
     """
     
     # Build query object
-    from ...models.job import JobStatus
     
     # Validate and convert status with proper error handling
     job_status = None
@@ -256,10 +259,9 @@ async def list_jobs(
         try:
             job_status = JobStatus(status)
         except ValueError:
-            allowed = [e.value for e in JobStatus]
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Invalid status value '{status}'. Allowed values are: {allowed}"
+                detail=f"Invalid status value '{status}'. Allowed values are: {ALLOWED_JOB_STATUS_VALUES}"
             )
     
     query = JobListQuery(

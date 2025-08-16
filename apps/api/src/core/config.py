@@ -3,7 +3,7 @@ Configuration settings for the API application.
 """
 
 import os
-from typing import Set
+from typing import Set, Dict
 
 class ValidationConfig:
     """Configuration for validation rules and settings."""
@@ -33,3 +33,38 @@ class ValidationConfig:
     def is_valid_ruleset(cls, ruleset: str) -> bool:
         """Check if a ruleset is valid."""
         return ruleset in cls.get_allowed_rulesets()
+
+
+class QueueConfig:
+    """Configuration for queue and task mappings."""
+    
+    # Task name mappings to full Celery task paths
+    TASK_MAPPINGS: Dict[str, str] = {
+        "validate_csv_job": "src.workers.tasks.validate_csv_job",
+        "correct_csv_job": "src.workers.tasks.correct_csv_job",
+        "sync_connector_job": "src.workers.tasks.sync_connector_job",
+        "generate_report_job": "src.workers.tasks.generate_report_job"
+    }
+    
+    @classmethod
+    def get_task_mappings(cls) -> Dict[str, str]:
+        """
+        Get task mappings from environment or use defaults.
+        
+        Environment variable format: TASK_MAPPINGS=task1:path1,task2:path2
+        """
+        env_mappings = os.getenv("TASK_MAPPINGS")
+        if env_mappings:
+            mappings = {}
+            for mapping in env_mappings.split(","):
+                if ":" in mapping:
+                    task, path = mapping.strip().split(":", 1)
+                    mappings[task] = path
+            return mappings if mappings else cls.TASK_MAPPINGS
+        return cls.TASK_MAPPINGS
+    
+    @classmethod
+    def get_celery_task_name(cls, task_name: str) -> str:
+        """Get the full Celery task path for a given task name."""
+        mappings = cls.get_task_mappings()
+        return mappings.get(task_name, f"src.workers.tasks.{task_name}")

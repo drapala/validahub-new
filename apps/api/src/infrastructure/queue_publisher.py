@@ -8,6 +8,8 @@ from typing import Dict, Any, Optional, Protocol
 from datetime import datetime
 import uuid
 
+from ..core.config import QueueConfig
+
 logger = logging.getLogger(__name__)
 
 
@@ -84,16 +86,8 @@ class CeleryQueuePublisher:
     ) -> str:
         """Publish task to Celery queue."""
         
-        # Map task name to full Celery task path
-        task_mapping = {
-            "validate_csv_job": "src.workers.tasks.validate_csv_job",
-            "correct_csv_job": "src.workers.tasks.correct_csv_job",
-            "sync_connector_job": "src.workers.tasks.sync_connector_job",
-            "generate_report_job": "src.workers.tasks.generate_report_job"
-        }
-        
-        # Use full task path for Celery
-        celery_task_name = task_mapping.get(task_name, f"src.workers.tasks.{task_name}")
+        # Use configured task mapping
+        celery_task_name = QueueConfig.get_celery_task_name(task_name)
         
         # Extract job ID from payload (required)
         job_id = payload.get("job_id")

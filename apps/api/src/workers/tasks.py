@@ -10,14 +10,6 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 import pandas as pd
 import io
-import boto3
-from botocore.exceptions import (
-    ClientError,
-    EndpointConnectionError,
-    ConnectTimeoutError,
-    ReadTimeoutError,
-    ConnectionClosedError
-)
 
 from .celery_app import celery_app, DatabaseTask, update_job_progress
 from ..services.rule_engine_service import RuleEngineService
@@ -301,6 +293,12 @@ def _is_aws_transient_error(error: Exception) -> bool:
     """
     Check if error is an AWS-specific transient error.
     """
+    # Lazy import boto3 exceptions only when needed
+    try:
+        from botocore.exceptions import ClientError
+    except ImportError:
+        return False
+    
     # Check for specific AWS transient errors
     if isinstance(error, ClientError):
         error_code = error.response.get('Error', {}).get('Code', '')
@@ -317,14 +315,23 @@ def _is_aws_transient_error(error: Exception) -> bool:
             return True
     
     # AWS connection errors
-    aws_transient_types = (
-        EndpointConnectionError,
-        ConnectTimeoutError,
-        ReadTimeoutError,
-        ConnectionClosedError,
-    )
-    if isinstance(error, aws_transient_types):
-        return True
+    try:
+        from botocore.exceptions import (
+            EndpointConnectionError,
+            ConnectTimeoutError,
+            ReadTimeoutError,
+            ConnectionClosedError
+        )
+        aws_transient_types = (
+            EndpointConnectionError,
+            ConnectTimeoutError,
+            ReadTimeoutError,
+            ConnectionClosedError,
+        )
+        if isinstance(error, aws_transient_types):
+            return True
+    except ImportError:
+        pass
     
     return False
 
