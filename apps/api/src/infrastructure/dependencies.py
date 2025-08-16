@@ -54,9 +54,18 @@ def get_ruleset_repository() -> IRulesetRepository:
         logger.info(f"Using S3 repository with bucket {bucket_name}")
         
     elif storage_type == "database":
-        # TODO: Get database session from somewhere
-        repository = DatabaseRulesetRepository(None)
-        logger.info("Using database repository")
+        # Get database session from environment or configuration
+        # Note: This requires proper database configuration
+        try:
+            from ..database import get_db_session  # Assuming you have a database module
+            db_session = get_db_session()
+            repository = DatabaseRulesetRepository(db_session)
+            logger.info("Using database repository with configured session")
+        except ImportError:
+            logger.warning("Database module not found. Using None for db_session.")
+            logger.warning("Please implement get_db_session() in your database module.")
+            repository = DatabaseRulesetRepository(None)
+            logger.info("Using database repository (session not configured)")
         
     else:
         raise ValueError(f"Unknown storage type: {storage_type}")

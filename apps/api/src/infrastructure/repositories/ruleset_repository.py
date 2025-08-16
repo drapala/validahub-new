@@ -175,9 +175,7 @@ class S3RulesetRepository(IRulesetRepository):
             # Run boto3 call in executor since it's not async
             response = await loop.run_in_executor(
                 None,
-                client.get_object,
-                self.bucket_name,
-                key
+                lambda: client.get_object(Bucket=self.bucket_name, Key=key)
             )
             
             content = response['Body'].read().decode('utf-8')
@@ -210,11 +208,12 @@ class S3RulesetRepository(IRulesetRepository):
             
             await loop.run_in_executor(
                 None,
-                client.put_object,
-                Bucket=self.bucket_name,
-                Key=key,
-                Body=content.encode('utf-8'),
-                ContentType='application/x-yaml'
+                lambda: client.put_object(
+                    Bucket=self.bucket_name,
+                    Key=key,
+                    Body=content.encode('utf-8'),
+                    ContentType='application/x-yaml'
+                )
             )
             
             logger.info(f"Saved ruleset for {marketplace} to S3")
@@ -237,9 +236,7 @@ class S3RulesetRepository(IRulesetRepository):
             
             response = await loop.run_in_executor(
                 None,
-                client.list_objects_v2,
-                self.bucket_name,
-                self.prefix
+                lambda: client.list_objects_v2(Bucket=self.bucket_name, Prefix=self.prefix)
             )
             
             marketplaces = []
@@ -275,9 +272,7 @@ class S3RulesetRepository(IRulesetRepository):
             
             await loop.run_in_executor(
                 None,
-                client.head_object,
-                self.bucket_name,
-                key
+                lambda: client.head_object(Bucket=self.bucket_name, Key=key)
             )
             return True
         except client.exceptions.ClientError:
@@ -360,8 +355,33 @@ class DatabaseRulesetRepository(IRulesetRepository):
             marketplace: The marketplace identifier
             ruleset: The ruleset configuration to save
         """
-        # TODO: Implement database saving
-        logger.warning("Database save not implemented")
+        logger.warning(f"Database save for {marketplace} - implementation pending database schema")
+        
+        # Example implementation with SQLAlchemy (commented out):
+        # try:
+        #     async with self.db_session() as session:
+        #         from sqlalchemy import select
+        #         from ..models import Ruleset
+        #         
+        #         stmt = select(Ruleset).where(Ruleset.marketplace == marketplace.lower())
+        #         result = await session.execute(stmt)
+        #         ruleset_obj = result.scalar_one_or_none()
+        #         
+        #         if ruleset_obj:
+        #             ruleset_obj.data = json.dumps(ruleset) if not isinstance(ruleset, str) else ruleset
+        #             ruleset_obj.updated_at = datetime.utcnow()
+        #         else:
+        #             ruleset_obj = Ruleset(
+        #                 marketplace=marketplace.lower(),
+        #                 data=json.dumps(ruleset) if not isinstance(ruleset, str) else ruleset
+        #             )
+        #             session.add(ruleset_obj)
+        #         
+        #         await session.commit()
+        #         logger.info(f"Saved ruleset for {marketplace} to database")
+        # except Exception as e:
+        #     logger.error(f"Error saving ruleset to database for {marketplace}: {e}")
+        #     raise
     
     async def list_marketplaces(self) -> List[str]:
         """
@@ -370,7 +390,21 @@ class DatabaseRulesetRepository(IRulesetRepository):
         Returns:
             List of marketplace identifiers
         """
-        # TODO: Implement database listing
+        logger.warning("Database listing - implementation pending database schema")
+        
+        # Example implementation with SQLAlchemy (commented out):
+        # try:
+        #     async with self.db_session() as session:
+        #         from sqlalchemy import select
+        #         from ..models import Ruleset
+        #         
+        #         stmt = select(Ruleset.marketplace).distinct()
+        #         result = await session.execute(stmt)
+        #         return [row[0] for row in result]
+        # except Exception as e:
+        #     logger.error(f"Error listing marketplaces from database: {e}")
+        #     return []
+        
         return []
     
     async def exists(self, marketplace: str) -> bool:
@@ -383,8 +417,31 @@ class DatabaseRulesetRepository(IRulesetRepository):
         Returns:
             True if ruleset exists, False otherwise
         """
-        # TODO: Implement database existence check
+        logger.warning(f"Database existence check for {marketplace} - implementation pending database schema")
+        
+        # Example implementation with SQLAlchemy (commented out):
+        # try:
+        #     async with self.db_session() as session:
+        #         from sqlalchemy import select, exists
+        #         from ..models import Ruleset
+        #         
+        #         stmt = select(exists().where(Ruleset.marketplace == marketplace.lower()))
+        #         result = await session.execute(stmt)
+        #         return result.scalar()
+        # except Exception as e:
+        #     logger.error(f"Error checking existence in database for {marketplace}: {e}")
+        #     return False
+        
         return False
+    
+    def _empty_ruleset(self, marketplace: str) -> Dict[str, Any]:
+        """Return empty ruleset structure."""
+        return {
+            "version": "1.0",
+            "name": f"{marketplace} Rules",
+            "rules": [],
+            "mappings": {}
+        }
 
 
 class CachedRulesetRepository(IRulesetRepository):

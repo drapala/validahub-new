@@ -81,14 +81,17 @@ class RuleEngineFactory(IRuleEngineFactory):
         """
         if engine_type == "default":
             # Import the existing engine
-            import sys
-            from pathlib import Path
-            
-            libs_path = Path(__file__).parent.parent.parent.parent.parent / "libs"
-            if str(libs_path) not in sys.path:
-                sys.path.insert(0, str(libs_path))
-            
-            from rule_engine import RuleEngine
+            # The 'rule_engine' package must be installed or available on PYTHONPATH
+            try:
+                from rule_engine import RuleEngine
+            except ImportError:
+                logger.error("rule_engine module not found. Please ensure it's installed or on PYTHONPATH.")
+                logger.error("You can set PYTHONPATH to include the libs directory:")
+                logger.error("  export PYTHONPATH=$PYTHONPATH:/path/to/project/libs")
+                raise ImportError(
+                    "rule_engine module not found. "
+                    "Please install it or add the libs directory to PYTHONPATH."
+                )
             
             # Wrap in adapter
             return RuleEngineAdapter(RuleEngine())
