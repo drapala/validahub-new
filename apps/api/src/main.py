@@ -6,7 +6,7 @@ import logging
 
 from src.config import settings
 # from src.db.base import engine, Base  # Commented for testing
-from src.api.v1 import health, validation
+from src.api.v1 import health, validation, jobs
 from src.middleware.correlation import (
     CorrelationMiddleware,
     RateLimitMiddleware,
@@ -72,6 +72,7 @@ app.add_middleware(
 # Include routers
 app.include_router(health.router)  # Health endpoints (no prefix)
 app.include_router(validation.router)  # Validation endpoints with YAML rule engine
+app.include_router(jobs.router)  # Job queue endpoints
 
 
 @app.get("/status")

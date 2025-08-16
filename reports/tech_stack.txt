@@ -1,0 +1,4 @@
+=== Estrutura de linguagens ===
+Python files: 6292
+TypeScript/JS files: 16576
+JSON files: 1003

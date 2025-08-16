@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "job_failed-v1",
+  "title": "Job Failed Event",
+  "description": "Event emitted when a job fails",
+  "type": "object",
+  "required": ["event_id", "event_name", "version", "timestamp", "partition_key", "payload"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event instance"
+    },
+    "event_name": {
+      "type": "string",
+      "const": "job.failed"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the event occurred"
+    },
+    "partition_key": {
+      "type": "string",
+      "pattern": "^[^:]+:[^:]+:[^:]+$",
+      "description": "Partition key in format marketplace:category:region"
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "Correlation ID for tracing related events"
+    },
+    "payload": {
+      "type": "object",
+      "required": ["job_id", "task", "timestamp", "marketplace", "category", "region", "error"],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "task": {
+          "type": "string",
+          "description": "Task name that failed"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "marketplace": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "error": {
+          "type": "object",
+          "required": ["type", "message"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Error class name"
+            },
+            "message": {
+              "type": "string",
+              "description": "Error message"
+            },
+            "traceback": {
+              "type": ["string", "null"],
+              "description": "Stack trace if available"
+            }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "latency_ms": {
+              "type": ["integer", "null"],
+              "minimum": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}

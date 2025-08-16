@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "job_started-v1",
+  "title": "Job Started Event",
+  "description": "Event emitted when a job starts processing",
+  "type": "object",
+  "required": ["event_id", "event_name", "version", "timestamp", "partition_key", "payload"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event instance"
+    },
+    "event_name": {
+      "type": "string",
+      "const": "job.started"
+    },
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the event occurred"
+    },
+    "partition_key": {
+      "type": "string",
+      "pattern": "^[^:]+:[^:]+:[^:]+$",
+      "description": "Partition key in format marketplace:category:region"
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "Correlation ID for tracing related events"
+    },
+    "parent_id": {
+      "type": "string",
+      "description": "Parent job ID for chained jobs"
+    },
+    "payload": {
+      "type": "object",
+      "required": ["job_id", "task", "timestamp", "marketplace", "category", "region"],
+      "properties": {
+        "job_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "task": {
+          "type": "string",
+          "description": "Task name being executed"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "marketplace": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "params": {
+          "type": "object",
+          "description": "Task parameters"
+        }
+      }
+    }
+  }
+}

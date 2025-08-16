@@ -1,0 +1,77 @@
+# Queue Configuration
+# External configuration for task routing and queue settings
+
+queues:
+  default:
+    name: "celery"
+    max_priority: 10
+    
+  free:
+    name: "queue:free"
+    max_priority: 5
+    
+  premium:
+    name: "queue:premium"
+    max_priority: 10
+    
+  priority:
+    name: "queue:priority"
+    max_priority: 10
+
+task_routes:
+  # CSV Validation tasks
+  validate_csv_job:
+    queue: "queue:free"
+    priority: 5
+    max_retries: 5
+    time_limit: 300
+    soft_time_limit: 270
+    
+  correct_csv_job:
+    queue: "queue:free"
+    priority: 5
+    max_retries: 3
+    time_limit: 300
+    soft_time_limit: 270
+    
+  # Connector tasks
+  sync_connector_job:
+    queue: "queue:premium"
+    priority: 7
+    max_retries: 3
+    time_limit: 600
+    soft_time_limit: 570
+    
+  # Report tasks
+  generate_report_job:
+    queue: "queue:free"
+    priority: 3
+    max_retries: 2
+    time_limit: 180
+    soft_time_limit: 150
+
+# Queue tier mapping
+queue_tiers:
+  free:
+    queues: ["queue:free"]
+    rate_limit: "100/m"  # 100 tasks per minute
+    max_concurrent: 10
+    
+  premium:
+    queues: ["queue:premium", "queue:priority"]
+    rate_limit: "1000/m"  # 1000 tasks per minute
+    max_concurrent: 50
+    
+# Regional configuration (future)
+regions:
+  us-east-1:
+    endpoint: "sqs.us-east-1.amazonaws.com"
+    queues:
+      - "queue:free-us"
+      - "queue:premium-us"
+      
+  sa-east-1:
+    endpoint: "sqs.sa-east-1.amazonaws.com"
+    queues:
+      - "queue:free-br"
+      - "queue:premium-br"
