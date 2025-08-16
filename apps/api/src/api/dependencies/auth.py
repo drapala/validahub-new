@@ -81,7 +81,14 @@ def get_current_user_id(request: Request) -> str:
             "CRITICAL: Production deployment detected without proper authentication! "
             "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
         )
-        sys.exit(1)  # Exit immediately to prevent insecure production deployment
+        logger.critical(
+            "CRITICAL: Production deployment detected without proper authentication! "
+            "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
+        )
+        raise RuntimeError(
+            "Production deployment detected without proper authentication! "
+            "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
+        )
     
     # For now, raise an HTTP error to prevent unintentional production use
     raise HTTPException(
