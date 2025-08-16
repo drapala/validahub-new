@@ -6,6 +6,7 @@ Abstracts file download/upload operations from business logic.
 import os
 import json
 import logging
+import hashlib
 from typing import Optional, Dict, Any
 from datetime import datetime
 import tempfile
@@ -67,13 +68,14 @@ class StorageService:
             if os.path.exists(uri):
                 return self._read_local_file(uri)
             else:
-                safe_name = os.path.basename(uri) if uri else "unknown"
-                logger.error(f"File not found or access denied: {safe_name}")
+                # Hash the URI for secure logging
+                safe_hash = self._hash_string(uri) if uri else "unknown"
+                logger.error(f"File not found or access denied. File hash: {safe_hash}")
                 raise FileNotFoundError("File not found")
         else:
-            # Log sanitized error for security (only filename, no full path)
-            safe_name = os.path.basename(uri) if uri else "unknown"
-            logger.error(f"File not found or access denied: {safe_name}")
+            # Log sanitized error for security using hash
+            safe_hash = self._hash_string(uri) if uri else "unknown"
+            logger.error(f"File not found or access denied. File hash: {safe_hash}")
             raise FileNotFoundError("File not found")
     
     def save_result(self, job_id: str, result: Dict[str, Any]) -> str:
@@ -152,6 +154,10 @@ class StorageService:
             logger.error(f"Error downloading from S3: {type(e).__name__}")
             raise
     
+    def _hash_string(self, s: str) -> str:
+        """Create a secure hash of a string for logging purposes."""
+        return hashlib.sha256(s.encode()).hexdigest()[:16]
+    
     def _is_safe_path(self, base_dir: str, path: str) -> bool:
         """
         Check if path is safe and within allowed directory.
@@ -183,8 +189,8 @@ class StorageService:
         
         # Validate path is within allowed directory
         if not self._is_safe_path(self.temp_dir, path):
-            safe_name = os.path.basename(path) if path else "unknown"
-            logger.error(f"Attempted path traversal or access outside allowed directory: {safe_name}")
+            safe_hash = self._hash_string(path) if path else "unknown"
+            logger.error(f"Attempted path traversal or access outside allowed directory. File hash: {safe_hash}")
             raise FileNotFoundError("File not found")
         
         try:

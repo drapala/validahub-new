@@ -35,15 +35,18 @@ def get_current_user_id() -> str:
             "00000000-0000-0000-0000-000000000001"
         )
         
-        # Additional safety check: ensure we're truly in development
-        if os.environ.get("ALLOW_MOCK_AUTH") != "true":
+        # Additional safety checks: require TWO environment variables for mock auth
+        allow_mock = os.environ.get("ALLOW_MOCK_AUTH") == "true"
+        confirm_mock = os.environ.get("CONFIRM_MOCK_AUTH") == "true"
+        
+        if not (allow_mock and confirm_mock):
             logger.warning(
-                "Mock authentication attempted without ALLOW_MOCK_AUTH=true. "
-                "Set this environment variable to exactly 'true' to enable mock auth in development."
+                "Mock authentication attempted without both ALLOW_MOCK_AUTH=true and CONFIRM_MOCK_AUTH=true. "
+                "Set BOTH environment variables to exactly 'true' to enable mock auth in development."
             )
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication required. Set ALLOW_MOCK_AUTH=true for development."
+                detail="Authentication required. Set BOTH ALLOW_MOCK_AUTH=true and CONFIRM_MOCK_AUTH=true for development."
             )
         
         logger.debug(f"Using mock user ID: {mock_user_id}")

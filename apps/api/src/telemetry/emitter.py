@@ -96,13 +96,17 @@ class FileBasedTelemetryEmitter:
             output_path = (base_dir / "telemetry").resolve()
         else:
             # Validate user-provided path
+            # First check for '..' components before any processing
+            if '..' in output_dir:
+                raise ValueError("Output directory path must not contain '..' sequences.")
+            
             # Only allow alphanumerics, underscores, hyphens, slashes, periods, and tilde
             if not re.match(r'^[\w\-/\.~]+$', output_dir):
                 raise ValueError("Output directory contains invalid characters.")
             
             output_path = Path(os.path.expanduser(output_dir)).resolve()
             
-            # Ensure no '..' components after resolution
+            # Double-check no '..' components after resolution
             if any(part == '..' for part in output_path.parts):
                 raise ValueError("Output directory path must not contain '..' components.")
             

@@ -58,9 +58,10 @@ class JobService:
         if job_data.task in ["validate_csv_job", "correct_csv_job"]:
             ruleset = job_data.params.get("ruleset", "default")
             if not ValidationConfig.is_valid_ruleset(ruleset):
+                allowed_rulesets = ValidationConfig.get_allowed_rulesets()
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail=f"Invalid ruleset '{ruleset}'. Allowed values are: {ValidationConfig.get_allowed_rulesets()}"
+                    detail=f"Invalid ruleset '{ruleset}'. Allowed values are: {allowed_rulesets}"
                 )
         
         # Check idempotency if key provided

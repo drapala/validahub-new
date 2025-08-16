@@ -93,6 +93,16 @@ def validate_csv_job(
                 parameter_name="input_uri"
             )
         
+        # Validate input_uri format
+        if not isinstance(input_uri, str):
+            raise ValueError(f"input_uri must be a string, got {type(input_uri).__name__}")
+        
+        # Validate URI scheme
+        if not (input_uri.startswith("s3://") or input_uri.startswith("/") or input_uri.startswith("./")):
+            raise ValueError(
+                f"Invalid input_uri format. Must be an S3 URI (s3://...) or absolute/relative file path, got: {input_uri[:50]}"
+            )
+        
         # Download or read file using storage service
         csv_content = storage_service.download_file(input_uri)
         
