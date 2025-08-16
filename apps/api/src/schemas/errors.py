@@ -45,7 +45,7 @@ class ProblemDetail(BaseModel):
 class ValidationProblemDetail(ProblemDetail):
     """Extended problem detail for validation errors"""
     
-    type: str = Field(default="https://validahub.com/errors/validation-failed")
+    type: str = Field(default="/errors/validation-failed")
     title: str = Field(default="Validation Failed")
     status: int = Field(default=422)
     
@@ -58,7 +58,7 @@ class ValidationProblemDetail(ProblemDetail):
 class FileSizeProblemDetail(ProblemDetail):
     """Problem detail for file size errors"""
     
-    type: str = Field(default="https://validahub.com/errors/file-too-large")
+    type: str = Field(default="/errors/file-too-large")
     title: str = Field(default="File Too Large")
     status: int = Field(default=413)
     
@@ -69,7 +69,7 @@ class FileSizeProblemDetail(ProblemDetail):
 class RateLimitProblemDetail(ProblemDetail):
     """Problem detail for rate limit errors"""
     
-    type: str = Field(default="https://validahub.com/errors/rate-limit-exceeded")
+    type: str = Field(default="/errors/rate-limit-exceeded")
     title: str = Field(default="Rate Limit Exceeded")
     status: int = Field(default=429)
     

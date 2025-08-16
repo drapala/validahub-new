@@ -96,7 +96,7 @@ async def validate_file_type(file: UploadFile, correlation_id: str) -> Optional[
     """Validate that the uploaded file is a CSV."""
     if not file.filename or not file.filename.endswith(('.csv', '.CSV')):
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/invalid-file-type",
+            type="/errors/invalid-file-type",
             title="Invalid File Type",
             status=415,
             detail="File must be a CSV file",
@@ -208,7 +208,7 @@ async def validate_csv_clean(
         content = await file.read()
     except OSError as e:
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/file-os-error",
+            type="/errors/file-os-error",
             title="File Access Error",
             status=400,
             detail=f"An OS error occurred while reading the file: {str(e)}. Please check the file and try again.",
@@ -217,7 +217,7 @@ async def validate_csv_clean(
         ))
     except Exception as e:
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/file-read-error",
+            type="/errors/file-read-error",
             title="File Read Error",
             status=400,
             detail=f"An unexpected error occurred while reading the file: {str(e)}. Please try again or contact support if the problem persists.",
@@ -229,7 +229,7 @@ async def validate_csv_clean(
         csv_str = content.decode('utf-8', errors='strict')
     except UnicodeDecodeError as e:
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/file-decode-error",
+            type="/errors/file-decode-error",
             title="File Decode Error",
             status=400,
             detail="The uploaded file could not be decoded as UTF-8. Please ensure the file is a valid UTF-8 encoded CSV.",
@@ -259,7 +259,7 @@ async def validate_csv_clean(
     except Exception as e:
         logger.exception("Error in validation use case")
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/processing-error",
+            type="/errors/processing-error",
             title="Processing Error",
             status=500,
             detail=f"Error processing CSV: {str(e)}",
@@ -339,7 +339,7 @@ async def correct_csv_clean(
         content = await file.read()
     except OSError as e:
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/file-os-error",
+            type="/errors/file-os-error",
             title="File Access Error",
             status=400,
             detail=f"An OS error occurred while reading the file: {str(e)}. Please check the file and try again.",
@@ -348,7 +348,7 @@ async def correct_csv_clean(
         ))
     except Exception as e:
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/file-read-error",
+            type="/errors/file-read-error",
             title="File Read Error",
             status=400,
             detail=f"An unexpected error occurred while reading the file: {str(e)}. Please try again or contact support if the problem persists.",
@@ -360,7 +360,7 @@ async def correct_csv_clean(
         csv_str = content.decode('utf-8', errors='strict')
     except UnicodeDecodeError as e:
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/file-decode-error",
+            type="/errors/file-decode-error",
             title="File Decode Error",
             status=400,
             detail="The uploaded file could not be decoded as UTF-8. Please ensure the file is a valid UTF-8 encoded CSV.",
@@ -412,7 +412,7 @@ async def correct_csv_clean(
     except Exception as e:
         logger.exception("Error in correction use case")
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/processing-error",
+            type="/errors/processing-error",
             title="Processing Error",
             status=500,
             detail=f"Error correcting CSV: {str(e)}",
@@ -472,7 +472,7 @@ async def validate_row_clean(
     except Exception as e:
         logger.exception("Error in row validation use case")
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/processing-error",
+            type="/errors/processing-error",
             title="Processing Error",
             status=500,
             detail=f"Error validating row: {str(e)}",
