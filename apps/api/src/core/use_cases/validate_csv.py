@@ -80,8 +80,8 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
                 auto_fix=input_data.auto_fix
             )
             
-            # Add job_id for tracking
-            result.job_id = input_data.job_id
+            # Add job_id for tracking (immutably)
+            result = result.model_copy(update={"job_id": input_data.job_id})
             
             # Convert corrected DataFrame to dict if present
             if result.corrected_data is not None:

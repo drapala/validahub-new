@@ -11,6 +11,7 @@ from .base import UseCase
 from ..pipeline.validation_pipeline import ValidationPipeline
 from ...schemas.validate import (
     ValidationItem,
+    ValidationStatus,
     Marketplace,
     Category
 )
@@ -74,8 +75,8 @@ class ValidateRowUseCase(UseCase[ValidateRowInput, ValidateRowOutput]):
             )
             
             # Determine if there are errors or warnings
-            has_errors = any(item.status.value == "ERROR" for item in validation_items)
-            has_warnings = any(item.status.value == "WARNING" for item in validation_items)
+            has_errors = any(item.status == ValidationStatus.ERROR for item in validation_items)
+            has_warnings = any(item.status == ValidationStatus.WARNING for item in validation_items)
             
             # Convert validation items to dict
             items_dict = [item.model_dump() for item in validation_items]

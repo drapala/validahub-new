@@ -340,13 +340,17 @@ async def correct_csv_clean(
         
         result = await correct_csv_use_case.execute(use_case_input)
         
-        # HTTP Layer: Prepare response
-        output = io.BytesIO(result.corrected_csv.encode('utf-8'))
+        # HTTP Layer: Prepare response with streaming
+        def csv_streamer(csv_text: str, chunk_size: int = 8192):
+            encoded = csv_text.encode('utf-8')
+            for i in range(0, len(encoded), chunk_size):
+                yield encoded[i:i+chunk_size]
+        
         original_name = result.original_filename.rsplit('.', 1)[0]
         corrected_filename = f"{original_name}_corrected.csv"
         
         return StreamingResponse(
-            output,
+            csv_streamer(result.corrected_csv),
             media_type="text/csv",
             headers={
                 "Content-Disposition": f"attachment; filename={corrected_filename}",
