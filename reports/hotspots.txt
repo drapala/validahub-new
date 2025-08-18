@@ -1,27 +1,32 @@
-     28 
+     36 
       9 README.md
       8 .gitignore
+      5 apps/web/lib/api.ts
+      5 apps/web/components/results-table.tsx
+      5 apps/api/tests/test_validate.py
       5 apps/api/src/services/validator.py
       5 apps/api/src/api/validate.py
+      5 apps/api/src/api/v1/validation.py
       5 BACKLOG.md
-      4 apps/web/lib/api.ts
-      4 apps/api/tests/test_validate.py
+      4 apps/web/app/(app)/validate-row/page.tsx
+      4 apps/api/src/main.py
       3 package.json
+      3 libs/rule_engine/engine.py
       3 docker-compose.yml
-      3 apps/web/components/results-table.tsx
       3 apps/web/components/result-summary.tsx
       3 apps/web/components/apply-fixes-bar.tsx
+      3 apps/api/tests/test_pipelines.py
       3 apps/api/src/services/corrector_v2.py
       3 apps/api/src/rules/marketplaces/shopee/provider.py
       3 apps/api/src/rules/marketplaces/amazon/provider.py
-      3 apps/api/src/main.py
       3 apps/api/src/core/engines/rule_engine.py
       3 apps/api/src/config.py
       3 apps/api/pyproject.toml
+      3 TECHNICAL_DEBT.md
       3 .github/workflows/ci.yml
       2 scripts/db.sh
+      2 rulesets/default.yaml
       2 pnpm-lock.yaml
-      2 libs/rule_engine/engine.py
       2 docs/database-setup.md
       2 apps/web/package.json
       2 apps/web/next-env.d.ts
@@ -29,7 +34,9 @@
       2 apps/web/components/category-picker.tsx
       2 apps/web/components/app-shell.tsx
       2 apps/web/app/(app)/upload/page.tsx
-      2 apps/api/tests/test_pipelines.py
+      2 apps/api/tests/unit/test_rule_engine_service.py
+      2 apps/api/tests/integration/test_validation_endpoint.py
+      2 apps/api/src/services/rule_engine_service.py
       2 apps/api/src/services/corrector.py
       2 apps/api/src/schemas/validate.py
       2 apps/api/src/rules/registry.py
@@ -41,60 +48,3 @@
       2 apps/api/src/rules/base/common_rules.py
       2 apps/api/src/rules/base/__init__.py
       2 apps/api/src/core/pipeline/validation_pipeline.py
-      2 apps/api/src/core/interfaces/rule.py
-      2 apps/api/requirements.txt
-      2 apps/api/.env
-      2 Makefile
-      2 .github/workflows/pr-check.yml
-      2 .env.local
-      2 .env.example
-      1 turbo.json
-      1 tsconfig.json
-      1 tsconfig.base.json
-      1 tools/services.json
-      1 tools/inventory.py
-      1 tests/golden/update_goldens.py
-      1 tests/golden/test_golden.py
-      1 tests/golden/test_engine.py
-      1 tests/golden/shopee/moda/case_001/input.csv
-      1 tests/golden/shopee/moda/case_001/expected_report.json
-      1 tests/golden/shopee/moda/case_001/expected_output.csv
-      1 tests/golden/shopee/moda/case_001/config.yaml
-      1 tests/golden/normalizers.py
-      1 tests/golden/mercado_livre/eletronicos/case_001/input.csv
-      1 tests/golden/mercado_livre/eletronicos/case_001/expected_report.json
-      1 tests/golden/mercado_livre/eletronicos/case_001/expected_output.csv
-      1 tests/golden/mercado_livre/eletronicos/case_001/config.yaml
-      1 tests/golden/inputs/test_basic.json
-      1 tests/golden/golden_runner.py
-      1 tests/golden/expected/test_basic.json
-      1 tests/golden/conftest.py
-      1 tests/golden/config_schema.py
-      1 tests/golden/comparators.py
-      1 tests/golden/__init__.py
-      1 teste-valido.csv
-      1 teste-mercado-livre_corrigido.csv
-      1 teste-mercado-livre.csv
-      1 teste-corrigido.csv
-      1 test_validation.csv
-      1 test_simple.csv
-      1 test_shopee.csv
-      1 tailwind.config.ts
-      1 scripts/start-backend.sh
-      1 scripts/init.sql
-      1 scripts/demo_data.sql
-      1 rulesets/mercadolivre.yaml
-      1 rulesets/default.yaml
-      1 rulesets/base/rules.yml
-      1 rulesets/base/mappings.yml
-      1 postcss.config.js
-      1 pnpm-workspace.yaml
-      1 packages/shared/tsconfig.json
-      1 packages/shared/src/types.ts
-      1 packages/shared/src/schemas.ts
-      1 packages/shared/src/index.ts
-      1 packages/shared/src/constants.ts
-      1 packages/shared/package.json
-      1 package-lock.json
-      1 next.config.mjs
-      1 next-env.d.ts
