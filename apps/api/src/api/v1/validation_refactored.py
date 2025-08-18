@@ -21,8 +21,8 @@ from typing import Optional, Dict, Any, Union
 import io
 import json
 import logging
-import uuid
 import os
+import uuid
 from datetime import datetime
 
 from ...schemas.validate import (
@@ -110,7 +110,7 @@ def problem_response(problem: ProblemDetail) -> JSONResponse:
 
 async def validate_file_type(file: UploadFile, correlation_id: str) -> Optional[JSONResponse]:
     """Validate that the uploaded file is a CSV."""
-    if not file.filename or not file.filename.endswith(('.csv', '.CSV')):
+    if not file.filename or not file.filename.lower().endswith('.csv'):
         return problem_response(ProblemDetail(
             type="/errors/invalid-file-type",
             title="Invalid File Type",
@@ -404,7 +404,8 @@ async def correct_csv_clean(
             for i in range(0, len(encoded), chunk_size):
                 yield encoded[i:i+chunk_size]
         
-        original_name = result.original_filename.rsplit('.', 1)[0]
+        # Safely split filename, handling files without extension
+        original_name = os.path.splitext(result.original_filename)[0] or result.original_filename
         corrected_filename = f"{original_name}_corrected.csv"
         
         return StreamingResponse(
