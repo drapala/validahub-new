@@ -6,7 +6,7 @@ This version removes direct dependency on RuleEngineService.
 import time
 import logging
 import asyncio
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 
 from ..interfaces.validation import IValidator
