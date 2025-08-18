@@ -55,6 +55,10 @@ router = APIRouter(prefix="/api/v1", tags=["validation-refactored"])
 MAX_SYNC_FILE_SIZE = int(os.environ.get("MAX_SYNC_FILE_SIZE", 5 * 1024 * 1024))  # 5MB default
 MAX_FILE_SIZE = int(os.environ.get("MAX_FILE_SIZE", 50 * 1024 * 1024))           # 50MB default
 
+# TODO: Future improvement - implement chunked CSV processing for large files
+# This would require redesigning the validation pipeline to work with pandas chunks
+# using pd.read_csv(chunksize=n) and aggregating validation results
+
 # Dependency provider functions for better DI and testing
 def get_rule_engine_service() -> RuleEngineService:
     """Get or create rule engine service instance."""
@@ -220,6 +224,9 @@ async def validate_csv_clean(
         )
     
     # HTTP Layer: Read file content
+    # Note: CSV validation requires the entire DataFrame in memory for cross-row validations.
+    # For true streaming, we'd need to redesign the validation pipeline to work with chunks.
+    # Current limits: <5MB sync, 5-50MB async, >50MB rejected
     try:
         content = await file.read()
     except OSError as e:
@@ -352,6 +359,9 @@ async def correct_csv_clean(
         )
     
     # HTTP Layer: Read file content
+    # Note: CSV validation requires the entire DataFrame in memory for cross-row validations.
+    # For true streaming, we'd need to redesign the validation pipeline to work with chunks.
+    # Current limits: <5MB sync, 5-50MB async, >50MB rejected
     try:
         content = await file.read()
     except OSError as e:
