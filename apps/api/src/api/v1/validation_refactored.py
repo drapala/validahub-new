@@ -412,8 +412,13 @@ async def correct_csv_clean(
             for i in range(0, len(encoded), chunk_size):
                 yield encoded[i:i+chunk_size]
         
-        # Safely split filename, handling files without extension
-        original_name = os.path.splitext(result.original_filename)[0]
+        # Safely split filename, handling files without extension and dotfiles
+        base, ext = os.path.splitext(result.original_filename)
+        if base:
+            original_name = base
+        else:
+            # For files like '.config', base is '', so use the full filename (which is the dotfile)
+            original_name = result.original_filename
         corrected_filename = f"{original_name}_corrected.csv"
         
         return StreamingResponse(
