@@ -54,25 +54,32 @@ class RuleEngineValidator(IValidator):
             
         Returns:
             List of validation items
+        
+        Raises:
+            RuntimeError: If the rule engine service is not properly configured
         """
-        # Check if service has async method
-        if hasattr(self.rule_engine_service, 'validate_row') and callable(self.rule_engine_service.validate_row):
-            # Use sync method for backward compatibility
-            if asyncio.iscoroutinefunction(self.rule_engine_service.validate_row):
-                return await self.rule_engine_service.validate_row(row, marketplace, row_number)
+        try:
+            # Check if service has async method
+            if hasattr(self.rule_engine_service, 'validate_row') and callable(self.rule_engine_service.validate_row):
+                # Use sync method for backward compatibility
+                if asyncio.iscoroutinefunction(self.rule_engine_service.validate_row):
+                    return await self.rule_engine_service.validate_row(row, marketplace, row_number)
+                else:
+                    # Wrap sync call in executor for non-blocking execution
+                    loop = asyncio.get_event_loop()
+                    return await loop.run_in_executor(
+                        None,
+                        self.rule_engine_service.validate_row,
+                        row,
+                        marketplace,
+                        row_number
+                    )
             else:
-                # Wrap sync call
-                loop = asyncio.get_event_loop()
-                return await loop.run_in_executor(
-                    None,
-                    self.rule_engine_service.validate_row,
-                    row,
-                    marketplace,
-                    row_number
-                )
-        else:
-            # Direct call for concrete implementation
-            return self.rule_engine_service.validate_row(row, marketplace, row_number)
+                # Direct call for concrete implementation
+                return self.rule_engine_service.validate_row(row, marketplace, row_number)
+        except Exception as e:
+            logger.error(f"Error validating row {row_number}: {str(e)}")
+            raise RuntimeError(f"Validation failed for row {row_number}: {str(e)}") from e
     
     async def validate_and_fix_row(
         self,
@@ -94,32 +101,39 @@ class RuleEngineValidator(IValidator):
             
         Returns:
             Tuple of (fixed_row, validation_items)
+            
+        Raises:
+            RuntimeError: If the rule engine service is not properly configured
         """
-        # Preserve original row
+        # Preserve original row to avoid mutations
         row_copy = copy.deepcopy(row)
         
-        # Check if service has async method
-        if hasattr(self.rule_engine_service, 'validate_and_fix_row'):
-            if asyncio.iscoroutinefunction(self.rule_engine_service.validate_and_fix_row):
-                return await self.rule_engine_service.validate_and_fix_row(
+        try:
+            # Check if service has async method
+            if hasattr(self.rule_engine_service, 'validate_and_fix_row'):
+                if asyncio.iscoroutinefunction(self.rule_engine_service.validate_and_fix_row):
+                    return await self.rule_engine_service.validate_and_fix_row(
+                        row_copy, marketplace, row_number, auto_fix
+                    )
+                else:
+                    # Wrap sync call in executor for non-blocking execution
+                    loop = asyncio.get_event_loop()
+                    return await loop.run_in_executor(
+                        None,
+                        self.rule_engine_service.validate_and_fix_row,
+                        row_copy,
+                        marketplace,
+                        row_number,
+                        auto_fix
+                    )
+            else:
+                # Direct call for concrete implementation
+                return self.rule_engine_service.validate_and_fix_row(
                     row_copy, marketplace, row_number, auto_fix
                 )
-            else:
-                # Wrap sync call
-                loop = asyncio.get_event_loop()
-                return await loop.run_in_executor(
-                    None,
-                    self.rule_engine_service.validate_and_fix_row,
-                    row_copy,
-                    marketplace,
-                    row_number,
-                    auto_fix
-                )
-        else:
-            # Direct call for concrete implementation
-            return self.rule_engine_service.validate_and_fix_row(
-                row_copy, marketplace, row_number, auto_fix
-            )
+        except Exception as e:
+            logger.error(f"Error validating and fixing row {row_number}: {str(e)}")
+            raise RuntimeError(f"Validation and fix failed for row {row_number}: {str(e)}") from e
 
 
 class MultiStrategyValidator(IValidator):
