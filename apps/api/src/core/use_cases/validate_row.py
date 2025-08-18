@@ -8,7 +8,9 @@ from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass
 
 from .base import UseCase
-from ..pipeline.validation_pipeline import ValidationPipeline
+from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
+from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
+from ...services.rule_engine_service import RuleEngineService
 from ...schemas.validate import (
     ValidationItem,
     ValidationStatus,
@@ -48,8 +50,13 @@ class ValidateRowUseCase(UseCase[ValidateRowInput, ValidateRowOutput]):
     without any knowledge of HTTP or other infrastructure concerns.
     """
     
-    def __init__(self, validation_pipeline: ValidationPipeline = None):
-        self.validation_pipeline = validation_pipeline or ValidationPipeline()
+    def __init__(self, validation_pipeline: ValidationPipelineDecoupled = None):
+        if validation_pipeline is None:
+            # Create default pipeline with RuleEngineValidator
+            rule_engine = RuleEngineService()
+            validator = RuleEngineValidator(rule_engine)
+            validation_pipeline = ValidationPipelineDecoupled(validator)
+        self.validation_pipeline = validation_pipeline
     
     async def execute(self, input_data: ValidateRowInput) -> ValidateRowOutput:
         """
@@ -65,8 +72,8 @@ class ValidateRowUseCase(UseCase[ValidateRowInput, ValidateRowOutput]):
             Exception: For processing errors
         """
         try:
-            # Validate single row
-            fixed_row, validation_items = self.validation_pipeline.validate_single_row(
+            # Validate single row (now async)
+            fixed_row, validation_items = await self.validation_pipeline.validate_single_row(
                 row=input_data.row_data,
                 marketplace=input_data.marketplace,
                 category=input_data.category,

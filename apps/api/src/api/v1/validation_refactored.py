@@ -45,7 +45,8 @@ from ...core.use_cases import (
 from ...core.use_cases.validate_csv import ValidateCsvInput
 from ...core.use_cases.correct_csv import CorrectCsvInput
 from ...core.use_cases.validate_row import ValidateRowInput
-from ...core.pipeline.validation_pipeline import ValidationPipeline
+from ...core.pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
+from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
 from ...services.rule_engine_service import RuleEngineService
 
 logger = logging.getLogger(__name__)
@@ -58,14 +59,16 @@ MAX_FILE_SIZE = int(os.environ.get("MAX_FILE_SIZE", 50 * 1024 * 1024))          
 # Note: Chunked CSV processing for large files is tracked in BACKLOG.md under PERF-1
 
 # Dependency provider functions for better DI and testing
-def get_rule_engine_service() -> RuleEngineService:
-    """Get or create rule engine service instance."""
-    return RuleEngineService()
+def get_validator() -> RuleEngineValidator:
+    """Get or create validator instance."""
+    rule_engine_service = RuleEngineService()
+    return RuleEngineValidator(rule_engine_service)
 
 
-def get_validation_pipeline() -> ValidationPipeline:
-    """Get or create validation pipeline instance."""
-    return ValidationPipeline(rule_engine_service=get_rule_engine_service())
+def get_validation_pipeline() -> ValidationPipelineDecoupled:
+    """Get or create validation pipeline instance with injected validator."""
+    validator = get_validator()
+    return ValidationPipelineDecoupled(validator=validator)
 
 
 def get_validate_csv_use_case() -> ValidateCsvUseCase:
