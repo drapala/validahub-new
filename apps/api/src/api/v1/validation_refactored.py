@@ -55,9 +55,7 @@ router = APIRouter(prefix="/api/v1", tags=["validation-refactored"])
 MAX_SYNC_FILE_SIZE = int(os.environ.get("MAX_SYNC_FILE_SIZE", 5 * 1024 * 1024))  # 5MB default
 MAX_FILE_SIZE = int(os.environ.get("MAX_FILE_SIZE", 50 * 1024 * 1024))           # 50MB default
 
-# TODO: Future improvement - implement chunked CSV processing for large files
-# This would require redesigning the validation pipeline to work with pandas chunks
-# using pd.read_csv(chunksize=n) and aggregating validation results
+# Note: Chunked CSV processing for large files is tracked in BACKLOG.md under PERF-1
 
 # Dependency provider functions for better DI and testing
 def get_rule_engine_service() -> RuleEngineService:
