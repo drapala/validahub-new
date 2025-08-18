@@ -214,7 +214,13 @@ class MultiStrategyValidator(IValidator):
             
         Returns:
             Tuple of (fixed_row, validation_items)
+            
+        Note:
+            When multiple validators fix the same field, the first validator's
+            fix takes precedence. This prevents later validators from overwriting
+            earlier fixes.
         """
+        original_row = copy.deepcopy(row)
         fixed_row = copy.deepcopy(row)
         all_items = []
         
@@ -224,8 +230,12 @@ class MultiStrategyValidator(IValidator):
             )
             
             if auto_fix:
-                # Apply fixes from this validator
-                fixed_row.update(validator_fixed_row)
+                # Apply fixes from this validator only for fields not already fixed
+                for key, value in validator_fixed_row.items():
+                    # Only update if the field in fixed_row is still the same as in the original row
+                    # This ensures the first validator's fix takes precedence
+                    if fixed_row.get(key) == original_row.get(key) and value != original_row.get(key):
+                        fixed_row[key] = value
             
             all_items.extend(items)
         
