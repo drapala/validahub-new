@@ -413,7 +413,7 @@ async def correct_csv_clean(
                 yield encoded[i:i+chunk_size]
         
         # Safely split filename, handling files without extension
-        original_name = os.path.splitext(result.original_filename)[0] or result.original_filename
+        original_name = os.path.splitext(result.original_filename)[0]
         corrected_filename = f"{original_name}_corrected.csv"
         
         return StreamingResponse(
