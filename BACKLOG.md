@@ -91,6 +91,11 @@ ValidaHub é uma plataforma de validação e correção de arquivos CSV para mar
   * Processamento streaming linha-a-linha com backpressure
   * Limites configuráveis (linhas, tamanho de linha, tempo por job)
   * Cache leve de `refs` por ruleset
+  * **Chunked CSV Processing para arquivos grandes**
+    - Implementar processamento em chunks para arquivos > 50MB
+    - Redesenhar validation pipeline para trabalhar com pandas chunks
+    - Usar pd.read_csv(chunksize=n) e agregar resultados de validação
+    - Objetivo: Reduzir uso de memória e permitir arquivos maiores
 
 ### 🟢 Sprint 4 - Async & Templates [Milestone: UX Jobs]
 - [ ] **T3**: Processamento assíncrono com Celery + Redis

@@ -136,9 +136,9 @@ async def validate_csv_v2(
             ))
     
     # Validate file type
-    if not file.filename.endswith(('.csv', '.CSV')):
+    if not file.filename or not file.filename.lower().endswith('.csv'):
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/invalid-file-type",
+            type="/errors/invalid-file-type",
             title="Invalid File Type",
             status=415,
             detail="File must be a CSV file",
@@ -224,7 +224,7 @@ async def validate_csv_v2(
     except Exception as e:
         logger.exception("Error processing CSV file")
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/processing-error",
+            type="/errors/processing-error",
             title="Processing Error",
             status=500,
             detail=f"Error processing CSV: {str(e)}",
@@ -320,7 +320,7 @@ async def validate_row_v2(
     except Exception as e:
         logger.exception("Error validating row")
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/processing-error",
+            type="/errors/processing-error",
             title="Processing Error",
             status=500,
             detail=f"Error validating row: {str(e)}",
@@ -376,9 +376,9 @@ async def correct_csv_v2(
             ))
     
     # Validate file type
-    if not file.filename.endswith(('.csv', '.CSV')):
+    if not file.filename or not file.filename.lower().endswith('.csv'):
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/invalid-file-type",
+            type="/errors/invalid-file-type",
             title="Invalid File Type",
             status=415,
             detail="File must be a CSV file",
@@ -470,7 +470,7 @@ async def correct_csv_v2(
     except Exception as e:
         logger.exception("Error correcting CSV file")
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/processing-error",
+            type="/errors/processing-error",
             title="Processing Error",
             status=500,
             detail=f"Error correcting CSV: {str(e)}",
@@ -593,7 +593,7 @@ async def correction_preview(
     except Exception as e:
         logger.exception("Error in correction preview")
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/preview-error",
+            type="/errors/preview-error",
             title="Preview Error",
             status=500,
             detail=f"Error generating preview: {str(e)}",
@@ -631,7 +631,7 @@ async def reload_rules(
     except Exception as e:
         logger.exception("Error reloading rules")
         return problem_response(ProblemDetail(
-            type="https://validahub.com/errors/reload-error",
+            type="/errors/reload-error",
             title="Reload Error",
             status=500,
             detail=f"Error reloading rules: {str(e)}",
