@@ -4,9 +4,10 @@ Bridges the existing rule engine with the new interface.
 """
 
 import asyncio
+import copy
+import functools
 import logging
 from typing import Dict, List, Any, Optional, Tuple
-import copy
 
 from ...core.interfaces.validation import IValidator
 from ...core.interfaces.rule_engine import IRuleEngineService
@@ -63,20 +64,28 @@ class RuleEngineValidator(IValidator):
             if hasattr(self.rule_engine_service, 'validate_row') and callable(self.rule_engine_service.validate_row):
                 # Use sync method for backward compatibility
                 if asyncio.iscoroutinefunction(self.rule_engine_service.validate_row):
-                    return await self.rule_engine_service.validate_row(row, marketplace, row_number)
+                    return await self.rule_engine_service.validate_row(
+                        row=row, 
+                        marketplace=marketplace, 
+                        row_number=row_number
+                    )
                 else:
                     # Wrap sync call in executor for non-blocking execution
                     loop = asyncio.get_event_loop()
-                    return await loop.run_in_executor(
-                        None,
+                    func = functools.partial(
                         self.rule_engine_service.validate_row,
-                        row,
-                        marketplace,
-                        row_number
+                        row=row,
+                        marketplace=marketplace,
+                        row_number=row_number
                     )
+                    return await loop.run_in_executor(None, func)
             else:
                 # Direct call for concrete implementation
-                return self.rule_engine_service.validate_row(row, marketplace, row_number)
+                return self.rule_engine_service.validate_row(
+                    row=row, 
+                    marketplace=marketplace, 
+                    row_number=row_number
+                )
         except Exception as e:
             logger.error(f"Error validating row {row_number}: {str(e)}")
             raise RuntimeError(f"Validation failed for row {row_number}: {str(e)}") from e
@@ -113,23 +122,29 @@ class RuleEngineValidator(IValidator):
             if hasattr(self.rule_engine_service, 'validate_and_fix_row'):
                 if asyncio.iscoroutinefunction(self.rule_engine_service.validate_and_fix_row):
                     return await self.rule_engine_service.validate_and_fix_row(
-                        row_copy, marketplace, row_number, auto_fix
+                        row=row_copy, 
+                        marketplace=marketplace, 
+                        row_number=row_number, 
+                        auto_fix=auto_fix
                     )
                 else:
                     # Wrap sync call in executor for non-blocking execution
                     loop = asyncio.get_event_loop()
-                    return await loop.run_in_executor(
-                        None,
+                    func = functools.partial(
                         self.rule_engine_service.validate_and_fix_row,
-                        row_copy,
-                        marketplace,
-                        row_number,
-                        auto_fix
+                        row=row_copy,
+                        marketplace=marketplace,
+                        row_number=row_number,
+                        auto_fix=auto_fix
                     )
+                    return await loop.run_in_executor(None, func)
             else:
                 # Direct call for concrete implementation
                 return self.rule_engine_service.validate_and_fix_row(
-                    row_copy, marketplace, row_number, auto_fix
+                    row=row_copy, 
+                    marketplace=marketplace, 
+                    row_number=row_number, 
+                    auto_fix=auto_fix
                 )
         except Exception as e:
             logger.error(f"Error validating and fixing row {row_number}: {str(e)}")
