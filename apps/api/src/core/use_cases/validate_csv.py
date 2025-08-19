@@ -50,11 +50,23 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
     without any knowledge of HTTP, file I/O, or other infrastructure concerns.
     """
     
-    def __init__(self, validation_pipeline: ValidationPipelineDecoupled = None):
+    def __init__(
+        self, 
+        validation_pipeline: ValidationPipelineDecoupled = None,
+        rule_engine_service: Optional[RuleEngineService] = None
+    ):
+        """
+        Initialize the use case with optional dependencies.
+        
+        Args:
+            validation_pipeline: Optional custom validation pipeline
+            rule_engine_service: Optional RuleEngineService for dependency injection
+        """
         if validation_pipeline is None:
-            # Create default pipeline with RuleEngineValidator
-            rule_engine = RuleEngineService()
-            validator = RuleEngineValidator(rule_engine)
+            # Use injected RuleEngineService or create default if not provided
+            if rule_engine_service is None:
+                rule_engine_service = RuleEngineService()
+            validator = RuleEngineValidator(rule_engine_service)
             validation_pipeline = ValidationPipelineDecoupled(validator)
         self.validation_pipeline = validation_pipeline
     
