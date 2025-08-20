@@ -10,7 +10,7 @@ from datetime import datetime
 
 from ...schemas.job import JobCreate, JobPlan
 from ...core.result import Result, Ok, Err, JobError
-from ..config import ValidationConfig, QueueConfig
+from ..config_adapter import ValidationConfig, QueueConfig
 from ..constants import (
     PARAM_INPUT_URI,
     PARAM_MARKETPLACE,

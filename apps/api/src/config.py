@@ -1,47 +1,82 @@
-from pydantic_settings import BaseSettings
-from typing import Optional, List
-import os
+"""Legacy configuration adapter.
+Migrating to core.settings module."""
+
+from typing import List
+from .core.settings import get_settings as get_new_settings
 
 
-class Settings(BaseSettings):
-    app_env: str = "development"
-    secret_key: str = "dev-secret-key-change-in-production"
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
-    version: str = "0.1.0"
+class Settings:
+    """Adapter class for legacy configuration.
+    Provides backward compatibility while migrating to new settings.
+    """
     
-    # Database
-    database_url: str = os.getenv(
-        "DATABASE_URL", 
-        "postgresql://validahub:validahub_dev_2024@localhost:5432/validahub_db"
-    )
+    def __init__(self):
+        self._settings = get_new_settings()
     
-    # Redis
-    redis_url: str = os.getenv(
-        "REDIS_URL",
-        "redis://:redis_dev_2024@localhost:6379/0"
-    )
+    @property
+    def app_env(self) -> str:
+        return self._settings.environment.value
     
-    # S3/MinIO
-    s3_endpoint: str = "http://localhost:9000"
-    s3_access_key: str = "minioadmin"
-    s3_secret_key: str = "minioadmin"
-    s3_bucket: str = "validahub"
-    s3_region: str = "us-east-1"
+    @property
+    def secret_key(self) -> str:
+        return self._settings.security.secret_key
     
-    # API
-    api_host: str = "0.0.0.0"
-    api_port: int = 3001
-    # TODO: Do NOT use "*" in production. Set CORS origins via environment variable for each environment.
-    cors_origins: str = "http://localhost:3000,http://localhost:3001"
+    @property
+    def algorithm(self) -> str:
+        return self._settings.security.algorithm
+    
+    @property
+    def access_token_expire_minutes(self) -> int:
+        return self._settings.security.access_token_expire_minutes
+    
+    @property
+    def version(self) -> str:
+        return self._settings.app_version
+    
+    @property
+    def database_url(self) -> str:
+        return str(self._settings.database.url)
+    
+    @property
+    def redis_url(self) -> str:
+        return str(self._settings.redis.url)
+    
+    @property
+    def s3_endpoint(self) -> str:
+        return self._settings.storage.s3_endpoint_url or "http://localhost:9000"
+    
+    @property
+    def s3_access_key(self) -> str:
+        return self._settings.storage.s3_access_key_id or "minioadmin"
+    
+    @property
+    def s3_secret_key(self) -> str:
+        return self._settings.storage.s3_secret_access_key or "minioadmin"
+    
+    @property
+    def s3_bucket(self) -> str:
+        return self._settings.storage.s3_bucket or "validahub"
+    
+    @property
+    def s3_region(self) -> str:
+        return self._settings.storage.s3_region
+    
+    @property
+    def api_host(self) -> str:
+        return "0.0.0.0"
+    
+    @property
+    def api_port(self) -> int:
+        return 3001
+    
+    @property
+    def cors_origins(self) -> str:
+        return ",".join(self._settings.security.cors_origins)
     
     @property
     def cors_origins_list(self) -> List[str]:
-        return [origin.strip() for origin in self.cors_origins.split(",")]
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+        return self._settings.security.cors_origins
 
 
+# Global settings instance for backward compatibility
 settings = Settings()
