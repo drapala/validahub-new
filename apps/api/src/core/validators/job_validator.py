@@ -10,7 +10,7 @@ from datetime import datetime
 
 from ...schemas.job import JobCreate, JobPlan
 from ...core.result import Result, Ok, Err, JobError
-from ...core.config import ValidationConfig
+from ..config import ValidationConfig
 
 logger = logging.getLogger(__name__)
 

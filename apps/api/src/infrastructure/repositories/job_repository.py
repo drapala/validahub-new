@@ -45,7 +45,9 @@ class JobRepository:
         """
         try:
             self.db.add(job)
-            self.db.flush()  # Ensure changes are sent to DB within transaction
+            # Flush to database to get auto-generated ID and ensure constraints are validated
+            # within the current transaction without committing
+            self.db.flush()
             return Ok(job)
         except Exception as e:
             logger.error(f"Failed to create job: {e}")
@@ -227,7 +229,9 @@ class JobRepository:
             Result containing updated job or error
         """
         try:
-            self.db.flush()  # Flush changes without committing
+            # Flush changes to database within current transaction
+            # This ensures changes are persisted without committing the transaction
+            self.db.flush()
             return Ok(job)
         except Exception as e:
             logger.error(f"Failed to update job {job.id}: {e}")
@@ -248,6 +252,7 @@ class JobRepository:
             self.db.query(JobResult).filter(JobResult.job_id == job.id).delete()
             # Delete job
             self.db.delete(job)
+            # Flush deletion to ensure it's applied within the transaction
             self.db.flush()
             return Ok(True)
         except Exception as e:
@@ -284,6 +289,7 @@ class JobRepository:
             
             # Delete jobs
             query.delete()
+            # Flush bulk deletion to apply changes within the transaction
             self.db.flush()
             
             return Ok(count)

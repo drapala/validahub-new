@@ -18,6 +18,11 @@ from ..telemetry.job_telemetry import get_job_telemetry
 
 logger = logging.getLogger(__name__)
 
+# Parameter key constants
+PARAM_MARKETPLACE = "marketplace"
+PARAM_CATEGORY = "category"
+PARAM_REGION = "region"
+
 
 class JobCreationService:
     """
@@ -142,8 +147,9 @@ class JobCreationService:
         Returns:
             Result with (JobOut, is_new) or None if no existing job
         """
+        user_uuid = uuid.UUID(user_id)  # Convert once to avoid multiple conversions
         existing_job = self.repository.find_by_idempotency_key(
-            uuid.UUID(user_id),
+            user_uuid,
             idempotency_key
         )
         
@@ -181,9 +187,10 @@ class JobCreationService:
         Returns:
             Job entity
         """
+        user_uuid = uuid.UUID(user_id)  # Convert once to avoid multiple conversions
         return Job(
             id=uuid.uuid4(),
-            user_id=uuid.UUID(user_id),
+            user_id=user_uuid,
             task_name=job_data.task,
             queue=queue,
             priority=job_data.priority,
@@ -217,9 +224,9 @@ class JobCreationService:
             job_context = {
                 "job_id": str(job.id),
                 "user_id": str(job.user_id),
-                "marketplace": job_data.params.get("marketplace", "unknown"),
-                "category": job_data.params.get("category", "unknown"),
-                "region": job_data.params.get("region", "default")
+                PARAM_MARKETPLACE: job_data.params.get(PARAM_MARKETPLACE, "unknown"),
+                PARAM_CATEGORY: job_data.params.get(PARAM_CATEGORY, "unknown"),
+                PARAM_REGION: job_data.params.get(PARAM_REGION, "default")
             }
             
             # Merge context with params

@@ -166,7 +166,7 @@ class JobQueryService:
         job_out = job_result.unwrap()
         
         # Check if job has completed
-        if job_out.status != "succeeded":
+        if job_out.status != JobStatus.SUCCEEDED.value:
             logger.info(f"Job {job_id} has not succeeded, status: {job_out.status}")
             return Err(JobError.INVALID_STATUS)
         
