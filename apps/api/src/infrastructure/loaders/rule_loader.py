@@ -4,6 +4,7 @@ This separates file system concerns from the business logic.
 """
 
 import logging
+import yaml
 from pathlib import Path
 from typing import Dict, Optional, List
 from dataclasses import dataclass
@@ -92,7 +93,6 @@ class RuleLoader:
         try:
             logger.info(f"Loading ruleset from {ruleset_file}")
             # Load YAML file directly
-            import yaml
             with open(ruleset_file, 'r') as f:
                 ruleset = yaml.safe_load(f)
             return ruleset

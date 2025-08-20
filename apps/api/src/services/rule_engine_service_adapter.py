@@ -64,9 +64,10 @@ class RuleEngineService:
         # Create refactored service
         self._service = RuleEngineServiceRefactored(config=service_config)
         
-        # Legacy compatibility attributes
-        self._engines_cache = {}  # Not used, kept for compatibility
-        self._rulesets_cache = {}  # Not used, kept for compatibility
+        # Legacy compatibility attributes (deprecated - to be removed in v2.0)
+        # TODO: Remove these in next major version (target: 2025-Q1)
+        self._engines_cache = {}  # Deprecated: not used internally
+        self._rulesets_cache = {}  # Deprecated: not used internally
     
     def get_engine_for_marketplace(self, marketplace: str):
         """

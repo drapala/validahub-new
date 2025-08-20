@@ -4,6 +4,9 @@ This separates engine lifecycle management from business logic.
 """
 
 import logging
+import os
+import tempfile
+import yaml
 from typing import Dict, Optional, List
 from dataclasses import dataclass
 
@@ -129,9 +132,6 @@ class RuleEngineFactory:
         """
         # Since RuleEngine.load_ruleset expects a file path,
         # we cache temp files to avoid recreating them
-        import tempfile
-        import yaml
-        import os
         
         # Use marketplace as cache key if provided
         cache_key = marketplace or str(id(ruleset))
@@ -154,7 +154,6 @@ class RuleEngineFactory:
     
     def _cleanup_tempfiles(self):
         """Clean up cached temporary ruleset files."""
-        import os
         for tmp_path in self._ruleset_tempfiles.values():
             try:
                 if os.path.exists(tmp_path):
