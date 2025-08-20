@@ -290,7 +290,7 @@ class JobQueryService:
                 # Save updates
                 self.repository.update(job)
                 
-                logger.info(f"Synced job {job.id} status: {job.status}")
+                logger.debug(f"Synced job {job.id} status: {job.status}")
                 return True
                 
         except Exception as e:

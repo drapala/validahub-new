@@ -283,14 +283,15 @@ class JobRepository:
             # Count before deletion
             count = query.count()
             
-            # Build condition for EXISTS clause
-            exists_conditions = [Job.id == JobResult.job_id, Job.created_at < older_than]
+            # Build subquery for Job IDs to delete
+            job_subquery = self.db.query(Job.id).filter(Job.created_at < older_than)
             if status_filter:
-                exists_conditions.append(Job.status.in_(status_filter))
+                job_subquery = job_subquery.filter(Job.status.in_(status_filter))
             
-            # Delete associated results using EXISTS for better performance
+            # Delete associated results using IN subquery
+            # Note: For very large datasets, consider batching this operation
             self.db.query(JobResult).filter(
-                exists().where(and_(*exists_conditions))
+                JobResult.job_id.in_(job_subquery.subquery())
             ).delete(synchronize_session=False)
             
             # Delete jobs

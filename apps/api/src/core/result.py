@@ -40,7 +40,10 @@ class Ok(Generic[T, E]):
     
     def unwrap_err(self) -> NoReturn:
         """Raises because this is not an error."""
-        raise ValueError("Called unwrap_err on Ok value")
+        raise ValueError(
+            "Called unwrap_err on Ok value. "
+            "Consider checking is_err() before calling unwrap_err()."
+        )
     
     def map(self, f: Callable[[T], T]) -> 'Result[T, E]':
         """Transform the value if Ok."""
@@ -49,6 +52,14 @@ class Ok(Generic[T, E]):
     def map_err(self, f: Callable[[E], E2]) -> 'Result[T, E2]':
         """No-op for Ok values."""
         return self  # type: ignore
+    
+    def unwrap_or(self, default: T) -> T:
+        """Return the value if Ok, otherwise return default."""
+        return self.value
+    
+    def unwrap_or_else(self, f: Callable[[E], T]) -> T:
+        """Return the value if Ok, otherwise compute from error."""
+        return self.value
 
 
 @dataclass(frozen=True)
@@ -64,7 +75,10 @@ class Err(Generic[T, E]):
     
     def unwrap(self) -> NoReturn:
         """Raises because this is an error."""
-        raise ValueError(f"Called unwrap on Err value: {self.error}")
+        raise ValueError(
+            f"Called unwrap on Err value: {self.error}. "
+            "Consider checking is_ok() before calling unwrap(), or use unwrap_or() for safer access."
+        )
     
     def unwrap_err(self) -> E:
         """Get the error. Safe because we know it's Err."""
@@ -77,6 +91,14 @@ class Err(Generic[T, E]):
     def map_err(self, f: Callable[[E], E2]) -> 'Result[T, E2]':
         """Transform the error if Err."""
         return Err(f(self.error))
+    
+    def unwrap_or(self, default: T) -> T:
+        """Return the default value since this is Err."""
+        return default
+    
+    def unwrap_or_else(self, f: Callable[[E], T]) -> T:
+        """Compute value from error since this is Err."""
+        return f(self.error)
 
 
 # Type alias for Result
