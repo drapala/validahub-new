@@ -11,8 +11,10 @@ from dataclasses import dataclass
 import pandas as pd
 
 from .base import UseCase
-from ..pipeline.validation_pipeline import ValidationPipeline
+from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
 from ..utils import DataFrameUtils
+from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
+from ...services.rule_engine_service import RuleEngineService
 from ...schemas.validate import (
     Marketplace,
     Category
@@ -55,8 +57,25 @@ class CorrectCsvUseCase(UseCase[CorrectCsvInput, CorrectCsvOutput]):
     without any knowledge of HTTP, file I/O, or other infrastructure concerns.
     """
     
-    def __init__(self, validation_pipeline: ValidationPipeline = None):
-        self.validation_pipeline = validation_pipeline or ValidationPipeline()
+    def __init__(
+        self,
+        validation_pipeline: ValidationPipelineDecoupled = None,
+        rule_engine_service: Optional[RuleEngineService] = None
+    ):
+        """
+        Initialize the use case with optional dependencies.
+        
+        Args:
+            validation_pipeline: Optional custom validation pipeline
+            rule_engine_service: Optional RuleEngineService for dependency injection
+        """
+        if validation_pipeline is None:
+            # Use injected RuleEngineService or create default if not provided
+            if rule_engine_service is None:
+                rule_engine_service = RuleEngineService()
+            validator = RuleEngineValidator(rule_engine_service)
+            validation_pipeline = ValidationPipelineDecoupled(validator)
+        self.validation_pipeline = validation_pipeline
     
     async def execute(self, input_data: CorrectCsvInput) -> CorrectCsvOutput:
         """
@@ -79,9 +98,9 @@ class CorrectCsvUseCase(UseCase[CorrectCsvInput, CorrectCsvOutput]):
             # Clean data using shared utility (required: pipeline doesn't clean data)
             df = DataFrameUtils.clean_dataframe(df)
             
-            # Validate and fix using pipeline with job_id
+            # Validate and fix using pipeline with job_id (now async)
             job_id = str(uuid.uuid4())
-            result = self.validation_pipeline.validate(
+            result = await self.validation_pipeline.validate(
                 df=df,
                 marketplace=input_data.marketplace,
                 category=input_data.category,
