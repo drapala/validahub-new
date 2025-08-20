@@ -15,13 +15,17 @@ from ..core.validators.job_validator import JobValidator
 from ..infrastructure.repositories.job_repository import JobRepository
 from ..infrastructure.queue_publisher import QueuePublisher
 from ..telemetry.job_telemetry import get_job_telemetry
+from ..core.constants import (
+    PARAM_MARKETPLACE,
+    PARAM_CATEGORY,
+    PARAM_REGION,
+    DEFAULT_MARKETPLACE,
+    DEFAULT_CATEGORY,
+    DEFAULT_REGION,
+    MAX_RETRY_COUNT
+)
 
 logger = logging.getLogger(__name__)
-
-# Parameter key constants
-PARAM_MARKETPLACE = "marketplace"
-PARAM_CATEGORY = "category"
-PARAM_REGION = "region"
 
 
 class JobCreationService:
@@ -204,7 +208,7 @@ class JobCreationService:
             idempotency_key=job_data.idempotency_key,
             correlation_id=correlation_id or job_data.correlation_id,
             metadata=job_data.metadata or {},
-            max_retries=3,
+            max_retries=MAX_RETRY_COUNT,
             retry_count=0,
             created_at=datetime.now(timezone.utc)
         )
@@ -229,9 +233,9 @@ class JobCreationService:
             job_context = {
                 "job_id": str(job.id),
                 "user_id": str(job.user_id),
-                PARAM_MARKETPLACE: job_data.params.get(PARAM_MARKETPLACE, "unknown"),
-                PARAM_CATEGORY: job_data.params.get(PARAM_CATEGORY, "unknown"),
-                PARAM_REGION: job_data.params.get(PARAM_REGION, "default")
+                PARAM_MARKETPLACE: job_data.params.get(PARAM_MARKETPLACE, DEFAULT_MARKETPLACE),
+                PARAM_CATEGORY: job_data.params.get(PARAM_CATEGORY, DEFAULT_CATEGORY),
+                PARAM_REGION: job_data.params.get(PARAM_REGION, DEFAULT_REGION)
             }
             
             # Merge context with params

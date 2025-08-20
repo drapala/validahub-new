@@ -51,7 +51,8 @@ class Ok(Generic[T, E]):
     
     def map_err(self, f: Callable[[E], E2]) -> 'Result[T, E2]':
         """No-op for Ok values."""
-        return self  # type: ignore
+        # Return a new Ok with the same value but different error type
+        return Ok(self.value)
     
     def unwrap_or(self, default: T) -> T:
         """Return the value if Ok, otherwise return default."""

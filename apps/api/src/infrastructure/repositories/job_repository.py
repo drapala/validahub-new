@@ -45,8 +45,8 @@ class JobRepository:
         """
         try:
             self.db.add(job)
-            # Flush to database to get auto-generated ID and ensure constraints are validated
-            # within the current transaction without committing
+            # Flush to database to ensure constraints are validated and
+            # the object state is persisted within the current transaction (without committing)
             self.db.flush()
             return Ok(job)
         except Exception as e:

@@ -11,6 +11,19 @@ from datetime import datetime
 from ...schemas.job import JobCreate, JobPlan
 from ...core.result import Result, Ok, Err, JobError
 from ..config import ValidationConfig, QueueConfig
+from ..constants import (
+    PARAM_INPUT_URI,
+    PARAM_MARKETPLACE,
+    PARAM_CATEGORY,
+    PARAM_ANALYSIS_TYPE,
+    PARAM_JOB_ID,
+    PARAM_FORMAT,
+    PARAM_RULESET,
+    DEFAULT_RULESET,
+    MIN_PRIORITY,
+    MAX_PRIORITY,
+    MAX_RETRY_COUNT
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +35,12 @@ class JobValidator:
     This class is responsible only for validation logic,
     keeping it separate from business logic and data access.
     """
+    
+    def __init__(self):
+        """Initialize the validator."""
+        # Currently stateless, but keeps the interface consistent
+        # for potential future initialization needs
+        pass
     
     
     def validate_job_creation(self, job_data: JobCreate) -> Result[JobCreate, JobError]:
@@ -47,7 +66,7 @@ class JobValidator:
         # Validate ruleset for CSV tasks
         if job_data.task in ["validate_csv_job", "correct_csv_job"]:
             ruleset_validation = self.validate_ruleset(
-                job_data.params.get("ruleset", "default")
+                job_data.params.get(PARAM_RULESET, DEFAULT_RULESET)
             )
             if ruleset_validation.is_err():
                 return ruleset_validation
@@ -94,7 +113,7 @@ class JobValidator:
         Returns:
             Result with priority or validation error
         """
-        if priority < 1 or priority > 10:
+        if priority < MIN_PRIORITY or priority > MAX_PRIORITY:
             logger.warning(f"Invalid priority: {priority}")
             return Err(JobError.VALIDATION_ERROR)
         
@@ -156,10 +175,10 @@ class JobValidator:
             List of required parameter names
         """
         task_params = {
-            "validate_csv_job": ["input_uri", "marketplace", "category"],
-            "correct_csv_job": ["input_uri", "marketplace", "category"],
-            "analyze_data_job": ["input_uri", "analysis_type"],
-            "export_results_job": ["job_id", "format"]
+            "validate_csv_job": [PARAM_INPUT_URI, PARAM_MARKETPLACE, PARAM_CATEGORY],
+            "correct_csv_job": [PARAM_INPUT_URI, PARAM_MARKETPLACE, PARAM_CATEGORY],
+            "analyze_data_job": [PARAM_INPUT_URI, PARAM_ANALYSIS_TYPE],
+            "export_results_job": [PARAM_JOB_ID, PARAM_FORMAT]
         }
         
         return task_params.get(task_name, [])
@@ -189,7 +208,7 @@ class JobValidator:
         cancellable_statuses = {"queued", "running", "retrying"}
         return status.lower() in cancellable_statuses
     
-    def can_retry_job(self, status: str, retry_count: int, max_retries: int) -> bool:
+    def can_retry_job(self, status: str, retry_count: int, max_retries: int = MAX_RETRY_COUNT) -> bool:
         """
         Check if a job can be retried.
         
