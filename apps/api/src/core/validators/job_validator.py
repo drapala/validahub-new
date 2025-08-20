@@ -4,6 +4,7 @@ Follows Single Responsibility Principle.
 """
 
 import logging
+import re
 from typing import Optional, List, Set
 from datetime import datetime
 
@@ -243,7 +244,6 @@ class JobValidator:
             return Err(JobError.VALIDATION_ERROR)
         
         # Check format (alphanumeric + hyphen + underscore)
-        import re
         if not re.match(r'^[a-zA-Z0-9_-]+$', key):
             logger.warning(f"Invalid idempotency key format: {key}")
             return Err(JobError.VALIDATION_ERROR)

@@ -45,7 +45,7 @@ class JobRepository:
         """
         try:
             self.db.add(job)
-            self.db.flush()  # Get ID without committing
+            self.db.flush()  # Ensure changes are sent to DB within transaction
             return Ok(job)
         except Exception as e:
             logger.error(f"Failed to create job: {e}")
@@ -290,6 +290,24 @@ class JobRepository:
         except Exception as e:
             logger.error(f"Failed to delete old jobs: {e}")
             return Err(JobError.DATABASE_ERROR)
+    
+    def find_result_by_job_id(self, job_id: uuid.UUID) -> Optional[JobResult]:
+        """
+        Find job result by job ID.
+        
+        Args:
+            job_id: Job UUID
+            
+        Returns:
+            JobResult if found, None otherwise
+        """
+        try:
+            return self.db.query(JobResult).filter(
+                JobResult.job_id == job_id
+            ).first()
+        except Exception as e:
+            logger.error(f"Failed to find job result for job {job_id}: {e}")
+            return None
     
     def get_statistics(self) -> Dict[str, Any]:
         """

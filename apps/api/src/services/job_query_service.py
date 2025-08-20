@@ -173,9 +173,7 @@ class JobQueryService:
         # Get result from database
         try:
             job_uuid = uuid.UUID(job_id)
-            job_result_entity = self.repository.db.query(JobResult).filter(
-                JobResult.job_id == job_uuid
-            ).first()
+            job_result_entity = self.repository.find_result_by_job_id(job_uuid)
             
             if job_result_entity:
                 return Ok(JobResultOut.model_validate(job_result_entity))
