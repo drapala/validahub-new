@@ -5,7 +5,7 @@ This separates file system concerns from the business logic.
 
 import logging
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from dataclasses import dataclass
 
 # TODO: Replace with proper import once libs is properly packaged
@@ -91,8 +91,7 @@ class RuleLoader:
         
         try:
             logger.info(f"Loading ruleset from {ruleset_file}")
-            # load_ruleset returns a RuleEngine, not a dict
-            # We need to load the YAML file ourselves
+            # Load YAML file directly
             import yaml
             with open(ruleset_file, 'r') as f:
                 ruleset = yaml.safe_load(f)
@@ -161,7 +160,7 @@ class RuleLoader:
         # Reload from file
         return self.load_ruleset(marketplace, use_cache=True)
     
-    def list_available_marketplaces(self) -> list[str]:
+    def list_available_marketplaces(self) -> List[str]:
         """
         List all available marketplace rulesets.
         

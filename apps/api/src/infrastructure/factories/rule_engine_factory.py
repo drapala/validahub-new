@@ -4,7 +4,7 @@ This separates engine lifecycle management from business logic.
 """
 
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from dataclasses import dataclass
 
 # TODO: Replace with proper import once libs is properly packaged
@@ -53,6 +53,15 @@ class RuleEngineFactory:
         self.config = config or RuleEngineFactoryConfig()
         self.rule_loader = rule_loader or RuleLoader(self.config.rule_loader_config)
         self._engine_cache: Dict[str, RuleEngine] = {}
+        self._ruleset_tempfiles: Dict[str, str] = {}
+    
+    def __del__(self):
+        """Clean up temp files on destruction."""
+        try:
+            self._cleanup_tempfiles()
+        except Exception:
+            # Ignore errors during shutdown
+            pass
     
     def get_engine(self, marketplace: str) -> RuleEngine:
         """
@@ -102,46 +111,57 @@ class RuleEngineFactory:
         if ruleset and ruleset.get('rules'):
             # The RuleEngine.load_ruleset expects a file path,
             # but we already have the loaded dict.
-            # We need to set the rules and mappings directly
-            self._configure_engine(engine, ruleset)
+            # Configure engine with cached temp file
+            self._configure_engine(engine, ruleset, marketplace)
         else:
             logger.warning(f"No rules found for {marketplace}, using empty engine")
         
         return engine
     
-    def _configure_engine(self, engine: RuleEngine, ruleset: dict):
+    def _configure_engine(self, engine: RuleEngine, ruleset: dict, marketplace: Optional[str] = None):
         """
         Configure a RuleEngine with a loaded ruleset.
         
         Args:
             engine: The RuleEngine instance to configure
             ruleset: The loaded ruleset dictionary
+            marketplace: The marketplace identifier (for temp file caching)
         """
         # Since RuleEngine.load_ruleset expects a file path,
-        # we need to manually set the rules and mappings
-        # This is a workaround until the rule_engine lib is refactored
-        
-        # For now, we'll need to save to a temp file and load
-        # This is not ideal but maintains compatibility
+        # we cache temp files to avoid recreating them
         import tempfile
         import yaml
+        import os
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp:
-            yaml.dump(ruleset, tmp)
-            tmp_path = tmp.name
+        # Use marketplace as cache key if provided
+        cache_key = marketplace or str(id(ruleset))
+        tmp_path = self._ruleset_tempfiles.get(cache_key)
         
-        try:
-            engine.load_ruleset(tmp_path)
-        finally:
-            # Clean up temp file
-            import os
-            os.unlink(tmp_path)
+        if not tmp_path or not os.path.exists(tmp_path):
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp:
+                yaml.dump(ruleset, tmp)
+                tmp_path = tmp.name
+            self._ruleset_tempfiles[cache_key] = tmp_path
+        
+        engine.load_ruleset(tmp_path)
     
     def clear_cache(self):
-        """Clear all cached engines."""
+        """Clear all cached engines and clean up temp files."""
         self._engine_cache.clear()
         self.rule_loader.clear_cache()
+        self._cleanup_tempfiles()
         logger.info("Rule engine factory cache cleared")
+    
+    def _cleanup_tempfiles(self):
+        """Clean up cached temporary ruleset files."""
+        import os
+        for tmp_path in self._ruleset_tempfiles.values():
+            try:
+                if os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
+            except Exception as e:
+                logger.warning(f"Failed to clean up temp file {tmp_path}: {e}")
+        self._ruleset_tempfiles.clear()
     
     def reload_engine(self, marketplace: str) -> RuleEngine:
         """
@@ -164,7 +184,7 @@ class RuleEngineFactory:
         # Create new engine
         return self.get_engine(marketplace)
     
-    def list_cached_engines(self) -> list[str]:
+    def list_cached_engines(self) -> List[str]:
         """
         List all currently cached engine marketplaces.
         

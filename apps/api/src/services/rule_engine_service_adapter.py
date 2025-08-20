@@ -5,7 +5,7 @@ This allows gradual migration to the refactored version.
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
 
 from .rule_engine_service_refactored import (
@@ -130,7 +130,7 @@ class RuleEngineService:
         marketplace: str,
         row_number: int = 0,
         auto_fix: bool = True
-    ) -> tuple[Dict[str, Any], List[ValidationItem]]:
+    ) -> Tuple[Dict[str, Any], List[ValidationItem]]:
         """
         Validate and optionally fix a row.
         
