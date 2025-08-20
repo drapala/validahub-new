@@ -23,14 +23,6 @@ class JobValidator:
     keeping it separate from business logic and data access.
     """
     
-    # Valid task names (should come from config)
-    VALID_TASKS: Set[str] = {
-        "validate_csv_job",
-        "correct_csv_job",
-        "analyze_data_job",
-        "export_results_job"
-    }
-    
     
     def validate_job_creation(self, job_data: JobCreate) -> Result[JobCreate, JobError]:
         """
@@ -84,7 +76,9 @@ class JobValidator:
             logger.warning("Empty task name provided")
             return Err(JobError.VALIDATION_ERROR)
         
-        if task_name not in self.VALID_TASKS:
+        # Get valid tasks from configuration
+        valid_tasks = QueueConfig.get_valid_tasks()
+        if task_name not in valid_tasks:
             logger.warning(f"Invalid task name: {task_name}")
             return Err(JobError.VALIDATION_ERROR)
         

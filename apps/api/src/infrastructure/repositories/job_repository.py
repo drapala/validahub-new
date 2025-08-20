@@ -8,7 +8,7 @@ import logging
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, asc, func
+from sqlalchemy import and_, or_, desc, asc, func, exists
 
 from ...models.job import Job, JobStatus, JobResult
 from ...core.result import Result, Ok, Err, JobError
@@ -283,11 +283,14 @@ class JobRepository:
             # Count before deletion
             count = query.count()
             
-            # Delete associated results in bulk using a subquery
-            # This avoids loading all jobs into memory
-            job_ids_subquery = query.with_entities(Job.id).subquery()
+            # Build condition for EXISTS clause
+            exists_conditions = [Job.id == JobResult.job_id, Job.created_at < older_than]
+            if status_filter:
+                exists_conditions.append(Job.status.in_(status_filter))
+            
+            # Delete associated results using EXISTS for better performance
             self.db.query(JobResult).filter(
-                JobResult.job_id.in_(job_ids_subquery)
+                exists().where(and_(*exists_conditions))
             ).delete(synchronize_session=False)
             
             # Delete jobs

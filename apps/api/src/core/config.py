@@ -59,6 +59,16 @@ class QueueConfig:
         JobPlan.ENTERPRISE: "queue:enterprise"
     }
     
+    # Valid task names (used for validation)
+    VALID_TASKS: Set[str] = {
+        "validate_csv_job",
+        "correct_csv_job",
+        "analyze_data_job",
+        "export_results_job",
+        "sync_connector_job",
+        "generate_report_job"
+    }
+    
     # Task name mappings to full Celery task paths
     TASK_MAPPINGS: Dict[str, str] = {
         "validate_csv_job": "src.workers.tasks.validate_csv_job",
@@ -104,3 +114,11 @@ class QueueConfig:
     def get_queue_for_plan(cls, plan: JobPlan) -> str:
         """Get queue name for a subscription plan."""
         return cls.QUEUE_BY_PLAN.get(plan, "queue:free")
+    
+    @classmethod
+    def get_valid_tasks(cls) -> Set[str]:
+        """Get valid task names from configuration."""
+        env_tasks = os.getenv("VALID_TASKS")
+        if env_tasks:
+            return set(task.strip() for task in env_tasks.split(","))
+        return cls.VALID_TASKS

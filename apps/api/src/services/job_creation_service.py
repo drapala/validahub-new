@@ -74,6 +74,13 @@ class JobCreationService:
         Returns:
             Result containing (JobOut, is_new) or error
         """
+        # Validate user ID format early
+        try:
+            user_uuid = uuid.UUID(user_id)
+        except ValueError:
+            logger.warning(f"Invalid user ID format: {user_id}")
+            return Err(JobError.VALIDATION_ERROR)
+        
         # Validate job data
         validation_result = self.validator.validate_job_creation(job_data)
         if validation_result.is_err():
@@ -82,7 +89,7 @@ class JobCreationService:
         # Check idempotency
         if job_data.idempotency_key:
             existing_result = self._handle_idempotency(
-                user_id,
+                user_uuid,
                 job_data.idempotency_key,
                 prefer_representation
             )
@@ -94,9 +101,9 @@ class JobCreationService:
         # Get queue for plan
         queue = self.validator.get_queue_for_plan(job_data.plan)
         
-        # Create job entity
+        # Create job entity (pass validated UUID)
         job = self._create_job_entity(
-            user_id=user_id,
+            user_uuid=user_uuid,
             job_data=job_data,
             queue=queue,
             correlation_id=correlation_id
@@ -132,7 +139,7 @@ class JobCreationService:
     
     def _handle_idempotency(
         self,
-        user_id: str,
+        user_uuid: uuid.UUID,
         idempotency_key: str,
         prefer_representation: bool
     ) -> Result[Tuple[JobOut, bool], JobError]:
@@ -140,19 +147,13 @@ class JobCreationService:
         Handle idempotency check for job creation.
         
         Args:
-            user_id: User ID
+            user_uuid: User UUID (already validated)
             idempotency_key: Idempotency key
             prefer_representation: Whether to return existing job
             
         Returns:
             Result with (JobOut, is_new) or None if no existing job
         """
-        try:
-            user_uuid = uuid.UUID(user_id)
-        except ValueError:
-            logger.warning(f"Invalid user ID format: {user_id}")
-            return Err(JobError.VALIDATION_ERROR)
-        
         existing_job = self.repository.find_by_idempotency_key(
             user_uuid,
             idempotency_key
@@ -175,7 +176,7 @@ class JobCreationService:
     
     def _create_job_entity(
         self,
-        user_id: str,
+        user_uuid: uuid.UUID,
         job_data: JobCreate,
         queue: str,
         correlation_id: Optional[str]
@@ -184,7 +185,7 @@ class JobCreationService:
         Create a Job entity from creation data.
         
         Args:
-            user_id: User ID
+            user_uuid: User UUID (already validated)
             job_data: Job creation data
             queue: Queue name
             correlation_id: Optional correlation ID
@@ -192,7 +193,6 @@ class JobCreationService:
         Returns:
             Job entity
         """
-        user_uuid = uuid.UUID(user_id)  # Convert once to avoid multiple conversions
         return Job(
             id=uuid.uuid4(),
             user_id=user_uuid,

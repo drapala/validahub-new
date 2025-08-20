@@ -9,6 +9,7 @@ from enum import Enum
 
 T = TypeVar('T')  # Success type
 E = TypeVar('E')  # Error type
+E2 = TypeVar('E2')  # Alternative error type for transformations
 
 
 class JobError(str, Enum):
@@ -45,9 +46,9 @@ class Ok(Generic[T, E]):
         """Transform the value if Ok."""
         return Ok(f(self.value))
     
-    def map_err(self, f: Callable[[E], E]) -> 'Result[T, E]':
+    def map_err(self, f: Callable[[E], E2]) -> 'Result[T, E2]':
         """No-op for Ok values."""
-        return self
+        return self  # type: ignore
 
 
 @dataclass(frozen=True)
@@ -73,7 +74,7 @@ class Err(Generic[T, E]):
         """No-op for Err values."""
         return self
     
-    def map_err(self, f: Callable[[E], E]) -> 'Result[T, E]':
+    def map_err(self, f: Callable[[E], E2]) -> 'Result[T, E2]':
         """Transform the error if Err."""
         return Err(f(self.error))
 
