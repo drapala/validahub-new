@@ -10,6 +10,10 @@ from fastapi import Depends
 from ...db.base import get_db
 from ...core.interfaces.job_service import IJobService
 from ...services.job_service_adapter import JobServiceAdapter
+from ...services.job_creation_service import JobCreationService
+from ...services.job_query_service import JobQueryService
+from ...core.validators.job_validator import JobValidator
+from ...infrastructure.repositories.job_repository import JobRepository
 from ...infrastructure.queue_factory import get_queue_publisher
 
 
@@ -33,6 +37,45 @@ def get_job_service(db: Session = Depends(get_db)) -> IJobService:
     # In the future, this could return different implementations
     # based on configuration or environment
     return JobServiceAdapter(db, queue_publisher)
+
+
+def get_job_repository(db: Session = Depends(get_db)) -> JobRepository:
+    """Get job repository instance."""
+    return JobRepository(db)
+
+
+def get_job_validator() -> JobValidator:
+    """Get job validator instance."""
+    return JobValidator()
+
+
+def get_job_creation_service(
+    db: Session = Depends(get_db)
+) -> JobCreationService:
+    """
+    Get job creation service instance.
+    
+    Uses the refactored services following SOLID principles.
+    """
+    repository = get_job_repository(db)
+    validator = get_job_validator()
+    queue_publisher = get_queue_publisher()
+    
+    return JobCreationService(repository, validator, queue_publisher)
+
+
+def get_job_query_service(
+    db: Session = Depends(get_db)
+) -> JobQueryService:
+    """
+    Get job query service instance.
+    
+    Uses the refactored services following SOLID principles.
+    """
+    repository = get_job_repository(db)
+    queue_publisher = get_queue_publisher()
+    
+    return JobQueryService(repository, queue_publisher)
 
 
 def get_async_job_service(db: Session = Depends(get_db)) -> IJobService:
