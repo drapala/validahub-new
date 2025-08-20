@@ -6,7 +6,7 @@ Follows Single Responsibility Principle.
 import uuid
 import logging
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..schemas.job import JobOut, JobResultOut, JobListQuery, JobListResponse
 from ..models.job import Job, JobStatus, JobResult
@@ -285,7 +285,7 @@ class JobQueryService:
                 # Update finished time if completed
                 if new_status in [JobStatus.SUCCEEDED, JobStatus.FAILED, JobStatus.CANCELLED]:
                     if not job.finished_at:
-                        job.finished_at = datetime.utcnow()
+                        job.finished_at = datetime.now(timezone.utc)
                 
                 # Save updates
                 self.repository.update(job)

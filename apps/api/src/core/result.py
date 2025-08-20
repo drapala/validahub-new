@@ -3,7 +3,7 @@ Result pattern for error handling without exceptions.
 Inspired by Rust's Result type and functional programming.
 """
 
-from typing import TypeVar, Generic, Optional, Union, Callable
+from typing import TypeVar, Generic, Optional, Union, Callable, NoReturn
 from dataclasses import dataclass
 from enum import Enum
 
@@ -37,7 +37,7 @@ class Ok(Generic[T, E]):
         """Get the value. Safe because we know it's Ok."""
         return self.value
     
-    def unwrap_err(self) -> None:
+    def unwrap_err(self) -> NoReturn:
         """Raises because this is not an error."""
         raise ValueError("Called unwrap_err on Ok value")
     
@@ -61,7 +61,7 @@ class Err(Generic[T, E]):
     def is_err(self) -> bool:
         return True
     
-    def unwrap(self) -> None:
+    def unwrap(self) -> NoReturn:
         """Raises because this is an error."""
         raise ValueError(f"Called unwrap on Err value: {self.error}")
     

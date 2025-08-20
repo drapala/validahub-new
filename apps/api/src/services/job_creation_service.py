@@ -6,7 +6,7 @@ Follows Single Responsibility Principle.
 import uuid
 import logging
 from typing import Optional, Tuple
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..schemas.job import JobCreate, JobOut
 from ..models.job import Job, JobStatus
@@ -147,7 +147,12 @@ class JobCreationService:
         Returns:
             Result with (JobOut, is_new) or None if no existing job
         """
-        user_uuid = uuid.UUID(user_id)  # Convert once to avoid multiple conversions
+        try:
+            user_uuid = uuid.UUID(user_id)
+        except ValueError:
+            logger.warning(f"Invalid user ID format: {user_id}")
+            return Err(JobError.VALIDATION_ERROR)
+        
         existing_job = self.repository.find_by_idempotency_key(
             user_uuid,
             idempotency_key
@@ -201,7 +206,7 @@ class JobCreationService:
             metadata=job_data.metadata or {},
             max_retries=3,
             retry_count=0,
-            created_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc)
         )
     
     def _submit_to_queue(

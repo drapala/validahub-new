@@ -283,12 +283,15 @@ class JobRepository:
             # Count before deletion
             count = query.count()
             
-            # Delete associated results
-            for job in query.all():
-                self.db.query(JobResult).filter(JobResult.job_id == job.id).delete()
+            # Delete associated results in bulk using a subquery
+            # This avoids loading all jobs into memory
+            job_ids_subquery = query.with_entities(Job.id).subquery()
+            self.db.query(JobResult).filter(
+                JobResult.job_id.in_(job_ids_subquery)
+            ).delete(synchronize_session=False)
             
             # Delete jobs
-            query.delete()
+            query.delete(synchronize_session=False)
             # Flush bulk deletion to apply changes within the transaction
             self.db.flush()
             

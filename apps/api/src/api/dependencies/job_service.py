@@ -3,7 +3,7 @@ Dependency injection for job service.
 Provides IJobService implementation to API endpoints.
 """
 
-from typing import Generator
+from typing import Generator, Optional
 from sqlalchemy.orm import Session
 from fastapi import Depends
 
@@ -15,6 +15,26 @@ from ...services.job_query_service import JobQueryService
 from ...core.validators.job_validator import JobValidator
 from ...infrastructure.repositories.job_repository import JobRepository
 from ...infrastructure.queue_factory import get_queue_publisher
+
+# Singleton instances for stateless services
+_job_validator_instance: Optional[JobValidator] = None
+_queue_publisher_instance: Optional[object] = None
+
+
+def _get_job_validator_singleton() -> JobValidator:
+    """Get singleton instance of JobValidator."""
+    global _job_validator_instance
+    if _job_validator_instance is None:
+        _job_validator_instance = JobValidator()
+    return _job_validator_instance
+
+
+def _get_queue_publisher_singleton():
+    """Get singleton instance of queue publisher."""
+    global _queue_publisher_instance
+    if _queue_publisher_instance is None:
+        _queue_publisher_instance = get_queue_publisher()
+    return _queue_publisher_instance
 
 
 def get_job_service(db: Session = Depends(get_db)) -> IJobService:
@@ -30,8 +50,8 @@ def get_job_service(db: Session = Depends(get_db)) -> IJobService:
     Returns:
         IJobService implementation (currently JobServiceAdapter)
     """
-    # Get queue publisher (uses factory to get appropriate implementation)
-    queue_publisher = get_queue_publisher()
+    # Get queue publisher singleton
+    queue_publisher = _get_queue_publisher_singleton()
     
     # Return adapter wrapping the legacy service
     # In the future, this could return different implementations
@@ -45,8 +65,8 @@ def get_job_repository(db: Session = Depends(get_db)) -> JobRepository:
 
 
 def get_job_validator() -> JobValidator:
-    """Get job validator instance."""
-    return JobValidator()
+    """Get job validator singleton instance."""
+    return _get_job_validator_singleton()
 
 
 def get_job_creation_service(
@@ -58,8 +78,8 @@ def get_job_creation_service(
     Uses the refactored services following SOLID principles.
     """
     repository = get_job_repository(db)
-    validator = get_job_validator()
-    queue_publisher = get_queue_publisher()
+    validator = _get_job_validator_singleton()
+    queue_publisher = _get_queue_publisher_singleton()
     
     return JobCreationService(repository, validator, queue_publisher)
 
@@ -73,7 +93,7 @@ def get_job_query_service(
     Uses the refactored services following SOLID principles.
     """
     repository = get_job_repository(db)
-    queue_publisher = get_queue_publisher()
+    queue_publisher = _get_queue_publisher_singleton()
     
     return JobQueryService(repository, queue_publisher)
 

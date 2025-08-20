@@ -10,7 +10,7 @@ from datetime import datetime
 
 from ...schemas.job import JobCreate, JobPlan
 from ...core.result import Result, Ok, Err, JobError
-from ..config import ValidationConfig
+from ..config import ValidationConfig, QueueConfig
 
 logger = logging.getLogger(__name__)
 
@@ -31,13 +31,6 @@ class JobValidator:
         "export_results_job"
     }
     
-    # Queue mapping by plan
-    QUEUE_BY_PLAN = {
-        JobPlan.FREE: "queue:free",
-        JobPlan.PRO: "queue:pro",
-        JobPlan.BUSINESS: "queue:business",
-        JobPlan.ENTERPRISE: "queue:enterprise"
-    }
     
     def validate_job_creation(self, job_data: JobCreate) -> Result[JobCreate, JobError]:
         """
@@ -187,7 +180,7 @@ class JobValidator:
         Returns:
             Queue name
         """
-        return self.QUEUE_BY_PLAN.get(plan, "queue:free")
+        return QueueConfig.get_queue_for_plan(plan)
     
     def can_cancel_job(self, status: str) -> bool:
         """
