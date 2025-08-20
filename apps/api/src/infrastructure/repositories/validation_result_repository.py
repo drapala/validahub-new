@@ -6,7 +6,7 @@ Handles all database operations for validation results.
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, func
+from sqlalchemy import and_, or_, desc, func, case, Integer
 import logging
 
 from .base_repository import BaseRepository
@@ -318,7 +318,10 @@ class ValidationResultRepository(BaseRepository[ValidationResult]):
                 func.sum(ValidationResult.total_rows).label('rows_processed'),
                 func.avg(ValidationResult.processing_time_ms).label('avg_time'),
                 func.sum(
-                    func.cast(ValidationResult.invalid_rows == 0, Integer)
+                    case(
+                        [(ValidationResult.invalid_rows == 0, 1)],
+                        else_=0
+                    )
                 ).label('successful')
             ).filter(
                 ValidationResult.created_at >= cutoff_date

@@ -66,12 +66,11 @@ class BaseRepository(Generic[T]):
             Result containing entity or None if not found
         """
         try:
-            # Convert string to UUID if needed
-            if isinstance(entity_id, str) and hasattr(self.model, 'id'):
-                try:
-                    entity_id = uuid.UUID(entity_id)
-                except ValueError:
-                    pass  # Keep as string if not a valid UUID
+            # Note: Our models use String IDs with UUID defaults,
+            # so we keep entity_id as string for consistency
+            # The database will handle the comparison correctly
+            if isinstance(entity_id, uuid.UUID):
+                entity_id = str(entity_id)
             
             entity = self.db.query(self.model).filter(
                 self.model.id == entity_id
@@ -186,6 +185,10 @@ class BaseRepository(Generic[T]):
             Result containing existence boolean or error
         """
         try:
+            # Convert UUID to string if needed for consistency
+            if isinstance(entity_id, uuid.UUID):
+                entity_id = str(entity_id)
+            
             exists = self.db.query(
                 self.db.query(self.model).filter(
                     self.model.id == entity_id

@@ -307,11 +307,13 @@ class FileRepository(BaseRepository[File]):
                 "total_size_gb": total_size / (1024 * 1024 * 1024),
                 "average_size_bytes": float(avg_size),
                 "size_by_content_type": size_by_type,
-                "largest_file": {
-                    "id": largest_file.id,
-                    "filename": largest_file.filename,
-                    "size": largest_file.size
-                } if largest_file else None
+                "largest_file": (
+                    {
+                        "id": largest_file.id,
+                        "filename": largest_file.filename,
+                        "size": largest_file.size
+                    } if largest_file else None
+                )
             })
         except Exception as e:
             logger.error(f"Failed to get storage statistics: {e}")
