@@ -4,6 +4,7 @@ Configuration settings for the API application.
 
 import os
 from typing import Set, Dict
+from enum import Enum
 
 class ValidationConfig:
     """Configuration for validation rules and settings."""
@@ -39,8 +40,34 @@ class ValidationConfig:
         return ruleset in cls.get_allowed_rulesets()
 
 
+class JobPlan(str, Enum):
+    """Job subscription plans."""
+    FREE = "free"
+    PRO = "pro"
+    BUSINESS = "business"
+    ENTERPRISE = "enterprise"
+
+
 class QueueConfig:
     """Configuration for queue and task mappings."""
+    
+    # Queue mapping by plan
+    QUEUE_BY_PLAN: Dict[JobPlan, str] = {
+        JobPlan.FREE: "queue:free",
+        JobPlan.PRO: "queue:pro",
+        JobPlan.BUSINESS: "queue:business",
+        JobPlan.ENTERPRISE: "queue:enterprise"
+    }
+    
+    # Valid task names (used for validation)
+    VALID_TASKS: Set[str] = {
+        "validate_csv_job",
+        "correct_csv_job",
+        "analyze_data_job",
+        "export_results_job",
+        "sync_connector_job",
+        "generate_report_job"
+    }
     
     # Task name mappings to full Celery task paths
     TASK_MAPPINGS: Dict[str, str] = {
@@ -82,3 +109,16 @@ class QueueConfig:
         """Get the full Celery task path for a given task name."""
         mappings = cls.get_task_mappings()
         return mappings.get(task_name, f"src.workers.tasks.{task_name}")
+    
+    @classmethod
+    def get_queue_for_plan(cls, plan: JobPlan) -> str:
+        """Get queue name for a subscription plan."""
+        return cls.QUEUE_BY_PLAN.get(plan, "queue:free")
+    
+    @classmethod
+    def get_valid_tasks(cls) -> Set[str]:
+        """Get valid task names from configuration."""
+        env_tasks = os.getenv("VALID_TASKS")
+        if env_tasks:
+            return set(task.strip() for task in env_tasks.split(","))
+        return cls.VALID_TASKS
