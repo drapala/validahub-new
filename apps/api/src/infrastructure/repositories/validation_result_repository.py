@@ -4,7 +4,7 @@ Handles all database operations for validation results.
 """
 
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, func, case, Integer
 import logging
@@ -153,7 +153,7 @@ class ValidationResultRepository(BaseRepository[ValidationResult]):
             Result containing list of validation results or error
         """
         try:
-            cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
             results = self.db.query(ValidationResult).filter(
                 ValidationResult.created_at >= cutoff_time
             ).order_by(
@@ -223,7 +223,7 @@ class ValidationResultRepository(BaseRepository[ValidationResult]):
                 result.error_message = error_message
             
             if status in ["completed", "failed"]:
-                result.completed_at = datetime.utcnow()
+                result.completed_at = datetime.now(timezone.utc)
             
             self.db.flush()
             return Ok(True)
@@ -309,7 +309,7 @@ class ValidationResultRepository(BaseRepository[ValidationResult]):
             Result containing list of daily statistics or error
         """
         try:
-            cutoff_date = datetime.utcnow() - timedelta(days=days)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
             
             # Group by date
             daily_stats = self.db.query(
@@ -363,7 +363,7 @@ class ValidationResultRepository(BaseRepository[ValidationResult]):
             Result containing number of deleted results or error
         """
         try:
-            cutoff_date = datetime.utcnow() - timedelta(days=days_old)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_old)
             
             count = self.db.query(ValidationResult).filter(
                 ValidationResult.created_at < cutoff_date

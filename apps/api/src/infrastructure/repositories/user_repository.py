@@ -4,7 +4,7 @@ Handles all database operations for users.
 """
 
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 import logging
@@ -127,7 +127,7 @@ class UserRepository(BaseRepository[User]):
                 return Err("User not found")
             
             user.hashed_password = hashed_password
-            user.updated_at = datetime.utcnow()
+            user.updated_at = datetime.now(timezone.utc)
             
             self.db.flush()
             return Ok(True)
@@ -185,7 +185,7 @@ class UserRepository(BaseRepository[User]):
                 return Err("User not found")
             
             user.is_active = is_active
-            user.updated_at = datetime.utcnow()
+            user.updated_at = datetime.now(timezone.utc)
             
             self.db.flush()
             return Ok(True)

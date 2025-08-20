@@ -10,11 +10,16 @@ import uuid
 from src.db.base import Base
 
 
+def generate_uuid():
+    """Generate a UUID string for default ID values."""
+    return str(uuid.uuid4())
+
+
 class ValidationResult(Base):
     """Model for storing validation results."""
     __tablename__ = "validation_results"
 
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(String, primary_key=True, default=generate_uuid)
     job_id = Column(String, ForeignKey("jobs.id"), nullable=False, index=True)
     file_id = Column(String, ForeignKey("files.id"), nullable=True)
     

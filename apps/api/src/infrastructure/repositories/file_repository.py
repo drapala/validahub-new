@@ -4,7 +4,7 @@ Handles all database operations for files.
 """
 
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
 import logging
@@ -181,7 +181,7 @@ class FileRepository(BaseRepository[File]):
             Result containing list of files or error
         """
         try:
-            cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
             files = self.db.query(File).filter(
                 File.created_at >= cutoff_time
             ).order_by(
@@ -254,7 +254,7 @@ class FileRepository(BaseRepository[File]):
             Result containing number of deleted files or error
         """
         try:
-            cutoff_date = datetime.utcnow() - timedelta(days=days_old)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_old)
             
             count = self.db.query(File).filter(
                 File.created_at < cutoff_date
