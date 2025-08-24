@@ -19,7 +19,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from typing import Optional, Dict, Any, Union
 import io
 import json
-from ..core.logging_config import get_logger
+from ...core.logging_config import get_logger
 import uuid
 import time
 import os
@@ -636,6 +636,83 @@ async def reload_rules(
             status=500,
             detail=f"Error reloading rules: {str(e)}",
             instance="/api/v1/reload_rules",
+            correlation_id=correlation_id
+        ))
+
+
+@router.post(
+    "/validation_report",
+    responses={
+        200: {"description": "Report generated successfully"},
+        400: {"model": ProblemDetail, "description": "Bad request"},
+        500: {"model": ProblemDetail, "description": "Internal server error"}
+    },
+    operation_id="generateValidationReport"
+)
+async def generate_validation_report(
+    validation_result: Dict[str, Any],
+    format: str = Query("json", description="Report format (json, excel, pdf)", regex="^(json|excel|pdf)$"),
+    correlation_id: str = Depends(get_correlation_id),
+):
+    """
+    Generate validation report in different formats.
+    
+    Supported formats:
+    - **json**: Machine-readable JSON format (default)
+    - **excel**: Excel workbook with multiple sheets for better analysis
+    - **pdf**: Professional PDF report for sharing/archiving
+    
+    The validation_result should be the response from the /validate endpoint.
+    """
+    
+    try:
+        # Import the report generator service
+        from ...services.report_generator_service import ReportGeneratorService
+        
+        # Initialize the service
+        report_service = ReportGeneratorService()
+        
+        # Generate the report
+        report_bytes = report_service.generate_report(
+            validation_result=validation_result,
+            format=format
+        )
+        
+        # Get appropriate content type and extension
+        content_type = report_service.get_content_type(format)
+        file_extension = report_service.get_file_extension(format)
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"validation_report_{timestamp}.{file_extension}"
+        
+        # Return the report as a response
+        return Response(
+            content=report_bytes,
+            media_type=content_type,
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}",
+                "X-Correlation-Id": correlation_id
+            }
+        )
+        
+    except ValueError as e:
+        return problem_response(ProblemDetail(
+            type="/errors/invalid-format",
+            title="Invalid Format",
+            status=400,
+            detail=str(e),
+            instance="/api/v1/validation_report",
+            correlation_id=correlation_id
+        ))
+    except Exception as e:
+        logger.exception("Error generating report")
+        return problem_response(ProblemDetail(
+            type="/errors/report-generation-error",
+            title="Report Generation Error",
+            status=500,
+            detail=f"Error generating report: {str(e)}",
+            instance="/api/v1/validation_report",
             correlation_id=correlation_id
         ))
 
