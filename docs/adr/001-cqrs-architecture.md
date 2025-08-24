@@ -1,4 +1,4 @@
-# ADR-001: CQRS Architecture for Audit and Analytics
+ok # ADR-001: CQRS Architecture for Audit and Analytics
 
 Date: 2025-01-14
 
