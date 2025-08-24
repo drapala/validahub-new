@@ -7,9 +7,8 @@ import json
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 import pandas as pd
-from openpyxl import Workbook
+
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
-from openpyxl.utils.dataframe import dataframe_to_rows
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
