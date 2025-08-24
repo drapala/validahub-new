@@ -3,7 +3,7 @@ Pure domain service for CSV validation logic.
 Decoupled from infrastructure concerns (queues, storage).
 """
 
-import logging
+from core.logging_config import get_logger
 from typing import Dict, Any, Optional, Tuple
 import pandas as pd
 import io
@@ -11,7 +11,7 @@ import io
 from ..services.rule_engine_service import RuleEngineService
 from ..core.pipeline.validation_pipeline import ValidationPipeline
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class CSVValidationService:

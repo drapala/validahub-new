@@ -2,7 +2,7 @@
 Job queue API endpoints.
 """
 
-import logging
+from ..core.logging_config import get_logger
 from typing import Optional
 from uuid import UUID
 from fastapi import (
@@ -19,7 +19,7 @@ from src.schemas.job import (
 )
 from src.api.dependencies import get_current_user_id
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1/jobs", tags=["jobs"])
 

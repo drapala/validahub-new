@@ -4,7 +4,7 @@ Follows Single Responsibility Principle.
 """
 
 import uuid
-import logging
+from core.logging_config import get_logger
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
 
@@ -14,7 +14,7 @@ from ..core.result import Result, Ok, Err, JobError
 from ..infrastructure.repositories.job_repository import JobRepository
 from ..infrastructure.queue_publisher import QueuePublisher
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class JobQueryService:

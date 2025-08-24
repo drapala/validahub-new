@@ -3,7 +3,7 @@ Use case for single row validation.
 Handles domain logic for row-level validation.
 """
 
-import logging
+from ..core.logging_config import get_logger
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass
 
@@ -18,7 +18,7 @@ from ...schemas.validate import (
     Category
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

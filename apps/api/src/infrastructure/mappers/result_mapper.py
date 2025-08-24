@@ -3,7 +3,7 @@ Mapper for converting between rule engine results and API validation items.
 This separates result transformation logic from business logic.
 """
 
-import logging
+from ..core.logging_config import get_logger
 from typing import Optional, Dict, Any, List
 
 # TODO: Replace with proper import once libs is properly packaged
@@ -22,7 +22,7 @@ from ...schemas.validate import (
 )
 from ...core.enums import Severity
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ResultMapper:

@@ -5,14 +5,14 @@ Abstracts file download/upload operations from business logic.
 
 import os
 import json
-import logging
+from core.logging_config import get_logger
 import hashlib
 from typing import Optional, Dict, Any
 from datetime import datetime
 import tempfile
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class StorageService:

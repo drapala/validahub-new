@@ -3,7 +3,7 @@ Factory for creating queue publisher instances based on configuration.
 """
 
 import os
-import logging
+from core.logging_config import get_logger
 import threading
 from typing import Optional
 
@@ -14,7 +14,7 @@ from .queue_publisher import (
     InMemoryQueuePublisher
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def create_queue_publisher(backend: Optional[str] = None) -> QueuePublisher:

@@ -3,7 +3,7 @@ Job service with idempotency and CRUD operations.
 """
 
 import uuid
-import logging
+from core.logging_config import get_logger
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
@@ -20,7 +20,7 @@ from src.infrastructure.queue_factory import get_queue_publisher
 from src.telemetry.job_telemetry import get_job_telemetry
 from src.core.config import ValidationConfig
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class JobService:

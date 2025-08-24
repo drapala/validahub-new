@@ -50,6 +50,8 @@ apps/api/src/
 ├── core/
 │   ├── interfaces/           # Abstrações/Contratos
 │   │   ├── rule.py          # IRule, IRuleProvider
+
+
 │   │   ├── validator.py     # IValidator
 │   │   └── corrector.py     # ICorrector
 │   │

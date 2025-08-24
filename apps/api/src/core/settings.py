@@ -227,6 +227,38 @@ class StorageSettings(BaseSettings):
         env_prefix = "STORAGE_"
 
 
+class KafkaSettings(BaseSettings):
+    """Kafka configuration for event streaming."""
+    bootstrap_servers: List[str] = Field(
+        default=["localhost:9092"],
+        env="KAFKA_BOOTSTRAP_SERVERS"
+    )
+    telemetry_topic: str = Field(
+        default="telemetry-events",
+        env="KAFKA_TELEMETRY_TOPIC"
+    )
+    validation_events_topic: str = Field(
+        default="validation-events",
+        env="KAFKA_VALIDATION_TOPIC"
+    )
+    consumer_group: str = Field(
+        default="validahub-consumer",
+        env="KAFKA_CONSUMER_GROUP"
+    )
+    compression_type: str = Field(default="snappy", env="KAFKA_COMPRESSION_TYPE")
+    batch_size: int = Field(default=16384, env="KAFKA_BATCH_SIZE")
+    linger_ms: int = Field(default=100, env="KAFKA_LINGER_MS")
+    
+    @validator("bootstrap_servers", pre=True)
+    def parse_bootstrap_servers(cls, v):
+        if isinstance(v, str):
+            return [server.strip() for server in v.split(",")]
+        return v
+    
+    class Config:
+        env_prefix = "KAFKA_"
+
+
 class TelemetrySettings(BaseSettings):
     """Telemetry and monitoring configuration."""
     enabled: bool = Field(default=True, env="TELEMETRY_ENABLED")
@@ -238,10 +270,26 @@ class TelemetrySettings(BaseSettings):
     logs_enabled: bool = Field(default=True, env="LOGS_ENABLED")
     sampling_rate: float = Field(default=1.0, env="TELEMETRY_SAMPLING_RATE")
     
+    # Event emission configuration
+    enable_console_output: bool = Field(default=True, env="TELEMETRY_CONSOLE_OUTPUT")
+    enable_file_output: bool = Field(default=False, env="TELEMETRY_FILE_OUTPUT")
+    output_file: str = Field(default="/tmp/validahub_telemetry.jsonl", env="TELEMETRY_OUTPUT_FILE")
+    enable_kafka: bool = Field(default=False, env="TELEMETRY_KAFKA_ENABLED")
+    
+    # Batching configuration
+    batch_size: int = Field(default=100, env="TELEMETRY_BATCH_SIZE")
+    flush_interval: int = Field(default=5, env="TELEMETRY_FLUSH_INTERVAL")
+    
     @validator("sampling_rate")
     def validate_sampling_rate(cls, v):
         if not 0 <= v <= 1:
             raise ValueError("Sampling rate must be between 0 and 1")
+        return v
+    
+    @validator("batch_size")
+    def validate_batch_size(cls, v):
+        if v < 1 or v > 10000:
+            raise ValueError("Batch size must be between 1 and 10000")
         return v
     
     class Config:
@@ -277,6 +325,7 @@ class Settings(BaseSettings):
     queue: QueueSettings = QueueSettings()
     security: SecuritySettings = SecuritySettings()
     storage: StorageSettings = StorageSettings()
+    kafka: KafkaSettings = KafkaSettings()
     telemetry: TelemetrySettings = TelemetrySettings()
     
     @validator("environment", pre=True)

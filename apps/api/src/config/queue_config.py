@@ -5,11 +5,11 @@ Loads queue settings from external sources (YAML, env vars).
 
 import os
 import yaml
-import logging
+from core.logging_config import get_logger
 from typing import Dict, Any, Optional
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class QueueConfig:

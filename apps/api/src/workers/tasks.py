@@ -4,7 +4,7 @@ Celery tasks for async job processing.
 
 import os
 import json
-import logging
+from core.logging_config import get_logger
 import tempfile
 from typing import Dict, Any, Optional
 from datetime import datetime
@@ -21,7 +21,7 @@ from ..telemetry.job_telemetry import get_job_telemetry
 from ..telemetry.metrics import MetricsCollector, ValidationMetrics
 from ..core.config import QueueConfig
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @celery_app.task(

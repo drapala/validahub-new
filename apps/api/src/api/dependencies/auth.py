@@ -3,11 +3,11 @@ Authentication dependencies for API endpoints.
 """
 
 import os
-import logging
+from ..core.logging_config import get_logger
 from typing import Optional
 from fastapi import HTTPException, status, Request, Depends
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Get environment at module level for safety checks
 ENV = os.environ.get("ENV", "development").lower()

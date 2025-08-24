@@ -4,7 +4,7 @@ This version removes direct dependency on RuleEngineService.
 """
 
 import time
-import logging
+from ..core.logging_config import get_logger
 import asyncio
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
@@ -21,7 +21,7 @@ from ...schemas.validate import (
     CorrectionDetail
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ValidationPipelineDecoupled:

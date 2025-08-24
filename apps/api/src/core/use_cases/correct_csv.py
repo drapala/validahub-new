@@ -5,7 +5,7 @@ Handles domain logic for automatic CSV corrections.
 
 import io
 import uuid
-import logging
+from ..core.logging_config import get_logger
 from typing import Optional, Dict, Any
 from dataclasses import dataclass
 import pandas as pd
@@ -20,7 +20,7 @@ from ...schemas.validate import (
     Category
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

@@ -2,9 +2,9 @@ from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from contextlib import asynccontextmanager
-import logging
 
 from src.config import settings
+from src.core.logging_config import setup_logging, get_logger
 # from src.db.base import engine, Base  # Commented for testing
 from src.api.v1 import health, validation, jobs
 from src.middleware.correlation import (
@@ -13,8 +13,9 @@ from src.middleware.correlation import (
     SecurityHeadersMiddleware
 )
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Setup centralized logging
+setup_logging()
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
@@ -42,6 +43,13 @@ app = FastAPI(
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RateLimitMiddleware, rate_limit=100, window_seconds=60)
 app.add_middleware(CorrelationMiddleware)
+
+# Add telemetry middleware if enabled
+if settings.telemetry.enabled:
+    from src.middleware.telemetry_middleware import TelemetryMiddleware, PerformanceTrackingMiddleware
+    app.add_middleware(TelemetryMiddleware)
+    if settings.telemetry.metrics_enabled:
+        app.add_middleware(PerformanceTrackingMiddleware)
 
 # Configure CORS
 app.add_middleware(

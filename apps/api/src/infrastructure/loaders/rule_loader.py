@@ -3,7 +3,7 @@ Rule loader component responsible for loading ruleset files.
 This separates file system concerns from the business logic.
 """
 
-import logging
+from ..core.logging_config import get_logger
 import yaml
 from pathlib import Path
 from typing import Dict, Optional, List
@@ -16,7 +16,7 @@ if str(libs_path) not in sys.path:
     sys.path.insert(0, str(libs_path))
 from rule_engine import load_ruleset
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass
