@@ -45,11 +45,12 @@ app.add_middleware(RateLimitMiddleware, rate_limit=100, window_seconds=60)
 app.add_middleware(CorrelationMiddleware)
 
 # Add telemetry middleware if enabled
-if settings.telemetry.enabled:
-    from src.middleware.telemetry_middleware import TelemetryMiddleware, PerformanceTrackingMiddleware
-    app.add_middleware(TelemetryMiddleware)
-    if settings.telemetry.metrics_enabled:
-        app.add_middleware(PerformanceTrackingMiddleware)
+# TODO: Fix settings adapter to include telemetry attribute
+# if settings.telemetry.enabled:
+#     from src.middleware.telemetry_middleware import TelemetryMiddleware, PerformanceTrackingMiddleware
+#     app.add_middleware(TelemetryMiddleware)
+#     if settings.telemetry.metrics_enabled:
+#         app.add_middleware(PerformanceTrackingMiddleware)
 
 # Configure CORS
 app.add_middleware(
