@@ -116,16 +116,45 @@ class BaseRepository(Generic[T]):
         """
         Update an existing entity.
         
+        This method fetches the existing entity from the database and updates its fields.
+        If the entity does not exist, an error is returned.
+        
         Args:
-            entity: Entity with updated values
+            entity: Entity with updated values (must have 'id' attribute)
             
         Returns:
             Result containing updated entity or error
+        
+        Note:
+            The entity must exist in the database. For create-or-update behavior,
+            use the merge_entity() method instead.
         """
         try:
-            self.db.merge(entity)
+            # Ensure entity has an ID
+            if not hasattr(entity, 'id') or entity.id is None:
+                return Err(f"{self.model.__name__} must have an id for update")
+            
+            # Fetch the existing entity from database
+            db_entity = self.db.query(self.model).filter(
+                self.model.id == entity.id
+            ).first()
+            
+            if not db_entity:
+                return Err(f"{self.model.__name__} with id {entity.id} not found")
+            
+            # Update fields from the provided entity
+            for column in self.model.__table__.columns:
+                column_name = column.name
+                # Skip primary key and system fields
+                if column_name == 'id' or column_name.startswith('_'):
+                    continue
+                    
+                if hasattr(entity, column_name):
+                    setattr(db_entity, column_name, getattr(entity, column_name))
+            
             self.db.flush()
-            return Ok(entity)
+            return Ok(db_entity)
+            
         except SQLAlchemyError as e:
             logger.error(f"Failed to update {self.model.__name__}: {e}")
             self.db.rollback()
@@ -242,3 +271,30 @@ class BaseRepository(Generic[T]):
     def rollback(self) -> None:
         """Rollback the current transaction."""
         self.db.rollback()
+    
+    def merge_entity(self, entity: T) -> Result[T, str]:
+        """
+        Merge an entity (create or update based on existence).
+        
+        This method uses SQLAlchemy's merge() which will:
+        - Create the entity if it doesn't exist
+        - Update it if it exists (based on primary key)
+        
+        Args:
+            entity: Entity to merge
+            
+        Returns:
+            Result containing merged entity or error
+        
+        Warning:
+            Use this method carefully as it can create new records
+            if the entity's ID doesn't exist in the database.
+        """
+        try:
+            merged_entity = self.db.merge(entity)
+            self.db.flush()
+            return Ok(merged_entity)
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to merge {self.model.__name__}: {e}")
+            self.db.rollback()
+            return Err(str(e))
