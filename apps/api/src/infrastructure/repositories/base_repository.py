@@ -6,13 +6,13 @@ Provides a foundation for all repositories.
 from typing import TypeVar, Generic, Optional, List, Type, Any, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-import logging
+from ..core.logging_config import get_logger
 import uuid
 
 from ...db.base import Base
 from ...core.result import Result, Ok, Err
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 T = TypeVar('T', bound=Base)
 

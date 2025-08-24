@@ -4,7 +4,7 @@ Follows Single Responsibility Principle.
 """
 
 import uuid
-import logging
+from core.logging_config import get_logger
 from typing import Optional, Tuple
 from datetime import datetime, timezone
 
@@ -25,7 +25,7 @@ from ..core.constants import (
     MAX_RETRY_COUNT
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class JobCreationService:

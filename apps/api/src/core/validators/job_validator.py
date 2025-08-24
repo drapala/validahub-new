@@ -3,7 +3,7 @@ Job validation logic separated from service layer.
 Follows Single Responsibility Principle.
 """
 
-import logging
+from ..core.logging_config import get_logger
 import re
 from typing import Optional, List, Set
 from datetime import datetime
@@ -25,7 +25,7 @@ from ..constants import (
     MAX_RETRY_COUNT
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class JobValidator:

@@ -7,13 +7,13 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
-import logging
+from ..core.logging_config import get_logger
 
 from .base_repository import BaseRepository
 from ...models.file import File
 from ...core.result import Result, Ok, Err
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class FileRepository(BaseRepository[File]):

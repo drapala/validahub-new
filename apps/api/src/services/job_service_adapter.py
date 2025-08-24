@@ -3,7 +3,7 @@ Simple adapter for JobService to implement IJobService interface.
 This adapter only delegates calls, without implementing business logic.
 """
 
-import logging
+from core.logging_config import get_logger
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -20,7 +20,7 @@ from ..schemas.job import (
 from ..infrastructure.queue_publisher import QueuePublisher
 from .job_service import JobService as LegacyJobService
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class JobServiceAdapter(IJobService):

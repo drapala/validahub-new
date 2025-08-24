@@ -4,7 +4,7 @@ This version delegates responsibilities to specialized classes.
 """
 
 import copy
-import logging
+from core.logging_config import get_logger
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 
@@ -16,7 +16,7 @@ from ..infrastructure.loaders.rule_loader import RuleLoader, RuleLoaderConfig
 from ..infrastructure.mappers.result_mapper import ResultMapper
 from ..schemas.validate import ValidationItem
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

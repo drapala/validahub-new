@@ -7,13 +7,13 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
-import logging
+from ..core.logging_config import get_logger
 
 from .base_repository import BaseRepository
 from ...models.user import User
 from ...core.result import Result, Ok, Err
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class UserRepository(BaseRepository[User]):

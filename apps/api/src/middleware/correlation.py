@@ -3,9 +3,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from typing import Callable
 import uuid
 import time
-import logging
+from core.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class CorrelationMiddleware(BaseHTTPMiddleware):

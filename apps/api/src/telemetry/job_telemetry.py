@@ -3,14 +3,14 @@ Job-specific telemetry helpers.
 """
 
 import time
-import logging
+from core.logging_config import get_logger
 import threading
 from typing import Dict, Any, Optional
 from datetime import datetime
 
 from .emitter import get_telemetry_emitter
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class JobTelemetry:

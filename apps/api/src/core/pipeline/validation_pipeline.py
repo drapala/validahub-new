@@ -3,7 +3,7 @@ Enhanced validation pipeline using the YAML-based rule engine.
 """
 
 import time
-import logging
+from ..core.logging_config import get_logger
 from typing import List, Dict, Any, Optional
 import pandas as pd
 
@@ -19,7 +19,7 @@ from ...schemas.validate import (
     CorrectionDetail
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ValidationPipeline:

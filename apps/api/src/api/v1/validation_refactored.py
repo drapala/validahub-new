@@ -20,7 +20,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from typing import Optional, Dict, Any, Union
 import io
 import json
-import logging
+from ..core.logging_config import get_logger
 import os
 import uuid
 from datetime import datetime
@@ -49,7 +49,7 @@ from ...core.pipeline.validation_pipeline_decoupled import ValidationPipelineDec
 from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
 from ...services.rule_engine_service import RuleEngineService
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["validation-refactored"])
 
 # Constants

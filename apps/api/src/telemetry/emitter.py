@@ -4,6 +4,7 @@ Telemetry emitter interface and implementations.
 
 import json
 import logging
+from core.logging_config import get_logger
 import uuid
 import os
 import re
@@ -12,7 +13,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional, Protocol
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class TelemetryEmitter(Protocol):

@@ -2,7 +2,7 @@
 Queue publisher abstraction for decoupling from specific queue implementations.
 """
 
-import logging
+from core.logging_config import get_logger
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Protocol
 from datetime import datetime
@@ -10,7 +10,7 @@ import uuid
 
 from ..core.config import QueueConfig
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class QueuePublisher(Protocol):
