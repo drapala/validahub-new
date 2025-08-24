@@ -28,6 +28,8 @@ We use a lightweight format based on Michael Nygard's template:
 | ADR | Title | Status | Date |
 |-----|-------|--------|------|
 | [001](001-cqrs-architecture.md) | CQRS Architecture for Audit and Analytics | Proposed | 2025-01-14 |
+| [002](002-dsl-v1-primitives.md) | DSL v1 Primitives | Accepted | 2025-01-15 |
+| [003](003-bi-telemetry-architecture.md) | BI and Telemetry Architecture for Network Effects | Proposed | 2025-01-24 |
 
 ## Creating a New ADR
 
