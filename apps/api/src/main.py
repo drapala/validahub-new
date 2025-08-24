@@ -7,10 +7,11 @@ from src.config import settings
 from src.core.logging_config import setup_logging, get_logger
 # from src.db.base import engine, Base  # Commented for testing
 from src.api.v1 import health, validation, jobs
-from src.middleware.correlation import (
+from src.middleware import (
     CorrelationMiddleware,
     RateLimitMiddleware,
-    SecurityHeadersMiddleware
+    SecurityHeadersMiddleware,
+    AuthenticationMiddleware
 )
 
 # Setup centralized logging

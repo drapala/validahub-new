@@ -22,8 +22,11 @@ import io
 import json
 from ..core.logging_config import get_logger
 import os
-import uuid
 from datetime import datetime
+from ...core.utils import (
+    get_correlation_id_from_header as get_correlation_id,
+    problem_response
+)
 
 from ...schemas.validate import (
     ValidationResult,
@@ -86,31 +89,7 @@ def get_validate_row_use_case() -> ValidateRowUseCase:
     return ValidateRowUseCase(get_validation_pipeline())
 
 
-def get_correlation_id(
-    x_correlation_id: Optional[str] = Header(None, alias="X-Correlation-Id")
-) -> str:
-    """Generate or return correlation ID for request tracking."""
-    return x_correlation_id or str(uuid.uuid4())
-
-
-def problem_response(problem: ProblemDetail) -> JSONResponse:
-    """Create a problem+json response."""
-    content = problem.model_dump(exclude_none=True)
-    
-    # Convert datetime fields to ISO format strings
-    if "timestamp" in content and content["timestamp"]:
-        if isinstance(content["timestamp"], datetime):
-            content["timestamp"] = content["timestamp"].isoformat()
-    
-    if "rate_limit_reset" in content and content["rate_limit_reset"]:
-        if isinstance(content["rate_limit_reset"], datetime):
-            content["rate_limit_reset"] = content["rate_limit_reset"].isoformat()
-    
-    return JSONResponse(
-        status_code=problem.status,
-        content=content,
-        headers={"Content-Type": "application/problem+json"}
-    )
+# Utility functions are now imported from core.utils
 
 
 async def validate_file_type(file: UploadFile, correlation_id: str) -> Optional[JSONResponse]:

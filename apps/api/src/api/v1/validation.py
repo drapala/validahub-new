@@ -20,7 +20,6 @@ from typing import Optional, Dict, Any, Union
 import io
 import json
 from ..core.logging_config import get_logger
-import uuid
 import time
 import os
 from datetime import datetime
@@ -42,6 +41,10 @@ from ...schemas.errors import (
 )
 from ...core.pipeline.validation_pipeline import ValidationPipeline
 from ...services.rule_engine_service import RuleEngineService
+from ...core.utils import (
+    get_correlation_id_from_header as get_correlation_id,
+    problem_response
+)
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["validation"])
@@ -54,34 +57,6 @@ RULESET_VERSION = "2.0.0"
 # Initialize services
 rule_engine_service = RuleEngineService()
 validation_pipeline = ValidationPipeline(rule_engine_service=rule_engine_service)
-
-
-def get_correlation_id(
-    x_correlation_id: Optional[str] = Header(None, alias="X-Correlation-Id")
-) -> str:
-    """Generate or return correlation ID for request tracking."""
-    return x_correlation_id or str(uuid.uuid4())
-
-
-def problem_response(problem: ProblemDetail) -> JSONResponse:
-    """Create a problem+json response."""
-    # Convert to dict and handle datetime serialization
-    content = problem.model_dump(exclude_none=True)
-    
-    # Convert datetime fields to ISO format strings
-    if "timestamp" in content and content["timestamp"]:
-        if isinstance(content["timestamp"], datetime):
-            content["timestamp"] = content["timestamp"].isoformat()
-    
-    if "rate_limit_reset" in content and content["rate_limit_reset"]:
-        if isinstance(content["rate_limit_reset"], datetime):
-            content["rate_limit_reset"] = content["rate_limit_reset"].isoformat()
-    
-    return JSONResponse(
-        status_code=problem.status,
-        content=content,
-        headers={"Content-Type": "application/problem+json"}
-    )
 
 
 @router.post(

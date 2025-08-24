@@ -18,6 +18,10 @@ from src.schemas.job import (
     JobListQuery, JobListResponse
 )
 from src.api.dependencies import get_current_user_id
+from src.core.utils import (
+    get_correlation_id_from_header as get_correlation_id,
+    get_prefer_header
+)
 
 logger = get_logger(__name__)
 
@@ -26,20 +30,6 @@ router = APIRouter(prefix="/api/v1/jobs", tags=["jobs"])
 # Cache allowed JobStatus values
 from src.models.job import JobStatus
 ALLOWED_JOB_STATUS_VALUES = [e.value for e in JobStatus]
-
-
-def get_correlation_id(
-    x_correlation_id: Optional[str] = Header(None, alias="X-Correlation-Id")
-) -> Optional[str]:
-    """Extract correlation ID from headers."""
-    return x_correlation_id
-
-
-def get_prefer_header(
-    prefer: Optional[str] = Header(None)
-) -> bool:
-    """Check if client prefers representation on conflict."""
-    return prefer == "return=representation" if prefer else False
 
 
 @router.post(

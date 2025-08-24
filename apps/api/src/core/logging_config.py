@@ -18,10 +18,9 @@ class CorrelationFilter(logging.Filter):
     """Add correlation ID to log records."""
     
     def filter(self, record):
-        # Try to get correlation ID from context
-        import contextvars
-        correlation_id_var = contextvars.ContextVar('correlation_id', default=None)
-        record.correlation_id = correlation_id_var.get() or 'no-correlation-id'
+        # Get correlation ID from utils
+        from .utils import get_correlation_id
+        record.correlation_id = get_correlation_id() or 'no-correlation-id'
         return True
 
 
@@ -275,28 +274,9 @@ def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(name)
 
 
-def set_correlation_id(correlation_id: str) -> None:
-    """
-    Set correlation ID for the current context.
-    
-    Args:
-        correlation_id: Correlation ID to set
-    """
-    import contextvars
-    correlation_id_var = contextvars.ContextVar('correlation_id', default=None)
-    correlation_id_var.set(correlation_id)
-
-
-def get_correlation_id() -> Optional[str]:
-    """
-    Get correlation ID from the current context.
-    
-    Returns:
-        Current correlation ID or None
-    """
-    import contextvars
-    correlation_id_var = contextvars.ContextVar('correlation_id', default=None)
-    return correlation_id_var.get()
+# Correlation ID functions moved to core.utils to avoid duplication
+# Import from there if needed:
+# from ..core.utils import get_correlation_id, set_correlation_id
 
 
 # Disable noisy loggers by default
