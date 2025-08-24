@@ -246,37 +246,44 @@ class ValidationResultRepository(BaseRepository[ValidationResult]):
             Result containing statistics dictionary or error
         """
         try:
-            query = self.db.query(ValidationResult)
+            # Build base filter conditions
+            base_filters = []
             if marketplace:
-                query = query.filter(ValidationResult.marketplace == marketplace)
+                base_filters.append(ValidationResult.marketplace == marketplace)
             
-            total_validations = query.count()
+            # Total validations
+            total_validations = self.db.query(ValidationResult).filter(*base_filters).count()
             
             # Success rate
-            successful = query.filter(
+            successful = self.db.query(ValidationResult).filter(
+                *base_filters,
                 ValidationResult.invalid_rows == 0
             ).count()
             success_rate = (successful / total_validations * 100) if total_validations > 0 else 0
             
             # Average processing time
-            avg_time = query.filter(
-                ValidationResult.processing_time_ms.isnot(None)
-            ).with_entities(
+            avg_time = self.db.query(
                 func.avg(ValidationResult.processing_time_ms)
+            ).filter(
+                *base_filters,
+                ValidationResult.processing_time_ms.isnot(None)
             ).scalar() or 0
             
             # Total rows processed
-            total_rows = query.with_entities(
+            total_rows = self.db.query(
                 func.sum(ValidationResult.total_rows)
+            ).filter(
+                *base_filters
             ).scalar() or 0
             
             # Error rate by category
             error_by_category = dict(
-                query.filter(
-                    ValidationResult.category.isnot(None)
-                ).with_entities(
+                self.db.query(
                     ValidationResult.category,
                     func.avg(ValidationResult.invalid_rows * 100.0 / ValidationResult.total_rows)
+                ).filter(
+                    *base_filters,
+                    ValidationResult.category.isnot(None)
                 ).group_by(ValidationResult.category).all()
             )
             
