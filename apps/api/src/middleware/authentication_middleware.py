@@ -121,11 +121,38 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         Returns:
             User ID associated with API key or None if invalid
         """
-        # In production, this would check against database
-        # For now, use a simple check
-        if api_key and len(api_key) >= 32:
-            # Extract user ID from API key (simplified)
-            return "api_user_" + api_key[:8]
+        # TODO: In production, implement proper API key validation:
+        # 1. Check against database or cache
+        # 2. Use cryptographic comparison (e.g., secrets.compare_digest)
+        # 3. Check key expiration and permissions
+        # 4. Rate limit key validation attempts
+        
+        # This is a placeholder implementation for development only
+        # DO NOT USE IN PRODUCTION
+        if not api_key:
+            return None
+            
+        # Example of what production code should look like:
+        # from src.infrastructure.repositories import ApiKeyRepository
+        # repo = ApiKeyRepository(self.db)
+        # result = await repo.validate_api_key(api_key)
+        # if result.is_ok():
+        #     key_data = result.unwrap()
+        #     if key_data and not key_data.is_expired():
+        #         return key_data.user_id
+        
+        logger.warning("API key validation using development placeholder - implement proper validation for production")
+        
+        # Development placeholder - accepts specific test keys only
+        test_keys = {
+            "test_key_123456789012345678901234567890": "test_user_1",
+            "dev_key_098765432109876543210987654321": "dev_user_1"
+        }
+        
+        import secrets
+        for valid_key, user_id in test_keys.items():
+            if secrets.compare_digest(api_key, valid_key):
+                return user_id
         
         return None
     
@@ -163,15 +190,27 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         Returns:
             API key or None
         """
-        # Check X-API-Key header
+        # Check X-API-Key header (preferred method)
         api_key = request.headers.get("X-API-Key")
         if api_key:
             return api_key
         
-        # Check query parameter (less secure, but sometimes needed)
+        # Check query parameter (DEPRECATED - SECURITY RISK)
+        # WARNING: API keys in query parameters are logged in server logs,
+        # cached by proxies, saved in browser history, and visible in referrer headers.
+        # This should ONLY be used for backward compatibility and should be removed ASAP.
         if hasattr(request, "query_params"):
             api_key = request.query_params.get("api_key")
             if api_key:
+                logger.warning(
+                    "API key provided in query parameter - this is a security risk! "
+                    "Use X-API-Key header instead.",
+                    extra={
+                        "path": request.url.path,
+                        "client": request.client.host if request.client else None,
+                        "security_warning": "api_key_in_url"
+                    }
+                )
                 return api_key
         
         return None

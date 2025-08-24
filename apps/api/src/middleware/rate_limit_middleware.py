@@ -10,6 +10,13 @@ import time
 import json
 from datetime import datetime, timedelta
 
+try:
+    import redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    redis = None
+
 from ..core.logging_config import get_logger
 from ..core.settings import get_settings
 
@@ -32,7 +39,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         app,
         rate_limit: int = 100,
         window_seconds: int = 60,
-        enable_redis: bool = True
+        enable_redis: bool = True,
+        fail_open: bool = True
     ):
         """
         Initialize rate limit middleware.
@@ -42,20 +50,27 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             rate_limit: Number of requests allowed per window
             window_seconds: Time window in seconds
             enable_redis: Whether to use Redis for distributed rate limiting
+            fail_open: Whether to allow requests when Redis is unavailable (default: True)
         """
         super().__init__(app)
         self.rate_limit = rate_limit
         self.window_seconds = window_seconds
-        self.enable_redis = enable_redis
+        self.enable_redis = enable_redis and REDIS_AVAILABLE
+        self.fail_open = fail_open
         self.redis_client = None
         
-        if enable_redis:
+        if self.enable_redis:
             self._setup_redis()
+        elif enable_redis and not REDIS_AVAILABLE:
+            logger.warning("Redis requested but not available - using in-memory rate limiting")
     
     def _setup_redis(self):
         """Setup Redis client for distributed rate limiting."""
+        if not REDIS_AVAILABLE:
+            logger.error("Redis library not installed - cannot enable Redis rate limiting")
+            return
+            
         try:
-            import redis
             settings = get_settings()
             self.redis_client = redis.from_url(
                 settings.redis.url,
@@ -142,12 +157,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             
         except Exception as e:
             logger.error(f"Redis rate limit check failed: {e}")
-            # Fail open - allow request on Redis failure
-            return {
-                "allowed": True,
-                "remaining": self.rate_limit,
-                "reset": int(time.time()) + self.window_seconds
-            }
+            # Handle based on fail_open configuration
+            if self.fail_open:
+                logger.warning("Rate limiting failed open - allowing request")
+                return {
+                    "allowed": True,
+                    "remaining": self.rate_limit,
+                    "reset": int(time.time()) + self.window_seconds
+                }
+            else:
+                logger.warning("Rate limiting failed closed - denying request")
+                return {
+                    "allowed": False,
+                    "remaining": 0,
+                    "reset": int(time.time()) + self.window_seconds
+                }
     
     async def _check_rate_limit_memory(self, key: str) -> Dict[str, Any]:
         """
