@@ -3,7 +3,7 @@ Factory for creating and managing RuleEngine instances.
 This separates engine lifecycle management from business logic.
 """
 
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 import os
 import tempfile
 import yaml

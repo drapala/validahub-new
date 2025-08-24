@@ -8,13 +8,13 @@ from core.logging_config import get_logger
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 
-from ..infrastructure.factories.rule_engine_factory import (
+from infrastructure.factories.rule_engine_factory import (
     RuleEngineFactory,
     RuleEngineFactoryConfig
 )
-from ..infrastructure.loaders.rule_loader import RuleLoader, RuleLoaderConfig
-from ..infrastructure.mappers.result_mapper import ResultMapper
-from ..schemas.validate import ValidationItem
+from infrastructure.loaders.rule_loader import RuleLoader, RuleLoaderConfig
+from infrastructure.mappers.result_mapper import ResultMapper
+from schemas.validate import ValidationItem
 
 logger = get_logger(__name__)
 

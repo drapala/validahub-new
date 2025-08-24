@@ -11,7 +11,7 @@ from pathlib import Path
 import json
 from datetime import datetime
 
-from ..core.settings import get_settings
+from .settings import get_settings
 
 
 class CorrelationFilter(logging.Filter):
