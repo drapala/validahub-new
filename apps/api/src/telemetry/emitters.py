@@ -123,9 +123,13 @@ class KafkaTelemetryEmitter(TelemetryEmitter):
             logger.warning("aiokafka not installed, Kafka telemetry disabled")
     
     async def start(self):
-        """Start Kafka producer."""
+        """Start Kafka producer (idempotent)."""
         if self.producer:
-            await self.producer.start()
+            try:
+                await self.producer.start()
+            except Exception:
+                # Already started, ignore
+                pass
     
     async def emit(self, event: BaseEvent):
         """Emit event to Kafka."""
@@ -133,9 +137,8 @@ class KafkaTelemetryEmitter(TelemetryEmitter):
             return
         
         try:
-            # Ensure producer is started
-            if not self.producer._producer:
-                await self.start()
+            # Ensure producer is started (will be idempotent if already started)
+            await self.start()
             
             # Send event
             await self.producer.send(
@@ -152,9 +155,8 @@ class KafkaTelemetryEmitter(TelemetryEmitter):
             return
         
         try:
-            # Ensure producer is started
-            if not self.producer._producer:
-                await self.start()
+            # Ensure producer is started (will be idempotent if already started)
+            await self.start()
             
             # Create batch
             batch = self.producer.create_batch()
