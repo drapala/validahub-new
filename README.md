@@ -5,475 +5,295 @@
 ![Node](https://img.shields.io/badge/node-20-green.svg)
 [![codecov](https://codecov.io/gh/drapala/validahub-new/branch/main/graph/badge.svg)](https://codecov.io/gh/drapala/validahub-new)
 
-**ValidaHub** é uma plataforma de validação e correção inteligente de arquivos CSV para marketplaces. Com arquitetura de plugins extensível, oferece validação específica por marketplace e categoria, com correções automáticas e preview em tempo real.
+**ValidaHub** is an enterprise-grade intelligent CSV validation and correction platform for e-commerce. It offers asynchronous processing, advanced telemetry, and scalable architecture with support for multiple marketplaces.
 
-## 🏗️ Arquitetura Plugin-Based
+## 🎯 Key Features
+
+### ✅ In Production
+- **Multi-Marketplace Validation**: Specific rules for Mercado Livre, Shopee, Amazon
+- **Intelligent Auto-Correction**: Correction system with preview and selective application
+- **Asynchronous Processing**: Job queue with Celery + Redis for large files
+- **Complete Telemetry**: Structured events, metrics, and observability
+- **Repository System**: Abstract data layer with Repository pattern
+- **Centralized Logging**: Unified logging system with correlation IDs
+- **Rate Limiting**: Abuse protection with Redis-backed rate limiting
+- **Flexible Authentication**: Support for JWT and API Keys
+
+### 🚀 Current Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                                   ValidaHub                                      │
-│                         Plataforma de Validação CSV                              │
-└─────────────────────────────────────────────────────────────────────────────────┘
-                                        │
-                                        ▼
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                                 Frontend (Next.js)                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │   Upload     │  │   Preview    │  │   Results    │  │  Corrections │       │
-│  │   Component  │  │   Component  │  │    Table     │  │    Preview   │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘       │
-└─────────────────────────────────────────────────────────────────────────────────┘
-                                        │
-                                    API REST
-                                        │
-                                        ▼
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              Backend (FastAPI)                                   │
-│                                                                                  │
-│  ┌────────────────────────────────────────────────────────────────────────┐    │
-│  │                         API Layer (/api/v1)                             │    │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                 │    │
-│  │  │  /validate   │  │   /correct   │  │  /preview    │                 │    │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘                 │    │
-│  └────────────────────────────────────────────────────────────────────────┘    │
-│                                        │                                         │
-│                                        ▼                                         │
-│  ┌────────────────────────────────────────────────────────────────────────┐    │
-│  │                         Service Layer                                   │    │
-│  │  ┌──────────────────────┐  ┌──────────────────────┐                   │    │
-│  │  │   CSV Validator V2    │  │   CSV Corrector V2   │                   │    │
-│  │  │  ┌────────────────┐  │  │  ┌────────────────┐  │                   │    │
-│  │  │  │  Rule Engine   │  │  │  │  Correction    │  │                   │    │
-│  │  │  │                │  │  │  │    Engine      │  │                   │    │
-│  │  │  └────────────────┘  │  │  └────────────────┘  │                   │    │
-│  │  └──────────────────────┘  └──────────────────────┘                   │    │
-│  └────────────────────────────────────────────────────────────────────────┘    │
-│                                        │                                         │
-│                                        ▼                                         │
-│  ┌────────────────────────────────────────────────────────────────────────┐    │
-│  │                    Plugin Architecture Core                             │    │
-│  │                                                                         │    │
-│  │  ┌─────────────────────────────────────────────────────────────────┐  │    │
-│  │  │                        Interfaces                                │  │    │
-│  │  │  ┌────────┐  ┌────────┐  ┌────────────┐  ┌──────────────┐     │  │    │
-│  │  │  │ IRule  │  │IRulePr │  │ICorrector  │  │IValidator    │     │  │    │
-│  │  │  │        │  │ovider  │  │            │  │              │     │  │    │
-│  │  │  └────────┘  └────────┘  └────────────┘  └──────────────┘     │  │    │
-│  │  └─────────────────────────────────────────────────────────────────┘  │    │
-│  │                                   │                                    │    │
-│  │                                   ▼                                    │    │
-│  │  ┌─────────────────────────────────────────────────────────────────┐  │    │
-│  │  │                    Rule Implementations                          │  │    │
-│  │  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │  │    │
-│  │  │  │Required Field│  │ Text Rules   │  │Number Rules  │         │  │    │
-│  │  │  │    Rule      │  │ (Min/Max)    │  │(Range/Type)  │         │  │    │
-│  │  │  └──────────────┘  └──────────────┘  └──────────────┘         │  │    │
-│  │  └─────────────────────────────────────────────────────────────────┘  │    │
-│  │                                   │                                    │    │
-│  │                                   ▼                                    │    │
-│  │  ┌─────────────────────────────────────────────────────────────────┐  │    │
-│  │  │                 Marketplace Providers                            │  │    │
-│  │  │                                                                  │  │    │
-│  │  │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐   │  │    │
-│  │  │  │ Mercado Livre  │  │     Shopee     │  │     Amazon     │   │  │    │
-│  │  │  │   Provider     │  │    Provider    │  │    Provider    │   │  │    │
-│  │  │  │                │  │                │  │                │   │  │    │
-│  │  │  │ • Title: 60ch  │  │ • Title: 100ch │  │ • Title: 200ch │   │  │    │
-│  │  │  │ • Price > 0    │  │ • Weight req.  │  │ • ASIN/UPC     │   │  │    │
-│  │  │  │ • Stock >= 0   │  │ • Square imgs  │  │ • Bullets req. │   │  │    │
-│  │  │  └────────────────┘  └────────────────┘  └────────────────┘   │  │    │
-│  │  │                                                                  │  │    │
-│  │  │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐   │  │    │
-│  │  │  │     Magalu     │  │   Americanas   │  │   B2W/Others   │   │  │    │
-│  │  │  │   Provider     │  │    Provider    │  │    Provider    │   │  │    │
-│  │  │  │   (Planned)    │  │   (Planned)    │  │   (Planned)    │   │  │    │
-│  │  │  └────────────────┘  └────────────────┘  └────────────────┘   │  │    │
-│  │  └─────────────────────────────────────────────────────────────────┘  │    │
-│  └────────────────────────────────────────────────────────────────────────┘    │
-│                                                                                  │
-└─────────────────────────────────────────────────────────────────────────────────┘
-
-                        ┌──────────────────────────┐
-                        │   Data Flow Pipeline     │
-                        └──────────────────────────┘
-                                    │
-                    1. Upload CSV   ▼
-                        ┌──────────────────┐
-                        │   Parse & Load    │
-                        └──────────────────┘
-                                    │
-                    2. Select Rules ▼
-                        ┌──────────────────┐
-                        │  Load Provider    │
-                        │  (Marketplace)    │
-                        └──────────────────┘
-                                    │
-                    3. Validate     ▼
-                        ┌──────────────────┐
-                        │   Rule Engine     │
-                        │  Execute Rules    │
-                        └──────────────────┘
-                                    │
-                    4. Errors?      ▼
-                        ┌──────────────────┐
-                        │  Correction       │
-                        │    Engine         │
-                        └──────────────────┘
-                                    │
-                    5. Preview      ▼
-                        ┌──────────────────┐
-                        │  Show Results     │
-                        │  & Corrections    │
-                        └──────────────────┘
-                                    │
-                    6. Download     ▼
-                        ┌──────────────────┐
-                        │  Corrected CSV    │
-                        └──────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                         Frontend (Next.js)                       │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌──────────┐ │
+│  │   Upload   │  │    Jobs    │  │  Results   │  │ Settings │ │
+│  └────────────┘  └────────────┘  └────────────┘  └──────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                            REST API
+                                │
+┌─────────────────────────────────────────────────────────────────┐
+│                      Backend (FastAPI)                           │
+├─────────────────────────────────────────────────────────────────┤
+│                         API Layer                                │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ /validate_csv  /correct_csv  /jobs  /validate_row        │  │
+│  └──────────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────┤
+│                      Use Cases Layer                             │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ ValidateCsvUseCase  CorrectCsvUseCase  ValidateRowUseCase│  │
+│  └──────────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────┤
+│                      Services Layer                              │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ JobService  RuleEngineService  StorageService  Telemetry │  │
+│  └──────────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────┤
+│                    Infrastructure Layer                          │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ Repositories  Queue(Celery)  Cache(Redis)  Storage(S3)   │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 Features
-
-### ✅ Implementado
-- **Validação por Marketplace**: Regras específicas para Mercado Livre, Shopee, Amazon
-- **Correção Automática**: Fixes inteligentes baseados em padrões do marketplace
-- **Preview de Correções**: Visualize mudanças antes de aplicar
-- **Arquitetura de Plugins**: Fácil adição de novos marketplaces e regras
-- **API RESTful**: Endpoints bem definidos e documentados
-- **Interface Web**: Upload drag-and-drop com feedback visual
-
-### 🔄 Em Desenvolvimento
-- **Processamento Assíncrono**: Para arquivos grandes (Celery + Redis)
-- **Sistema de Templates**: Mapeamentos customizáveis por usuário
-- **Batch Processing**: Streaming de CSVs grandes com chunks configuráveis
-- **Dry-run Mode**: Preview de correções sem aplicar
-
-## 📅 Roadmap
-
-### ✅ Sprint Concluído
-- [x] **T1**: Configurar monorepo com pnpm + Turborepo
-- [x] **T2**: Implementar endpoint `/validate_csv` com validação síncrona
-- [x] **T4**: Adicionar download de CSV corrigido
-- [x] **Golden Tests**: Arquitetura completa de testes de regressão
-
-### 🚧 Sprint Atual - Quick Wins
-- [ ] **MarketplaceConfig Data-Driven**: Refatorar configurações para data classes
-- [ ] **Classificador de Erros**: Sistema simples de classificação de erros
-- [ ] **Integração Golden Tests**: Conectar com pipeline real
-
-### 📋 Backlog Priorizado
-
-#### Q1 2025
-- [ ] **T3 - Processamento Assíncrono**: Celery + Redis para arquivos grandes
-- [ ] **BatchSettings**: Processar CSVs em chunks configuráveis
-- [ ] **PartialSuccessPolicy**: Modos fail_fast/continue/threshold
-
-#### Q2 2025
-- [ ] **T5 - Sistema de Templates**: UI para configurar mapeamentos
-- [ ] **Dry-run Mode**: Preview completo sem efeitos colaterais
-- [ ] **Reason Codes**: Catalogar e documentar todos os códigos de correção
-
-#### Futuro
-- [ ] **Novos Marketplaces**: Magalu, Americanas, B2W
-- [ ] **API v2**: GraphQL com subscriptions
-- [ ] **Machine Learning**: Correções preditivas baseadas em histórico
-
-## 🛠️ Stack Tecnológica
-
-### Frontend
-- **Next.js 14** (App Router) + TypeScript
-- **Tailwind CSS** + shadcn/ui components
-- **Framer Motion** para animações
-- **TanStack Query** para data fetching
-- **React Hook Form** + Zod para validação
+## 🛠️ Tech Stack
 
 ### Backend
-- **FastAPI** (Python 3.11+)
-- **Plugin Architecture** com interfaces bem definidas
-- **Pandas** para manipulação de CSV
-- **Pydantic** para validação de dados
-- **PostgreSQL** (futuro) para persistência
+- **FastAPI** - High-performance async web framework
+- **Celery** - Asynchronous task processing
+- **Redis** - Cache and message broker
+- **PostgreSQL** - Primary database
+- **SQLAlchemy** - ORM
+- **Pydantic** - Data validation and settings
+- **Pandas** - Efficient CSV manipulation
+
+### Frontend
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **shadcn/ui** - UI components
+- **TanStack Query** - Data fetching and caching
 
 ### DevOps
-- **pnpm** + Turborepo para monorepo
-- **GitHub Actions** para CI/CD
-- **Docker** para containerização
-- **pytest** para testes backend
-- **Vitest** para testes frontend
+- **Docker** - Containerization
+- **GitHub Actions** - CI/CD
+- **pytest** - Backend testing
+- **Vitest** - Frontend testing
 
-## 🏃‍♂️ Quick Start
+## 🚀 Quick Start
 
-### Pré-requisitos
-- Node.js 20+
-- Python 3.11+
-- pnpm
+### Prerequisites
+```bash
+# Required versions
+Node.js 20+
+Python 3.11+
+Docker & Docker Compose
+Redis 7+
+PostgreSQL 15+
+```
 
-### Instalação
+### Installation
 
-1. **Clone o repositório**
+1. **Clone the repository**
 ```bash
 git clone https://github.com/drapala/validahub-new.git
 cd validahub-new
 ```
 
-2. **Configure o ambiente**
+2. **Set up environment**
 ```bash
-cp .env.example .env
+# Copy and adjust environment variables
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
 ```
 
-3. **Inicie o banco de dados** (Docker necessário)
+3. **Start infrastructure services**
 ```bash
-# Opção 1: Usando o script helper
-./scripts/db.sh up
-
-# Opção 2: Usando docker-compose diretamente
+# Start PostgreSQL, Redis, and pgAdmin
 docker-compose up -d
 
-# Verificar se está rodando
+# Verify they're running
 docker-compose ps
-
-# (Opcional) Carregar dados de demonstração
-./scripts/db.sh seed
 ```
 
-Serviços disponíveis:
-- PostgreSQL: `localhost:5432`
-- Redis: `localhost:6379` 
-- pgAdmin: `http://localhost:5050` (admin@validahub.com / admin_dev_2024)
-
-4. **Instale as dependências do Frontend**
+4. **Set up Backend**
 ```bash
-pnpm install
-```
-
-5. **Configure o Backend Python (API)**
-
-### Opção A: Usando o script automatizado (Recomendado)
-```bash
-# Da raiz do projeto
-./scripts/start-backend.sh
-```
-
-Este script irá automaticamente:
-- Criar o ambiente virtual se não existir
-- Instalar/atualizar dependências
-- Verificar configurações
-- Iniciar o servidor
-
-### Opção B: Configuração manual
-
-```bash
-# Entre no diretório da API
 cd apps/api
 
-# Crie o ambiente virtual
+# Create virtual environment
 python3 -m venv venv
+source venv/bin/activate  # Linux/Mac
+# or
+venv\Scripts\activate     # Windows
 
-# Ative o ambiente virtual
-source venv/bin/activate  # No Linux/Mac
-# ou
-venv\Scripts\activate     # No Windows
-
-# Instale as dependências
+# Install dependencies
 pip install -r requirements.txt
 
-# Verifique as dependências (opcional)
-python scripts/check_deps.py
+# Apply migrations
+alembic upgrade head
 
-# Volte para a raiz do projeto
-cd ../..
+# Start the server
+uvicorn src.main:app --reload --port 8000
 ```
 
-### Opção C: Usando Poetry (Gerenciamento avançado)
+5. **Set up Frontend**
 ```bash
+# In another terminal
+cd apps/web
+npm install
+npm run dev
+```
+
+6. **Start Celery Worker** (for async processing)
+```bash
+# In another terminal
 cd apps/api
-poetry install
-poetry run dev  # Inicia o servidor
+celery -A src.workers.celery_app worker --loglevel=info
 ```
 
-6. **Inicie o desenvolvimento**
+### Access Points
+- Frontend: http://localhost:3001
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+- pgAdmin: http://localhost:5050
 
-### Modo integrado (Frontend + Backend)
-```bash
-# Da raiz do projeto
-pnpm dev
-```
+## 📚 Main API Endpoints
 
-### Modo separado (recomendado para desenvolvimento)
-```bash
-# Terminal 1 - Frontend
-cd apps/web && pnpm dev
-
-# Terminal 2 - Backend (usando script)
-./scripts/start-backend.sh
-
-# Ou com Poetry
-cd apps/api && poetry run dev
-```
-
-Isso iniciará:
-- Frontend em http://localhost:3001
-- Backend em http://localhost:8000
-- Documentação da API em http://localhost:8000/docs
-
-## 🛠️ Scripts Úteis
-
-### Backend (Python/Poetry)
-```bash
-# Verificar dependências
-cd apps/api && python scripts/check_deps.py
-
-# Executar testes
-cd apps/api && poetry run test
-
-# Verificar código (lint)
-cd apps/api && poetry run lint
-
-# Formatar código
-cd apps/api && poetry run format
-
-# Verificar tipos
-cd apps/api && poetry run typecheck
-```
-
-### Scripts auxiliares
-```bash
-# Iniciar backend com verificações
-./scripts/start-backend.sh
-
-# Gerenciar banco de dados
-./scripts/db.sh up    # Iniciar
-./scripts/db.sh down  # Parar
-./scripts/db.sh seed  # Popular com dados de teste
-```
-
-## 📚 API Endpoints
-
-### Validação
+### CSV Validation
 ```http
 POST /api/v1/validate_csv
 Content-Type: multipart/form-data
 
-Parameters:
-- file: CSV file
-- marketplace: MERCADO_LIVRE | SHOPEE | AMAZON | MAGALU | AMERICANAS
-- category: ELETRONICOS | MODA | CASA | ESPORTE | BELEZA | etc
+file: file.csv
+marketplace: MERCADO_LIVRE | SHOPEE | AMAZON
+category: ELETRONICOS | MODA | CASA
 ```
 
-### Correção
+### CSV Correction
 ```http
 POST /api/v1/correct_csv
 Content-Type: multipart/form-data
 
-Parameters:
-- file: CSV file
-- marketplace: string
-- category: string
-
-Returns: Corrected CSV file
+file: file.csv
+marketplace: string
+category: string
+auto_fix: boolean
 ```
 
-### Preview de Correções
+### Async Jobs
 ```http
-POST /api/v1/correction_preview
-Content-Type: multipart/form-data
+# Create job
+POST /api/v1/jobs
+{
+  "type": "validate_csv",
+  "params": {...}
+}
 
-Parameters:
-- file: CSV file
-- marketplace: string
-- category: string
+# Check status
+GET /api/v1/jobs/{job_id}
 
-Returns: JSON with corrections that would be applied
+# List jobs
+GET /api/v1/jobs?status=pending&limit=10
 ```
 
-## 🧩 Adicionando Novos Marketplaces
-
-1. **Crie um novo provider** em `/apps/api/src/rules/marketplaces/`
-```python
-from src.core.interfaces import IRuleProvider, IRule
-
-class MeuMarketplaceProvider(IRuleProvider):
-    def get_rules(self) -> List[IRule]:
-        # Implemente suas regras
-        pass
+### Single Row Validation
+```http
+POST /api/v1/validate_row
+{
+  "row_data": {...},
+  "marketplace": "MERCADO_LIVRE",
+  "row_number": 1
+}
 ```
 
-2. **Registre no validator** em `/apps/api/src/services/validator.py`
-```python
-elif marketplace == Marketplace.MEU_MARKETPLACE:
-    from src.rules.marketplaces.meu import MeuMarketplaceProvider
-    provider = MeuMarketplaceProvider()
-```
+## 🧪 Testing
 
-3. **Adicione ao enum** em `/apps/api/src/schemas/validate.py`
-```python
-class Marketplace(str, Enum):
-    # ...
-    MEU_MARKETPLACE = "MEU_MARKETPLACE"
-```
-
-## 🧪 Testes
-
-### Comandos Principais
 ```bash
-# Rodar todos os testes
-pnpm test
-
-# Testes do backend
+# Backend
 cd apps/api
-pytest
+pytest                    # All tests
+pytest tests/unit        # Unit tests only
+pytest tests/integration # Integration tests only
+pytest --cov            # With coverage
 
-# Testes do frontend
+# Frontend
 cd apps/web
-pnpm test
-
-# Golden Tests (testes de regressão)
-make test-golden
-make test-golden-ml      # Apenas Mercado Livre
-make test-golden-shopee  # Apenas Shopee
+npm test                # All tests
+npm run test:watch     # Watch mode
+npm run test:coverage  # With coverage
 ```
 
-### Golden Tests
-Sistema de testes de regressão que compara outputs do pipeline com resultados esperados:
-- Detecta mudanças não intencionais no comportamento
-- Suporta diferentes marketplaces e categorias
-- Gera HTML diffs visuais em caso de falha
-- [Documentação completa](docs/testing/golden-tests.md)
+## 📊 Telemetry and Monitoring
 
-## 📊 Métricas de Qualidade
+The system emits structured events for complete observability:
 
-- **Cobertura de Testes**: >80% (meta)
-- **Performance**: <2s para arquivos até 10MB
-- **Taxa de Correção**: >85% dos erros corrigíveis
-- **Uptime**: 99.9% SLA
+- **Validation Events**: `validation.started`, `validation.completed`, `validation.failed`
+- **Job Events**: `job.created`, `job.started`, `job.completed`, `job.failed`
+- **Performance Metrics**: Latency, throughput, error rate
+- **System Events**: Health checks, rate limiting, authentication
 
-## 🔒 Segurança
+## 🔧 Advanced Configuration
 
-O projeto segue as melhores práticas de segurança:
-- Input validation com Pydantic
-- Rate limiting (em desenvolvimento)
-- CORS configurado
-- Sanitização de dados
-- Logs estruturados
+### Main Environment Variables
 
-## 🤝 Contribuindo
+```env
+# API
+DATABASE_URL=postgresql://user:pass@localhost:5432/validahub
+REDIS_URL=redis://localhost:6379/0
+CELERY_BROKER_URL=redis://localhost:6379/1
+JWT_SECRET_KEY=your-secret-key
+S3_BUCKET_NAME=validahub-files
 
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/MinhaFeature`)
-3. Commit suas mudanças (`git commit -m 'feat: adiciona MinhaFeature'`)
-4. Push para a branch (`git push origin feature/MinhaFeature`)
-5. Abra um Pull Request
+# Telemetry
+TELEMETRY_ENABLED=true
+TELEMETRY_KAFKA_ENABLED=false
+TELEMETRY_WEBHOOK_URL=https://your-webhook.com
 
-## 📝 Licença
+# Rate Limiting
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_PER_MINUTE=100
+```
 
-Este projeto é proprietário e confidencial.
+## 📈 Roadmap
 
-## 👥 Time
+### In Development
+- [ ] Split JobService into specialized components
+- [ ] Decouple from Celery (queue generalization)
+- [ ] Complete dependency injection
+- [ ] StorageAdapter for multiple backends
 
-- **Backend & Arquitetura**: FastAPI + Plugin System
-- **Frontend**: Next.js + React
-- **DevOps**: CI/CD + Monitoring
+### Planned
+- [ ] WebSocket support for real-time updates
+- [ ] Metrics and analytics dashboard
+- [ ] GraphQL API
+- [ ] Machine Learning for predictive corrections
+- [ ] Support for more marketplaces (Magalu, Americanas, B2W)
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create a feature branch (`git checkout -b feat/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feat/amazing-feature`)
+5. Open a Pull Request
+
+### Conventions
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
+- Python code follows PEP 8
+- TypeScript follows ESLint config
+- Tests are required for new features
+
+## 📝 Documentation
+
+- [Detailed Architecture](docs/architecture/ARCHITECTURE.md)
+- [Job System](apps/api/docs/JOB_SYSTEM.md)
+- [Adapter Pattern](apps/api/docs/ADAPTER_PATTERN.md)
+- [Technical Debt](docs/tech-debt/audit.md)
+
+## 📄 License
+
+Proprietary - All rights reserved © 2024 ValidaHub
 
 ---
 
-**ValidaHub** - Transformando dados em vendas, uma validação por vez! 🚀
+**ValidaHub** - Transforming data into sales with intelligent validation 🚀
