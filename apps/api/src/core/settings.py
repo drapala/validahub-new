@@ -5,9 +5,8 @@ Provides type safety, validation, and environment variable loading.
 
 from typing import Set, Dict, Optional, List
 from enum import Enum
-from pydantic import Field, validator
+from pydantic import Field, validator, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings
-from pydantic.types import PostgresDsn, RedisDsn
 from functools import lru_cache
 
 
@@ -352,6 +351,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "allow"  # Allow extra fields for backward compatibility
 
 
 @lru_cache()
