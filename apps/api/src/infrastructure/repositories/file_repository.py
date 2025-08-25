@@ -60,7 +60,7 @@ class FileRepository(BaseRepository[File]):
             return Ok(files)
         except SQLAlchemyError as e:
             logger.error(f"Database error finding files by job {job_id}: {e}")
-            return Err(f"Database error: {type(e).__name__}")
+            return Err("Database error occurred")
     
     def find_by_s3_key(self, s3_key: str) -> Result[Optional[File], str]:
         """
@@ -79,7 +79,7 @@ class FileRepository(BaseRepository[File]):
             return Ok(file)
         except SQLAlchemyError as e:
             logger.error(f"Database error finding file by S3 key {s3_key}: {e}")
-            return Err(f"Database error: {type(e).__name__}")
+            return Err("Database error occurred")
     
     def find_by_filename(
         self,
@@ -108,7 +108,7 @@ class FileRepository(BaseRepository[File]):
             return Ok(files)
         except SQLAlchemyError as e:
             logger.error(f"Database error finding files by filename {filename}: {e}")
-            return Err(f"Database error: {type(e).__name__}")
+            return Err("Database error occurred")
     
     def find_by_content_type(
         self,

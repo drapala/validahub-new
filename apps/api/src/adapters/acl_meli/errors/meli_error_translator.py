@@ -93,7 +93,7 @@ class CanonicalError:
             result["field"] = self.field
         if self.details:
             result["details"] = self.details
-        if self.retry_after:
+        if self.retry_after is not None:  # Check for None explicitly to preserve 0
             result["retry_after"] = self.retry_after
         
         return result
@@ -254,7 +254,7 @@ class MeliErrorTranslator:
             code = CanonicalErrorCode.SERVICE_UNAVAILABLE
             default_message = "Service unavailable"
         elif status_code == 504:
-            code = CanonicalErrorCode.SERVICE_UNAVAILABLE
+            code = CanonicalErrorCode.TIMEOUT
             default_message = "Gateway timeout"
         else:
             code = CanonicalErrorCode.UNKNOWN_ERROR
@@ -262,8 +262,11 @@ class MeliErrorTranslator:
         
         # Parse Retry-After header if available
         retry_after = None
-        if code == CanonicalErrorCode.RATE_LIMIT_EXCEEDED or code == CanonicalErrorCode.SERVICE_UNAVAILABLE:
+        if code == CanonicalErrorCode.RATE_LIMIT_EXCEEDED:
             retry_after = self._parse_retry_after(headers) if headers else 60
+        elif code in [CanonicalErrorCode.SERVICE_UNAVAILABLE, CanonicalErrorCode.TIMEOUT]:
+            # For 503 and 504, honor Retry-After if present, but don't force a default
+            retry_after = self._parse_retry_after(headers) if headers else None
         
         return CanonicalError(
             code=code,
@@ -383,10 +386,11 @@ class MeliErrorTranslator:
                 return int(retry_after)
             except ValueError:
                 # If it's a date, calculate seconds from now
-                from datetime import datetime
+                from datetime import datetime, timezone
                 try:
-                    retry_date = datetime.strptime(retry_after, "%a, %d %b %Y %H:%M:%S GMT")
-                    seconds = (retry_date - datetime.utcnow()).total_seconds()
+                    # Parse as UTC and use timezone-aware comparison
+                    retry_date = datetime.strptime(retry_after, "%a, %d %b %Y %H:%M:%S GMT").replace(tzinfo=timezone.utc)
+                    seconds = (retry_date - datetime.now(timezone.utc)).total_seconds()
                     return max(int(seconds), 1)
                 except ValueError:
                     pass

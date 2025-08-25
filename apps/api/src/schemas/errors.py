@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class ProblemDetail(BaseModel):
@@ -33,7 +33,7 @@ class ProblemDetail(BaseModel):
         description="Additional problem-specific information"
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="When the error occurred"
     )
     correlation_id: Optional[str] = Field(

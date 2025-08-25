@@ -8,6 +8,7 @@ import json
 import asyncio
 from contextlib import asynccontextmanager
 import time
+import contextvars
 
 from core.logging_config import get_logger
 from core.settings import get_settings
@@ -21,6 +22,9 @@ from .emitters import (
 )
 
 logger = get_logger(__name__)
+
+# Create context variables for telemetry
+telemetry_context: contextvars.ContextVar[Dict[str, Any]] = contextvars.ContextVar('telemetry_context', default={})
 
 
 class TelemetryService:
@@ -39,7 +43,7 @@ class TelemetryService:
         """Initialize telemetry service."""
         self.settings = get_settings()
         self.emitters: List[TelemetryEmitter] = []
-        self.context: Dict[str, Any] = {}
+        # Use context variable instead of instance variable for thread safety
         self.event_buffer: List[BaseEvent] = []
         self.batch_size = 100
         self.flush_interval = 5  # seconds
@@ -77,16 +81,18 @@ class TelemetryService:
     
     def set_context(self, **kwargs: Any) -> None:
         """
-        Set global context for all events.
+        Set context for current request/coroutine.
         
         Args:
             **kwargs: Context fields (correlation_id, user_id, etc.)
         """
-        self.context.update(kwargs)
+        current = telemetry_context.get().copy()
+        current.update(kwargs)
+        telemetry_context.set(current)
     
     def clear_context(self) -> None:
-        """Clear global context."""
-        self.context.clear()
+        """Clear context for current request/coroutine."""
+        telemetry_context.set({})
     
     @asynccontextmanager
     async def track_operation(
@@ -129,7 +135,7 @@ class TelemetryService:
                 metric_unit="ms",
                 severity=EventSeverity.ERROR if error else EventSeverity.INFO,
                 error_message=str(error) if error else None,
-                **self.context,
+                **telemetry_context.get(),
                 **kwargs
             )
             
@@ -143,7 +149,7 @@ class TelemetryService:
             event: Event to emit
         """
         # Add global context to event
-        for key, value in self.context.items():
+        for key, value in telemetry_context.get().items():
             if hasattr(event, key) and getattr(event, key) is None:
                 setattr(event, key, value)
         
@@ -162,7 +168,7 @@ class TelemetryService:
         
         events_to_emit = self.event_buffer.copy()
         self.event_buffer.clear()
-        self._last_flush = time.time()
+        self._last_flush = time.monotonic()
         
         # Emit events asynchronously
         try:
@@ -185,7 +191,7 @@ class TelemetryService:
             marketplace=marketplace,
             file_name=file_name,
             file_size_bytes=file_size,
-            **self.context,
+            **telemetry_context.get(),
             **kwargs
         )
         await self.emit(event)
@@ -209,7 +215,7 @@ class TelemetryService:
             valid_rows=valid_rows,
             invalid_rows=invalid_rows,
             processing_time_ms=processing_time_ms,
-            **self.context,
+            **telemetry_context.get(),
             **kwargs
         )
         await self.emit(event)
@@ -228,7 +234,7 @@ class TelemetryService:
             marketplace=marketplace,
             severity=EventSeverity.ERROR,
             metadata={"error": error_message},
-            **self.context,
+            **telemetry_context.get(),
             **kwargs
         )
         await self.emit(event)
@@ -247,7 +253,7 @@ class TelemetryService:
             job_id=job_id,
             job_type=job_type,
             status=status,
-            **self.context,
+            **telemetry_context.get(),
             **kwargs
         )
         await self.emit(event)
@@ -267,7 +273,7 @@ class TelemetryService:
             path=path,
             client_ip=client_ip,
             user_agent=user_agent,
-            **self.context,
+            **telemetry_context.get(),
             **kwargs
         )
         await self.emit(event)
@@ -288,7 +294,7 @@ class TelemetryService:
             status_code=status_code,
             response_time_ms=response_time_ms,
             severity=EventSeverity.ERROR if status_code >= 500 else EventSeverity.INFO,
-            **self.context,
+            **telemetry_context.get(),
             **kwargs
         )
         await self.emit(event)
@@ -309,7 +315,7 @@ class TelemetryService:
             error_type=error_type,
             stack_trace=stack_trace,
             severity=EventSeverity.ERROR,
-            **self.context,
+            **telemetry_context.get(),
             **kwargs
         )
         await self.emit(event)
@@ -335,7 +341,7 @@ class TelemetryService:
             threshold_value=threshold_value,
             threshold_exceeded=threshold_exceeded,
             severity=EventSeverity.WARNING if threshold_exceeded else EventSeverity.INFO,
-            **self.context,
+            **telemetry_context.get(),
             **kwargs
         )
         await self.emit(event)

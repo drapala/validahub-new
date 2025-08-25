@@ -8,7 +8,6 @@ import json
 import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor
 
 from core.logging_config import get_logger
 from core.result import Result, Ok, Err
@@ -176,6 +175,10 @@ class MeliRulesImporter:
         """
         import asyncio
         
+        # Validate max_concurrent parameter
+        if max_concurrent <= 0:
+            raise ValueError(f"max_concurrent must be positive, got {max_concurrent}")
+        
         results = {}
         
         # Create tasks for parallel execution
@@ -280,7 +283,7 @@ class MeliRulesImporter:
                 )
             ])
     
-    async def validate_data_against_rules(
+    def validate_data_against_rules(
         self,
         data: Dict[str, Any],
         ruleset: CanonicalRuleSet
@@ -332,14 +335,11 @@ class MeliRulesImporter:
                 logger.info(f"Cache for {category_id} is expired ({cache_age_hours:.1f} hours old)")
                 return None
             
-            # Load from file using thread pool to avoid blocking
-            loop = asyncio.get_running_loop()
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                data = await loop.run_in_executor(
-                    executor,
-                    self._read_cache_file,
-                    cache_file
-                )
+            # Load from file using asyncio.to_thread to avoid blocking
+            data = await asyncio.to_thread(
+                self._read_cache_file,
+                cache_file
+            )
             
             if data:
                 return CanonicalRuleSet(**data)
@@ -368,15 +368,12 @@ class MeliRulesImporter:
         cache_file = self.cache_dir / f"{category_id}.json"
         
         try:
-            # Save to file using thread pool to avoid blocking
-            loop = asyncio.get_running_loop()
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                await loop.run_in_executor(
-                    executor,
-                    self._write_cache_file,
-                    cache_file,
-                    ruleset.model_dump()
-                )
+            # Save to file using asyncio.to_thread to avoid blocking
+            await asyncio.to_thread(
+                self._write_cache_file,
+                cache_file,
+                ruleset.model_dump()
+            )
             
             logger.info(f"Saved category {category_id} rules to cache")
             

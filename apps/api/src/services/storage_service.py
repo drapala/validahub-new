@@ -286,30 +286,44 @@ class StorageService:
         
         os.makedirs(self.temp_dir, exist_ok=True)
         
-        file_path = os.path.join(self.temp_dir, path)
+        # Sanitize the path to prevent traversal
+        safe_path = os.path.basename(path) if os.path.sep in path else path
+        file_path = os.path.join(self.temp_dir, safe_path)
+        
+        # Validate the resolved path is within temp_dir
+        resolved_path = os.path.realpath(file_path)
+        if not self._is_safe_path(self.temp_dir, resolved_path):
+            raise ValueError("Invalid path: potential path traversal detected")
         
         # Create subdirectories if needed
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        os.makedirs(os.path.dirname(resolved_path), exist_ok=True)
         
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(resolved_path, "w", encoding="utf-8") as f:
             f.write(content)
         
-        return f"file://{file_path}"
+        return f"file://{resolved_path}"
     
     def _save_binary_to_local(self, content: bytes, path: str) -> str:
         """Save binary content to local file."""
         
         os.makedirs(self.temp_dir, exist_ok=True)
         
-        full_path = os.path.join(self.temp_dir, path)
+        # Sanitize the path to prevent traversal
+        safe_path = os.path.basename(path) if os.path.sep in path else path
+        full_path = os.path.join(self.temp_dir, safe_path)
+        
+        # Validate the resolved path is within temp_dir
+        resolved_path = os.path.realpath(full_path)
+        if not self._is_safe_path(self.temp_dir, resolved_path):
+            raise ValueError("Invalid path: potential path traversal detected")
         
         # Create subdirectories if needed
-        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        os.makedirs(os.path.dirname(resolved_path), exist_ok=True)
         
-        with open(full_path, "wb") as f:
+        with open(resolved_path, "wb") as f:
             f.write(content)
         
-        return f"file://{full_path}"
+        return f"file://{resolved_path}"
 
 
 # Singleton instance

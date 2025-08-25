@@ -5,7 +5,7 @@ Provides type safety, validation, and environment variable loading.
 
 from typing import Set, Dict, Optional, List
 from enum import Enum
-from pydantic import Field, validator, PostgresDsn, RedisDsn
+from pydantic import Field, field_validator, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
@@ -109,7 +109,8 @@ class ValidationSettings(BaseSettings):
     max_rows_per_batch: int = Field(default=1000, env="MAX_ROWS_PER_BATCH")
     max_validation_errors: int = Field(default=100, env="MAX_VALIDATION_ERRORS")
     
-    @validator("allowed_rulesets", pre=True)
+    @field_validator("allowed_rulesets", mode="before")
+    @classmethod
     def parse_rulesets(cls, v):
         if isinstance(v, str):
             return set(r.strip() for r in v.split(","))
@@ -156,13 +157,15 @@ class QueueSettings(BaseSettings):
     default_time_limit: int = Field(default=300, env="DEFAULT_JOB_TIME_LIMIT")
     default_soft_limit: int = Field(default=270, env="DEFAULT_JOB_SOFT_TIME_LIMIT")
     
-    @validator("valid_tasks", pre=True)
+    @field_validator("valid_tasks", mode="before")
+    @classmethod
     def parse_tasks(cls, v):
         if isinstance(v, str):
             return set(t.strip() for t in v.split(","))
         return v
     
-    @validator("task_mappings", pre=True)
+    @field_validator("task_mappings", mode="before")
+    @classmethod
     def parse_mappings(cls, v):
         if isinstance(v, str):
             mappings = {}
@@ -194,7 +197,8 @@ class SecuritySettings(BaseSettings):
     cors_allow_methods: List[str] = Field(default=["*"], env="CORS_ALLOW_METHODS")
     cors_allow_headers: List[str] = Field(default=["*"], env="CORS_ALLOW_HEADERS")
     
-    @validator("cors_origins", pre=True)
+    @field_validator("cors_origins", mode="before")
+    @classmethod
     def parse_cors_origins(cls, v):
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
@@ -218,7 +222,8 @@ class StorageSettings(BaseSettings):
         env="ALLOWED_EXTENSIONS"
     )
     
-    @validator("allowed_extensions", pre=True)
+    @field_validator("allowed_extensions", mode="before")
+    @classmethod
     def parse_extensions(cls, v):
         if isinstance(v, str):
             return set(ext.strip() for ext in v.split(","))
@@ -250,7 +255,8 @@ class KafkaSettings(BaseSettings):
     batch_size: int = Field(default=16384, env="KAFKA_BATCH_SIZE")
     linger_ms: int = Field(default=100, env="KAFKA_LINGER_MS")
     
-    @validator("bootstrap_servers", pre=True)
+    @field_validator("bootstrap_servers", mode="before")
+    @classmethod
     def parse_bootstrap_servers(cls, v):
         if isinstance(v, str):
             return [server.strip() for server in v.split(",")]
@@ -281,13 +287,15 @@ class TelemetrySettings(BaseSettings):
     batch_size: int = Field(default=100, env="TELEMETRY_BATCH_SIZE")
     flush_interval: int = Field(default=5, env="TELEMETRY_FLUSH_INTERVAL")
     
-    @validator("sampling_rate")
+    @field_validator("sampling_rate")
+    @classmethod
     def validate_sampling_rate(cls, v):
         if not 0 <= v <= 1:
             raise ValueError("Sampling rate must be between 0 and 1")
         return v
     
-    @validator("batch_size")
+    @field_validator("batch_size")
+    @classmethod
     def validate_batch_size(cls, v):
         if v < 1 or v > 10000:
             raise ValueError("Batch size must be between 1 and 10000")
@@ -329,21 +337,24 @@ class Settings(BaseSettings):
     kafka: KafkaSettings = KafkaSettings()
     telemetry: TelemetrySettings = TelemetrySettings()
     
-    @validator("environment", pre=True)
+    @field_validator("environment", mode="before")
+    @classmethod
     def parse_environment(cls, v):
         if isinstance(v, str):
             return Environment(v.lower())
         return v
     
-    @validator("log_level", pre=True)
+    @field_validator("log_level", mode="before")
+    @classmethod
     def parse_log_level(cls, v):
         if isinstance(v, str):
             return LogLevel(v.upper())
         return v
     
-    @validator("docs_url", "redoc_url", "openapi_url")
-    def disable_docs_in_production(cls, v, values):
-        if values.get("environment") == Environment.PRODUCTION and v:
+    @field_validator("docs_url", "redoc_url", "openapi_url")
+    @classmethod
+    def disable_docs_in_production(cls, v, info):
+        if info.data.get("environment") == Environment.PRODUCTION and v:
             return None
         return v
     

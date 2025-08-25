@@ -9,7 +9,7 @@ import uuid
 import os
 import re
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, Protocol
 from pathlib import Path
 
@@ -67,7 +67,7 @@ class LoggingTelemetryEmitter:
             "event_id": str(uuid.uuid4()),  # Unique event ID for idempotency
             "event_name": event,
             "version": version,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "partition_key": partition_key,
             "correlation_id": correlation_id or str(uuid.uuid4()),
             "parent_id": parent_id,
@@ -142,7 +142,7 @@ class FileBasedTelemetryEmitter:
             "event_id": event_id,
             "event_name": event,
             "version": version,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "partition_key": partition_key,
             "correlation_id": correlation_id or str(uuid.uuid4()),
             "parent_id": parent_id,
@@ -150,7 +150,7 @@ class FileBasedTelemetryEmitter:
         }
         
         # Write to file
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         filename = f"{timestamp}_{event}_{event_id[:8]}.json"
         filepath = self.output_dir / filename
         
@@ -161,17 +161,18 @@ class FileBasedTelemetryEmitter:
 
 
 class HTTPTelemetryEmitter:
-    """Telemetry emitter that sends events via HTTP (future)."""
+    """Telemetry emitter that sends events via HTTP."""
     
     def __init__(self, endpoint: str, api_key: Optional[str] = None):
         """Initialize with HTTP endpoint."""
-        import requests
+        import httpx
         
         self.endpoint = endpoint
         self.api_key = api_key
-        self.session = requests.Session()
+        # Create a reusable async client
+        self.client = httpx.AsyncClient(timeout=5.0)
         
-    def emit(
+    async def emit(
         self,
         event: str,
         payload: Dict[str, Any],
@@ -188,7 +189,7 @@ class HTTPTelemetryEmitter:
             "event_id": str(uuid.uuid4()),
             "event_name": event,
             "version": version,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "partition_key": partition_key,
             "correlation_id": correlation_id or str(uuid.uuid4()),
             "parent_id": parent_id,
@@ -201,16 +202,30 @@ class HTTPTelemetryEmitter:
             headers["X-API-Key"] = self.api_key
             
         try:
-            response = self.session.post(
+            response = await self.client.post(
                 self.endpoint,
                 json=envelope,
-                headers=headers,
-                timeout=5
+                headers=headers
             )
             response.raise_for_status()
             logger.debug(f"Successfully sent telemetry event {event} to {self.endpoint}")
         except Exception as e:
             logger.error(f"Failed to send telemetry event: {e}")
+    
+    async def close(self) -> None:
+        """Close the HTTP client."""
+        await self.client.aclose()
+    
+    def __del__(self):
+        """Ensure client is closed on deletion."""
+        try:
+            import asyncio
+            if self.client and not self.client.is_closed:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.create_task(self.client.aclose())
+        except Exception:
+            pass
 
 
 class CompositeTelemetryEmitter:

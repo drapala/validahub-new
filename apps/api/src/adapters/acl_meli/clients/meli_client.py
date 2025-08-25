@@ -412,10 +412,23 @@ class MeliClient:
         
         Returns:
             List of domains
+            
+        Raises:
+            MeliApiError: If the API request fails
         """
         response = await self._make_request(
             method="GET",
             endpoint=f"/sites/{self.site_id}/domains"
         )
+        
+        # Check for errors and propagate them
+        if response.error:
+            logger.error(f"Failed to get site domains: {response.error.message}")
+            raise MeliApiError(
+                message=response.error.message,
+                error=response.error.error,
+                status=response.status,
+                cause=response.error.cause
+            )
         
         return response.data or []
