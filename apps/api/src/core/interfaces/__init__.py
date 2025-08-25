@@ -20,6 +20,7 @@ from .corrector import (
     ICorrectionStrategy,
     ICorrectionProvider
 )
+from .rule_engine import IRuleEngineService
 
 __all__ = [
     # Rule interfaces
@@ -37,4 +38,6 @@ __all__ = [
     'ICorrection',
     'ICorrectionStrategy',
     'ICorrectionProvider',
+    # Rule engine service
+    'IRuleEngineService',
 ]

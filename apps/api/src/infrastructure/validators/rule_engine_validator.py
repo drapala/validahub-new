@@ -7,12 +7,11 @@ import asyncio
 import copy
 import functools
 from core.logging_config import get_logger
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-from core.interfaces.validation import IValidator
 from core.interfaces.rule_engine import IRuleEngineService
+from core.interfaces.validation import IValidator
 from schemas.validate import ValidationItem
-from services.rule_engine_service import RuleEngineService
 
 logger = get_logger(__name__)
 
@@ -23,19 +22,9 @@ class RuleEngineValidator(IValidator):
     This allows the existing rule engine to work with the new pipeline.
     """
     
-    def __init__(self, rule_engine_service: Optional[IRuleEngineService] = None):
-        """
-        Initialize validator with rule engine service.
-        
-        Args:
-            rule_engine_service: The rule engine service to use
-        """
-        # Can accept either the interface or concrete implementation
-        if rule_engine_service is None:
-            # Fallback to concrete implementation for backward compatibility
-            self.rule_engine_service = RuleEngineService()
-        else:
-            self.rule_engine_service = rule_engine_service
+    def __init__(self, rule_engine_service: IRuleEngineService):
+        """Initialize validator with rule engine service."""
+        self.rule_engine_service = rule_engine_service
     
     async def validate_row(
         self,
