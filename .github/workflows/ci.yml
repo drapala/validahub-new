@@ -123,6 +123,26 @@ jobs:
         pip install pre-commit
         pre-commit run --all-files --show-diff-on-failure
     
+    - name: Check architecture constraints
+      working-directory: ./apps/api
+      run: |
+        pip install import-linter
+        echo "🏗️ Checking clean architecture constraints..."
+        lint-imports --config ../../pyproject.toml || echo "⚠️ Architecture violations detected (will be enforced soon)"
+    
+    - name: Generate dependency graph
+      working-directory: ./apps/api
+      run: |
+        pip install pydeps
+        echo "📊 Generating dependency graph..."
+        pydeps src --max-bacon=2 --cluster --noshow -o dependency-graph.svg || true
+    
+    - name: Check core layer coverage
+      working-directory: ./apps/api
+      run: |
+        echo "🎯 Checking core layer coverage (must be >= 80%)..."
+        pytest src/core --cov=src/core --cov-fail-under=80 --cov-report=term-missing || echo "⚠️ Core coverage below 80% (will be enforced soon)"
+    
     - name: Run tests with coverage
       env:
         DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test

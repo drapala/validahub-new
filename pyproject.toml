@@ -150,3 +150,67 @@ confidence = "low"
 
 [tool.bandit.assert_used]
 skips = ["*/test_*.py", "*/tests/*"]
+
+# Import linter for clean architecture enforcement
+[tool.import-linter]
+root_package = "apps.api.src"
+
+[[tool.import-linter.contracts]]
+name = "Core layer independence"
+type = "independence"
+modules = [
+    "apps.api.src.core",
+    "apps.api.src.infrastructure",
+    "apps.api.src.services",
+]
+
+[[tool.import-linter.contracts]]
+name = "Core cannot import infrastructure"
+type = "forbidden"
+source_modules = ["apps.api.src.core"]
+forbidden_modules = [
+    "apps.api.src.infrastructure",
+    "apps.api.src.services",
+    "apps.api.src.db",
+    "apps.api.src.api",
+    "apps.api.src.workers",
+    "apps.api.src.middleware",
+    "pandas",
+    "sqlalchemy",
+    "fastapi",
+    "aiohttp",
+    "redis",
+    "boto3",
+]
+
+[[tool.import-linter.contracts]]
+name = "Layers respect hierarchy"
+type = "layers"
+layers = [
+    "apps.api.src.api",
+    "apps.api.src.middleware",
+    "apps.api.src.workers",
+    "apps.api.src.services",
+    "apps.api.src.infrastructure",
+    "apps.api.src.core",
+    "apps.api.src.schemas",
+]
+
+[[tool.import-linter.contracts]]
+name = "No circular dependencies"
+type = "forbidden"
+source_modules = ["apps.api.src.services"]
+forbidden_modules = ["apps.api.src.infrastructure"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.mutation]
+# Mutation testing configuration
+runner = "python -m pytest"
+test_command = "pytest -x"
+timeout_factor = 5
+dict_synonyms = ["dict", "ordereddict", "defaultdict"]
+disabled_mutators = ["decorator"]
+paths_to_mutate = ["apps/api/src/core"]
+paths_to_exclude = ["*/tests/*", "*/test_*.py"]
