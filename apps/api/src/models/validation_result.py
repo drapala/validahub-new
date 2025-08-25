@@ -9,6 +9,16 @@ import uuid
 
 from src.db.base import Base
 
+# Conditional import for test settings
+try:
+    from src.test_settings import is_test_environment, BASE_MODEL_CONFIG
+    if is_test_environment():
+        table_args = BASE_MODEL_CONFIG.get("__table_args__", {})
+    else:
+        table_args = {}
+except ImportError:
+    table_args = {}
+
 
 def generate_uuid():
     """Generate a UUID string for default ID values."""
@@ -18,7 +28,7 @@ def generate_uuid():
 class ValidationResult(Base):
     """Model for storing validation results."""
     __tablename__ = "validation_results"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = table_args
 
     id = Column(String, primary_key=True, default=generate_uuid)
     job_id = Column(String, ForeignKey("jobs.id"), nullable=False, index=True)

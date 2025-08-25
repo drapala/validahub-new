@@ -83,7 +83,12 @@ jobs:
         pip install mypy types-redis types-passlib
         mypy src/ --ignore-missing-imports || true
     
-    - name: Run tests
+    - name: Run pre-commit hooks
+      run: |
+        pip install pre-commit
+        pre-commit run --all-files || true
+    
+    - name: Run tests with coverage
       env:
         DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
         REDIS_URL: redis://localhost:6379/0
@@ -95,8 +100,8 @@ jobs:
         pnpm run test:ci
         cd apps/api
         find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-        pip install pytest-cov
-        pytest -v --cov=src --cov-report=xml --cov-report=term-missing
+        pip install pytest-cov pytest-asyncio hypothesis
+        pytest -v --cov=src --cov=../../libs --cov-report=xml --cov-report=term-missing --cov-fail-under=70
     
     - name: Build applications
       env:
