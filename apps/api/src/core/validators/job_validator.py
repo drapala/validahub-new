@@ -8,8 +8,8 @@ import re
 from typing import Optional, List, Set
 from datetime import datetime
 
-from ...schemas.job import JobCreate, JobPlan
-from ...core.result import Result, Ok, Err, JobError
+from schemas.job import JobCreate, JobPlan
+from core.result import Result, Ok, Err, JobError
 from config_adapter import ValidationConfig, QueueConfig
 from constants import (
     PARAM_INPUT_URI,

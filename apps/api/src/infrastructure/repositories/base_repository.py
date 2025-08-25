@@ -9,8 +9,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from core.logging_config import get_logger
 import uuid
 
-from ...db.base import Base
-from ...core.result import Result, Ok, Err
+from db.base import Base
+from core.result import Result, Ok, Err
 
 logger = get_logger(__name__)
 

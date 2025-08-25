@@ -10,8 +10,8 @@ from sqlalchemy import and_, or_
 from core.logging_config import get_logger
 
 from .base_repository import BaseRepository
-from ...models.user import User
-from ...core.result import Result, Ok, Err
+from models.user import User
+from core.result import Result, Ok, Err
 
 logger = get_logger(__name__)
 

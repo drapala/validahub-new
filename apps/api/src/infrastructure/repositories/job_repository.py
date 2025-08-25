@@ -10,8 +10,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, asc, func, exists
 
-from ...models.job import Job, JobStatus, JobResult
-from ...core.result import Result, Ok, Err, JobError
+from models.job import Job, JobStatus, JobResult
+from core.result import Result, Ok, Err, JobError
 
 logger = get_logger(__name__)
 
