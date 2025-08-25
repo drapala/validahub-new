@@ -8,6 +8,7 @@ from src.db.base import Base
 
 class File(Base):
     __tablename__ = "files"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     job_id = Column(String, ForeignKey("jobs.id"), nullable=False)

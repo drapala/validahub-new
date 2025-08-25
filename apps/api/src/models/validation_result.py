@@ -18,6 +18,7 @@ def generate_uuid():
 class ValidationResult(Base):
     """Model for storing validation results."""
     __tablename__ = "validation_results"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(String, primary_key=True, default=generate_uuid)
     job_id = Column(String, ForeignKey("jobs.id"), nullable=False, index=True)

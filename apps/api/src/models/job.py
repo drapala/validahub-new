@@ -39,6 +39,7 @@ class Job(Base):
     """Job queue model for async task tracking."""
     
     __tablename__ = "jobs"
+    __table_args__ = {'extend_existing': True}
     
     # Primary key
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -147,6 +148,7 @@ class JobResult(Base):
     """Separate table for large job results (optional)."""
     
     __tablename__ = "job_results"
+    __table_args__ = {'extend_existing': True}
     
     job_id = Column(UUID(as_uuid=True), primary_key=True)
     result_json = Column(JSON)
