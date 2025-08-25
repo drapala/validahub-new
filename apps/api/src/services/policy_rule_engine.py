@@ -144,11 +144,12 @@ class PolicyRuleEngine:
         if isinstance(value, str):
             # Transform if specified
             if rules.get("transform") == "trim":
+                original_value = value
                 value = value.strip()
-                if value != row_number:
+                if value != original_value:
                     corrections.append({
                         "field": field_name,
-                        "original": row_number,
+                        "original": original_value,
                         "corrected": value,
                         "reason": "Trimmed whitespace"
                     })
