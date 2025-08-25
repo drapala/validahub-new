@@ -50,7 +50,7 @@ class MockCircuitBreaker:
         """Verifica se deve tentar resetar o circuit."""
         if not self.last_failure_time:
             return False
-        return (datetime.now(timezone.utc) - self.last_failure_time).seconds >= self.recovery_timeout
+        return (datetime.now(timezone.utc) - self.last_failure_time).total_seconds() >= self.recovery_timeout
     
     def _on_success(self):
         """Registra sucesso."""
