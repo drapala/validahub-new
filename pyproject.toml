@@ -98,7 +98,7 @@ addopts = """
     --cov-report=term-missing
     --cov-report=html:htmlcov
     --cov-report=xml
-    --cov-fail-under=70
+    --cov-fail-under=80
     -vv
 """
 markers = [
@@ -140,3 +140,13 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "htmlcov"
+
+[tool.bandit]
+targets = ["apps", "libs"]
+exclude_dirs = ["tests", "test_*.py", ".venv", "venv", "build", "dist", ".git", "__pycache__", "migrations"]
+skips = []
+severity = "low"
+confidence = "low"
+
+[tool.bandit.assert_used]
+skips = ["*/test_*.py", "*/tests/*"]
