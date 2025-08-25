@@ -216,14 +216,25 @@ class HTTPTelemetryEmitter:
         """Close the HTTP client."""
         await self.client.aclose()
     
+    async def __aenter__(self):
+        """Enter the async context manager."""
+        return self
+    
+    async def __aexit__(self, exc_type, exc, tb):
+        """Exit the async context manager and close the client."""
+        await self.close()
+    
     def __del__(self):
         """Ensure client is closed on deletion."""
         try:
             import asyncio
             if self.client and not self.client.is_closed:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
+                try:
+                    loop = asyncio.get_running_loop()
                     loop.create_task(self.client.aclose())
+                except RuntimeError:
+                    # No running loop, can't close async client
+                    pass
         except Exception:
             pass
 
