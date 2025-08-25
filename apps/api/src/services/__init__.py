@@ -6,7 +6,7 @@ Exports all service classes for easy import.
 
 # Legacy services (will be deprecated)
 from .job_service import JobService
-from .csv_validation_service import CsvValidationService
+from .csv_validation_service import CSVValidationService as CsvValidationService
 from .rule_engine_service import RuleEngineService
 from .storage_service import StorageService
 

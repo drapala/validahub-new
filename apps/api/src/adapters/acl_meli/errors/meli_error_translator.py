@@ -247,9 +247,15 @@ class MeliErrorTranslator:
         elif status_code == 500:
             code = CanonicalErrorCode.INTERNAL_ERROR
             default_message = "Internal server error"
+        elif status_code == 502:
+            code = CanonicalErrorCode.SERVICE_UNAVAILABLE
+            default_message = "Bad gateway"
         elif status_code == 503:
             code = CanonicalErrorCode.SERVICE_UNAVAILABLE
             default_message = "Service unavailable"
+        elif status_code == 504:
+            code = CanonicalErrorCode.SERVICE_UNAVAILABLE
+            default_message = "Gateway timeout"
         else:
             code = CanonicalErrorCode.UNKNOWN_ERROR
             default_message = f"HTTP error {status_code}"

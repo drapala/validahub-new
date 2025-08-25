@@ -27,6 +27,8 @@ class RateLimiter:
     """Thread-safe rate limiter for API calls."""
     
     def __init__(self, calls_per_second: float = 10):
+        if calls_per_second <= 0:
+            raise ValueError(f"calls_per_second must be positive, got {calls_per_second}")
         self.calls_per_second = calls_per_second
         self.min_interval = 1.0 / calls_per_second
         self.last_call = 0
@@ -221,10 +223,10 @@ class MeliClient:
                     error_data = {"message": response.text or "Unknown error"}
                 
                 # Raise exception for retry logic to work
-                # Don't retry on client errors (4xx), only on server errors (5xx)
-                if response.status_code >= 500:
+                # Retry on server errors (5xx) and rate limiting (429)
+                if response.status_code >= 500 or response.status_code == 429:
                     response.raise_for_status()
-                # For 4xx errors, return error response without retrying
+                # For other 4xx errors, return error response without retrying
                 return MeliApiResponse(
                     status=response.status_code,
                     error=MeliApiError(

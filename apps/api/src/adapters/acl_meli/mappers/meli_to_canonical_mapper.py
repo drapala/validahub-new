@@ -238,7 +238,7 @@ class MeliToCanonicalMapper:
         severity = severity_map.get(validation.severity, RuleSeverity.ERROR)
         
         return CanonicalRule(
-            id=f"{self.marketplace_id}_validation_{uuid.uuid4().hex[:8]}",
+            id=f"{self.marketplace_id}_validation_{uuid.uuid4().hex}",
             marketplace_id=self.marketplace_id,
             original_id=validation.attribute_id,
             field_name=validation.attribute_id,

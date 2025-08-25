@@ -193,12 +193,19 @@ class MeliRulesImporter:
             # Process results with proper mapping
             for idx, result in enumerate(batch_results):
                 cat_id = batch[idx]  # Use index to correctly map category ID
-                if isinstance(result, Exception):
-                    logger.error(f"Failed to import category {cat_id}: {result}")
+                # Handle both Exception and BaseException (like CancelledError)
+                if isinstance(result, BaseException):
+                    error_msg = f"Import failed: {str(result)}"
+                    if isinstance(result, asyncio.CancelledError):
+                        error_msg = "Import cancelled"
+                        logger.warning(f"Import cancelled for category {cat_id}")
+                    else:
+                        logger.error(f"Failed to import category {cat_id}: {result}")
+                    
                     # Create error result for exception
                     results[cat_id] = Err([
                         self.error_translator.translate_http_error(
-                            500, f"Import failed: {str(result)}"
+                            500, error_msg
                         )
                     ])
                 else:
