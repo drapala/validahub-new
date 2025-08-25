@@ -21,10 +21,11 @@ def get_rule_engine_service() -> RuleEngineService:
     return RuleEngineService()
 
 
+@lru_cache
 def get_validation_pipeline(
     rule_engine_service: RuleEngineService = Depends(get_rule_engine_service),
 ) -> ValidationPipeline:
-    """Provide a ValidationPipeline with injected RuleEngineService."""
+    """Create a cached ValidationPipeline with injected RuleEngineService."""
     return ValidationPipeline(rule_engine_service=rule_engine_service)
 
 
