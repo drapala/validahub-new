@@ -4,7 +4,8 @@ from fastapi.openapi.utils import get_openapi
 from contextlib import asynccontextmanager
 
 from src.config import settings
-from src.core.logging_config import setup_logging, get_logger
+from src.infrastructure.logging_config import setup_logging
+from src.core.logging_config import get_logger
 # from src.db.base import engine, Base  # Commented for testing
 from src.api.v1 import health, validation, jobs
 from src.middleware.correlation import (
