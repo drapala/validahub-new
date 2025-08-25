@@ -12,7 +12,10 @@ import pandas as pd
 
 from .base import UseCase
 from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
-from utils import DataFrameUtils
+from ..interfaces.dataframe_adapter import IDataFrameAdapter
+from ...infrastructure.dataframe_utils import DataFrameUtils
+from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
+from ...services.rule_engine_service import RuleEngineService
 from ...schemas.validate import (
     Marketplace,
     Category,
@@ -47,9 +50,28 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
     without any knowledge of HTTP, file I/O, or other infrastructure concerns.
     """
     
-    def __init__(self, validation_pipeline: ValidationPipelineDecoupled):
-        """Initialize the use case with required validation pipeline."""
+    def __init__(
+        self, 
+        validation_pipeline: ValidationPipelineDecoupled = None,
+        rule_engine_service: Optional[RuleEngineService] = None,
+        dataframe_adapter: IDataFrameAdapter = None
+    ):
+        """
+        Initialize the use case with optional dependencies.
+        
+        Args:
+            validation_pipeline: Optional custom validation pipeline
+            rule_engine_service: Optional RuleEngineService for dependency injection
+            dataframe_adapter: Optional DataFrame adapter for data manipulation
+        """
+        if validation_pipeline is None:
+            # Use injected RuleEngineService or create default if not provided
+            if rule_engine_service is None:
+                rule_engine_service = RuleEngineService()
+            validator = RuleEngineValidator(rule_engine_service)
+            validation_pipeline = ValidationPipelineDecoupled(validator)
         self.validation_pipeline = validation_pipeline
+        self.dataframe_adapter = dataframe_adapter or DataFrameUtils()
     
     async def execute(self, input_data: ValidateCsvInput) -> ValidationResult:
         """
@@ -70,7 +92,7 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
             df = self._parse_csv(input_data.csv_content)
             
             # Clean data using shared utility (required: pipeline doesn't clean data)
-            df = DataFrameUtils.clean_dataframe(df)
+            df = self.dataframe_adapter.clean_dataframe(df)
             
             # Validate using pipeline with job_id (now async)
             result = await self.validation_pipeline.validate(
@@ -83,7 +105,7 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
             
             # Convert corrected DataFrame to dict using shared utility
             if result.corrected_data is not None:
-                result.corrected_data = DataFrameUtils.dataframe_to_dict(result.corrected_data)
+                result.corrected_data = self.dataframe_adapter.dataframe_to_dict(result.corrected_data)
             
             return result
             

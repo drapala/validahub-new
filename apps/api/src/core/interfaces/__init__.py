@@ -21,6 +21,7 @@ from .corrector import (
     ICorrectionProvider
 )
 from .rule_engine import IRuleEngineService
+from .dataframe_adapter import IDataFrameAdapter
 
 __all__ = [
     # Rule interfaces
@@ -40,4 +41,5 @@ __all__ = [
     'ICorrectionProvider',
     # Rule engine service
     'IRuleEngineService',
+    'IDataFrameAdapter',
 ]
