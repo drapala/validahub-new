@@ -35,7 +35,7 @@ class TelemetryService:
     - Performance metrics
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize telemetry service."""
         self.settings = get_settings()
         self.emitters: List[TelemetryEmitter] = []
@@ -46,7 +46,7 @@ class TelemetryService:
         self._last_flush = time.time()
         self._setup_emitters()
         
-    def _setup_emitters(self):
+    def _setup_emitters(self) -> None:
         """Setup telemetry emitters based on configuration."""
         # Always include console emitter in development
         if self.settings.environment.value == "development":
@@ -75,7 +75,7 @@ class TelemetryService:
             # Fallback to console
             self.composite_emitter = ConsoleTelemetryEmitter()
     
-    def set_context(self, **kwargs):
+    def set_context(self, **kwargs: Any) -> None:
         """
         Set global context for all events.
         
@@ -84,7 +84,7 @@ class TelemetryService:
         """
         self.context.update(kwargs)
     
-    def clear_context(self):
+    def clear_context(self) -> None:
         """Clear global context."""
         self.context.clear()
     
@@ -135,7 +135,7 @@ class TelemetryService:
             
             await self.emit(event)
     
-    async def emit(self, event: BaseEvent):
+    async def emit(self, event: BaseEvent) -> None:
         """
         Emit a telemetry event.
         
@@ -155,7 +155,7 @@ class TelemetryService:
            time.time() - self._last_flush > self.flush_interval:
             await self.flush()
     
-    async def flush(self):
+    async def flush(self) -> None:
         """Flush buffered events."""
         if not self.event_buffer:
             return
@@ -176,8 +176,8 @@ class TelemetryService:
         marketplace: str,
         file_name: str,
         file_size: int,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """Emit validation started event."""
         event = create_event(
             EventType.VALIDATION_STARTED,
@@ -198,8 +198,8 @@ class TelemetryService:
         valid_rows: int,
         invalid_rows: int,
         processing_time_ms: int,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """Emit validation completed event."""
         event = create_event(
             EventType.VALIDATION_COMPLETED,
@@ -219,8 +219,8 @@ class TelemetryService:
         job_id: str,
         marketplace: str,
         error_message: str,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """Emit validation failed event."""
         event = create_event(
             EventType.VALIDATION_FAILED,
@@ -239,8 +239,8 @@ class TelemetryService:
         job_id: str,
         job_type: str,
         status: str,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """Emit job lifecycle event."""
         event = create_event(
             event_type,
@@ -258,8 +258,8 @@ class TelemetryService:
         path: str,
         client_ip: Optional[str] = None,
         user_agent: Optional[str] = None,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """Emit API request event."""
         event = create_event(
             EventType.API_REQUEST,
@@ -278,8 +278,8 @@ class TelemetryService:
         path: str,
         status_code: int,
         response_time_ms: int,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """Emit API response event."""
         event = create_event(
             EventType.API_RESPONSE,
@@ -299,8 +299,8 @@ class TelemetryService:
         message: str,
         error_type: Optional[str] = None,
         stack_trace: Optional[str] = None,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """Emit system error event."""
         event = create_event(
             EventType.SYSTEM_ERROR,
@@ -320,8 +320,8 @@ class TelemetryService:
         metric_value: float,
         metric_unit: str,
         threshold_value: Optional[float] = None,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """Emit performance metric event."""
         threshold_exceeded = False
         if threshold_value is not None:
@@ -340,7 +340,7 @@ class TelemetryService:
         )
         await self.emit(event)
     
-    async def close(self):
+    async def close(self) -> None:
         """Close telemetry service and flush remaining events."""
         await self.flush()
         
@@ -362,7 +362,7 @@ def get_telemetry_service() -> TelemetryService:
     return _telemetry_service
 
 
-async def emit_telemetry(event: BaseEvent):
+async def emit_telemetry(event: BaseEvent) -> None:
     """
     Convenience function to emit telemetry event.
     

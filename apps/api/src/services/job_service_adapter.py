@@ -31,7 +31,7 @@ class JobServiceAdapter(IJobService):
     the interface, delegating all business logic to the underlying service.
     """
     
-    def __init__(self, db: Session, queue_publisher: Optional[QueuePublisher] = None):
+    def __init__(self, db: Session, queue_publisher: Optional[QueuePublisher] = None) -> None:
         """
         Initialize the adapter with database session and optional queue publisher.
         
