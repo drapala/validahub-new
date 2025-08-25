@@ -35,11 +35,11 @@ class RateLimiter:
     async def wait(self):
         """Wait if necessary to respect rate limit (thread-safe)."""
         async with self._lock:
-            current = time.time()
+            current = time.monotonic()  # Use monotonic clock to avoid drift
             elapsed = current - self.last_call
             if elapsed < self.min_interval:
                 await asyncio.sleep(self.min_interval - elapsed)
-            self.last_call = time.time()
+            self.last_call = time.monotonic()
 
 
 def with_retry(max_retries: int = 3, backoff_factor: float = 2.0):
@@ -229,14 +229,8 @@ class MeliClient:
             
         except httpx.RequestError as e:
             logger.error(f"Request failed: {e}")
-            return MeliApiResponse(
-                status=0,
-                error=MeliApiError(
-                    message=str(e),
-                    error="REQUEST_ERROR",
-                    status=0
-                )
-            )
+            # Re-raise to allow retry decorator to handle it
+            raise
     
     # Public API methods
     
@@ -351,14 +345,16 @@ class MeliClient:
         Returns:
             Validation results
         """
+        # Create request data with protected fields
+        request_data = dict(item_data)  # Create a copy
+        # Set category_id and site_id after copying to prevent override
+        request_data["category_id"] = category_id
+        request_data["site_id"] = self.site_id
+        
         response = await self._make_request(
             method="POST",
             endpoint=f"/items/validate",
-            json_data={
-                "category_id": category_id,
-                "site_id": self.site_id,
-                **item_data
-            },
+            json_data=request_data,
             authenticated=True
         )
         

@@ -162,9 +162,10 @@ class MeliErrorTranslator:
         Returns:
             Canonical error
         """
-        # Map error code
+        # Map error code (handle missing or None error field)
+        error_code = meli_error.error if meli_error.error else "unknown"
         canonical_code = self.ERROR_CODE_MAPPING.get(
-            meli_error.error.lower(),
+            error_code.lower(),
             CanonicalErrorCode.UNKNOWN_ERROR
         )
         
@@ -183,7 +184,7 @@ class MeliErrorTranslator:
         
         # Create details dictionary
         details = {
-            "original_error": meli_error.error,
+            "original_error": error_code,
             "status_code": meli_error.status
         }
         if meli_error.cause:

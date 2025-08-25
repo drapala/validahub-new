@@ -188,19 +188,20 @@ class MeliRulesImporter:
             # Execute batch in parallel
             batch_results = await asyncio.gather(*tasks, return_exceptions=True)
             
-            # Process results
-            for result in batch_results:
+            # Process results with proper mapping
+            for idx, result in enumerate(batch_results):
+                cat_id = batch[idx]  # Use index to correctly map category ID
                 if isinstance(result, Exception):
-                    logger.error(f"Failed to import category: {result}")
+                    logger.error(f"Failed to import category {cat_id}: {result}")
                     # Create error result for exception
-                    cat_id = batch[batch_results.index(result)]
                     results[cat_id] = Err([
                         self.error_translator.translate_http_error(
                             500, f"Import failed: {str(result)}"
                         )
                     ])
                 else:
-                    cat_id, import_result = result
+                    # Result is tuple (cat_id, import_result)
+                    _, import_result = result
                     results[cat_id] = import_result
         
         return results
