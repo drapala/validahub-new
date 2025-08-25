@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
+from core.validation import validation_registry
 
 
 class RuleType(str, Enum):
@@ -217,7 +218,7 @@ class CanonicalRule(BaseModel):
     
     def _validate_data_type(self, value: Any) -> bool:
         """
-        Validate that value matches expected data type.
+        Validate that value matches expected data type using the central registry.
         
         Args:
             value: Value to check
@@ -228,24 +229,7 @@ class CanonicalRule(BaseModel):
         if value is None:
             return True  # None is handled separately
         
-        if self.data_type == DataType.STRING:
-            return isinstance(value, str)
-        elif self.data_type == DataType.INTEGER:
-            return isinstance(value, int) and not isinstance(value, bool)
-        elif self.data_type == DataType.FLOAT:
-            return isinstance(value, (int, float)) and not isinstance(value, bool)
-        elif self.data_type == DataType.BOOLEAN:
-            return isinstance(value, bool)
-        elif self.data_type == DataType.DATE:
-            return isinstance(value, (str, datetime))
-        elif self.data_type == DataType.DATETIME:
-            return isinstance(value, (str, datetime))
-        elif self.data_type == DataType.ARRAY:
-            return isinstance(value, (list, tuple))
-        elif self.data_type == DataType.OBJECT:
-            return isinstance(value, dict)
-        else:
-            return True  # Unknown types pass through
+        return validation_registry.validate(self.data_type, value)
 
 
 class CanonicalRuleSet(BaseModel):
