@@ -3,17 +3,15 @@ Enhanced validation endpoints using YAML-based rule engine.
 """
 
 from fastapi import (
-    APIRouter, 
-    UploadFile, 
-    File, 
+    APIRouter,
+    UploadFile,
+    File,
     Form,
-    Query, 
-    HTTPException, 
+    Query,
     Header,
     Response,
-    status,
     Depends,
-    BackgroundTasks
+    BackgroundTasks,
 )
 from fastapi.responses import StreamingResponse, JSONResponse
 from typing import Optional, Dict, Any, Union
@@ -41,7 +39,7 @@ from ...schemas.errors import (
     RateLimitProblemDetail
 )
 from ...core.pipeline.validation_pipeline import ValidationPipeline
-from ...services.rule_engine_service import RuleEngineService
+from ..dependencies.validation_pipeline import get_validation_pipeline
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["validation"])
@@ -51,9 +49,6 @@ MAX_SYNC_FILE_SIZE = int(os.environ.get("MAX_SYNC_FILE_SIZE", 5 * 1024 * 1024)) 
 MAX_FILE_SIZE = int(os.environ.get("MAX_FILE_SIZE", 50 * 1024 * 1024))           # 50MB default
 RULESET_VERSION = "2.0.0"
 
-# Initialize services
-rule_engine_service = RuleEngineService()
-validation_pipeline = ValidationPipeline(rule_engine_service=rule_engine_service)
 
 
 def get_correlation_id(
@@ -105,6 +100,7 @@ async def validate_csv_v2(
     auto_fix: bool = Form(True, description="Automatically fix issues when possible"),
     options: Optional[str] = Form(None, description="Additional options as JSON"),
     correlation_id: str = Depends(get_correlation_id),
+    validation_pipeline: ValidationPipeline = Depends(get_validation_pipeline),
 ):
     """
     Validate a CSV file using YAML-based rule engine.
@@ -263,6 +259,7 @@ async def validate_csv_alias(
     auto_fix: bool = Query(True),
     options: Optional[str] = Query(None),
     correlation_id: str = Depends(get_correlation_id),
+    validation_pipeline: ValidationPipeline = Depends(get_validation_pipeline),
 ):
     """Alias for /validate endpoint for backward compatibility."""
     # Call the main validate function with Form parameters converted to Query
@@ -273,7 +270,8 @@ async def validate_csv_alias(
         category=category,
         auto_fix=auto_fix,
         options=options,
-        correlation_id=correlation_id
+        correlation_id=correlation_id,
+        validation_pipeline=validation_pipeline,
     )
 
 
@@ -293,6 +291,7 @@ async def validate_row_v2(
     auto_fix: bool = Query(True, description="Automatically fix issues when possible"),
     row_number: int = Query(1, description="Row number for context", ge=1),
     correlation_id: str = Depends(get_correlation_id),
+    validation_pipeline: ValidationPipeline = Depends(get_validation_pipeline),
 ):
     """
     Validate a single row of data using YAML-based rule engine.
@@ -356,6 +355,7 @@ async def correct_csv_v2(
     category: Category = Form(..., description="Product category"),
     options: Optional[str] = Form(None, description="Additional options as JSON"),
     correlation_id: str = Depends(get_correlation_id),
+    validation_pipeline: ValidationPipeline = Depends(get_validation_pipeline),
 ):
     """
     Validate and automatically correct a CSV file using YAML-based rules.
@@ -514,6 +514,7 @@ async def correct_csv_alias(
     category: Category = Query(...),
     options: Optional[str] = Query(None),
     correlation_id: str = Depends(get_correlation_id),
+    validation_pipeline: ValidationPipeline = Depends(get_validation_pipeline),
 ):
     """Alias for /correct endpoint for backward compatibility."""
     return await correct_csv_v2(
@@ -522,7 +523,8 @@ async def correct_csv_alias(
         marketplace=marketplace,
         category=category,
         options=options,
-        correlation_id=correlation_id
+        correlation_id=correlation_id,
+        validation_pipeline=validation_pipeline,
     )
 
 
@@ -544,6 +546,7 @@ async def correction_preview(
     category: Category = Query(...),
     sample_size: int = Query(100, ge=1, le=1000),
     correlation_id: str = Depends(get_correlation_id),
+    validation_pipeline: ValidationPipeline = Depends(get_validation_pipeline),
 ):
     """Preview corrections that would be applied to a CSV file."""
     try:
@@ -619,6 +622,7 @@ async def correction_preview(
 async def reload_rules(
     marketplace: Optional[Marketplace] = Query(None, description="Specific marketplace to reload"),
     correlation_id: str = Depends(get_correlation_id),
+    validation_pipeline: ValidationPipeline = Depends(get_validation_pipeline),
 ):
     """
     Reload validation rules from YAML files.
