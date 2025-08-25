@@ -73,11 +73,17 @@ jobs:
     
     - name: Wait for PostgreSQL
       run: |
-        until PGPASSWORD=validahub psql -h localhost -U validahub -d validahub_test -c '\q' 2>/dev/null; do
+        until PGPASSWORD=validahub psql -h localhost -U validahub -d postgres -c '\q' 2>/dev/null; do
           echo "Waiting for PostgreSQL..."
           sleep 1
         done
         echo "PostgreSQL is ready!"
+    
+    - name: Create additional databases
+      run: |
+        PGPASSWORD=validahub psql -h localhost -U validahub -d postgres -c "CREATE DATABASE validahub;" || echo "Database validahub already exists"
+        PGPASSWORD=validahub psql -h localhost -U validahub -d postgres -c "CREATE DATABASE validahub_db;" || echo "Database validahub_db already exists"
+        echo "Databases created successfully"
     
     - name: Run database migrations
       working-directory: ./apps/api
@@ -95,17 +101,24 @@ jobs:
     
     - name: Run Python linting (ruff)
       working-directory: ./apps/api
+      env:
+        DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
       run: |
         pip install ruff
         ruff check src/ tests/ --fix || true
     
     - name: Run Python type checking (mypy)
       working-directory: ./apps/api
+      env:
+        DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
       run: |
         pip install mypy types-redis types-passlib types-aiofiles types-requests types-PyYAML
         mypy src/ --ignore-missing-imports || true
     
     - name: Run pre-commit hooks
+      env:
+        DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
+        SKIP: no-commit-to-branch
       run: |
         pip install pre-commit
         pre-commit run --all-files --show-diff-on-failure
@@ -113,9 +126,12 @@ jobs:
     - name: Run tests with coverage
       env:
         DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
+        TEST_DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
         REDIS_URL: redis://localhost:6379/0
         SECRET_KEY: test-secret-key
         APP_ENV: test
+        ENV: test
+        PYTEST_CURRENT_TEST: "true"
         NEXT_PUBLIC_API_BASE_URL: http://localhost:3001
         NEXT_PUBLIC_MOCK: "1"
       run: |
