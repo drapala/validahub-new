@@ -14,6 +14,7 @@ import enum
 import uuid
 
 from src.db.base import Base
+from src.models.utils import get_table_args
 
 
 class JobStatus(str, enum.Enum):
@@ -148,7 +149,7 @@ class JobResult(Base):
     """Separate table for large job results (optional)."""
     
     __tablename__ = "job_results"
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = get_table_args()
     
     job_id = Column(UUID(as_uuid=True), primary_key=True)
     result_json = Column(JSON)

@@ -1,0 +1,135 @@
+{
+  "id": "MLB1055",
+  "name": "Celulares e Telefones",
+  "picture": "https://http2.mlstatic.com/storage/categories-api/images/phones.jpg",
+  "permalink": "https://lista.mercadolivre.com.br/celulares-telefones",
+  "total_items_in_this_category": 500000,
+  "path_from_root": [
+    {"id": "MLB5726", "name": "Eletrônicos, Áudio e Vídeo"},
+    {"id": "MLB1055", "name": "Celulares e Telefones"}
+  ],
+  "attributes": [
+    {
+      "id": "BRAND",
+      "name": "Marca",
+      "value_type": "STRING",
+      "value_max_length": 255,
+      "required": true,
+      "allowed_values": [
+        {"id": "SAMSUNG", "name": "Samsung"},
+        {"id": "APPLE", "name": "Apple"},
+        {"id": "MOTOROLA", "name": "Motorola"},
+        {"id": "XIAOMI", "name": "Xiaomi"},
+        {"id": "LG", "name": "LG"},
+        {"id": "NOKIA", "name": "Nokia"}
+      ],
+      "tags": {
+        "ui_component": "dropdown",
+        "searchable": true
+      }
+    },
+    {
+      "id": "MODEL",
+      "name": "Modelo",
+      "value_type": "STRING",
+      "value_max_length": 100,
+      "value_min_length": 2,
+      "value_pattern": "^[A-Za-z0-9\\s\\-\\.]+$",
+      "required": true,
+      "tags": {
+        "ui_component": "text_input",
+        "autocomplete": true
+      }
+    },
+    {
+      "id": "STORAGE_CAPACITY",
+      "name": "Capacidade de Armazenamento",
+      "value_type": "STRING",
+      "required": false,
+      "allowed_values": [
+        {"id": "8GB", "name": "8 GB"},
+        {"id": "16GB", "name": "16 GB"},
+        {"id": "32GB", "name": "32 GB"},
+        {"id": "64GB", "name": "64 GB"},
+        {"id": "128GB", "name": "128 GB"},
+        {"id": "256GB", "name": "256 GB"},
+        {"id": "512GB", "name": "512 GB"},
+        {"id": "1TB", "name": "1 TB"}
+      ]
+    },
+    {
+      "id": "RAM",
+      "name": "Memória RAM",
+      "value_type": "NUMBER",
+      "required": false,
+      "metadata": {
+        "min_value": 1,
+        "max_value": 32,
+        "unit": "GB",
+        "step": 1
+      }
+    },
+    {
+      "id": "SCREEN_SIZE",
+      "name": "Tamanho da Tela",
+      "value_type": "NUMBER",
+      "required": false,
+      "metadata": {
+        "min_value": 3.0,
+        "max_value": 8.0,
+        "unit": "inches",
+        "format": "decimal",
+        "precision": 1
+      }
+    },
+    {
+      "id": "CONDITION",
+      "name": "Condição do Item",
+      "value_type": "STRING",
+      "required": true,
+      "allowed_values": [
+        {"id": "new", "name": "Novo"},
+        {"id": "used", "name": "Usado"},
+        {"id": "refurbished", "name": "Recondicionado"}
+      ]
+    },
+    {
+      "id": "HAS_WARRANTY",
+      "name": "Possui Garantia",
+      "value_type": "BOOLEAN",
+      "required": true
+    },
+    {
+      "id": "WARRANTY_TIME",
+      "name": "Tempo de Garantia (meses)",
+      "value_type": "NUMBER",
+      "required": false,
+      "metadata": {
+        "depends_on": "HAS_WARRANTY",
+        "condition": "true",
+        "min_value": 1,
+        "max_value": 24
+      }
+    },
+    {
+      "id": "PRICE",
+      "name": "Preço",
+      "value_type": "NUMBER",
+      "required": true,
+      "metadata": {
+        "min_value": 50.00,
+        "max_value": 20000.00,
+        "format": "decimal_br",
+        "currency": "BRL",
+        "example": "1.234,56"
+      }
+    }
+  ],
+  "settings": {
+    "listing_types_available": ["gold_special", "gold_pro", "free"],
+    "max_pictures": 12,
+    "accepts_mercadopago": true,
+    "immediate_payment": true,
+    "shipping_modes": ["me2", "custom"]
+  }
+}

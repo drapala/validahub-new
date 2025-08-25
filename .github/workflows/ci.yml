@@ -19,10 +19,11 @@ jobs:
           POSTGRES_USER: validahub
           POSTGRES_PASSWORD: validahub
           POSTGRES_DB: validahub_test
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U validahub"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -65,6 +66,33 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
+    - name: Install PostgreSQL client
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client
+    
+    - name: Wait for PostgreSQL
+      run: |
+        until PGPASSWORD=validahub psql -h localhost -U validahub -d postgres -c '\q' 2>/dev/null; do
+          echo "Waiting for PostgreSQL..."
+          sleep 1
+        done
+        echo "PostgreSQL is ready!"
+    
+    - name: Create additional databases
+      run: |
+        PGPASSWORD=validahub psql -h localhost -U validahub -d postgres -c "CREATE DATABASE validahub;" || echo "Database validahub already exists"
+        PGPASSWORD=validahub psql -h localhost -U validahub -d postgres -c "CREATE DATABASE validahub_db;" || echo "Database validahub_db already exists"
+        echo "Databases created successfully"
+    
+    - name: Run database migrations
+      working-directory: ./apps/api
+      env:
+        DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
+      run: |
+        pip install alembic
+        alembic upgrade head || echo "No migrations to run"
+    
     - name: Run linting
       run: pnpm run lint
     
@@ -73,30 +101,45 @@ jobs:
     
     - name: Run Python linting (ruff)
       working-directory: ./apps/api
+      env:
+        DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
       run: |
         pip install ruff
         ruff check src/ tests/ --fix || true
     
     - name: Run Python type checking (mypy)
       working-directory: ./apps/api
-      run: |
-        pip install mypy types-redis types-passlib
-        mypy src/ --ignore-missing-imports || true
-    
-    - name: Run tests
       env:
         DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
+      run: |
+        pip install mypy types-redis types-passlib types-aiofiles types-requests types-PyYAML
+        mypy src/ --ignore-missing-imports || true
+    
+    - name: Run pre-commit hooks
+      env:
+        DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
+        SKIP: no-commit-to-branch
+      run: |
+        pip install pre-commit
+        pre-commit run --all-files --show-diff-on-failure
+    
+    - name: Run tests with coverage
+      env:
+        DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
+        TEST_DATABASE_URL: postgresql://validahub:validahub@localhost:5432/validahub_test
         REDIS_URL: redis://localhost:6379/0
         SECRET_KEY: test-secret-key
         APP_ENV: test
+        ENV: test
+        PYTEST_CURRENT_TEST: "true"
         NEXT_PUBLIC_API_BASE_URL: http://localhost:3001
         NEXT_PUBLIC_MOCK: "1"
       run: |
         pnpm run test:ci
         cd apps/api
         find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-        pip install pytest-cov
-        pytest -v --cov=src --cov-report=xml --cov-report=term-missing
+        pip install pytest-cov pytest-asyncio hypothesis
+        pytest -v --cov=src --cov=../../libs --cov-report=xml --cov-report=term-missing --cov-fail-under=70
     
     - name: Build applications
       env:

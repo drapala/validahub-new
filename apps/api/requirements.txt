@@ -18,13 +18,20 @@ pandas==2.2.0
 openpyxl==3.1.2
 xlsxwriter==3.2.0
 reportlab==4.2.5
+aiofiles==23.2.1
+aiohttp==3.10.11
+pyyaml==6.0.1
 
 # Dev dependencies
 pytest==7.4.4
 pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+hypothesis==6.98.0
 python-dotenv==1.0.0
 
 # Type stubs for mypy
 types-PyYAML
 types-redis
 types-passlib
+types-aiofiles
+types-requests
