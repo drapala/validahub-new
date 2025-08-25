@@ -13,7 +13,7 @@ interface ApplyFixesBarProps {
 
 export function ApplyFixesBar({ results, file, marketplace, category }: ApplyFixesBarProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [reportFormat, setReportFormat] = useState<"json" | "excel" | "pdf">("excel");
+  const [reportFormat] = useState<"json" | "excel" | "pdf">("excel");
   const [showFormatMenu, setShowFormatMenu] = useState(false);
   
   const handleReport = async (format: "json" | "excel" | "pdf" = reportFormat) => {
