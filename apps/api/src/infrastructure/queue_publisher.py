@@ -196,12 +196,16 @@ class SQSQueuePublisher:
         if not queue_url:
             raise ValueError(f"Unknown queue: {queue}")
         
+        # Generate correlation ID if not provided
+        if not correlation_id:
+            correlation_id = str(uuid.uuid4())
+        
         # Prepare message
         message_body = {
             "task_name": task_name,
             "payload": payload,
             "priority": priority,
-            "correlation_id": correlation_id or str(uuid.uuid4()),
+            "correlation_id": correlation_id,
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
@@ -213,7 +217,7 @@ class SQSQueuePublisher:
             MessageAttributes={
                 "task_name": {"StringValue": task_name, "DataType": "String"},
                 "priority": {"StringValue": str(priority), "DataType": "Number"},
-                "correlation_id": {"StringValue": correlation_id or "", "DataType": "String"}
+                "correlation_id": {"StringValue": correlation_id, "DataType": "String"}
             }
         )
         
@@ -305,3 +309,4 @@ class InMemoryQueuePublisher:
                         'error': None
                     }
         return None
+

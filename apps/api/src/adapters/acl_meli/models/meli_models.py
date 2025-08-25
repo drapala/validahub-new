@@ -86,12 +86,20 @@ class MeliRuleSet(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
-class MeliApiError(BaseModel):
+class MeliApiError(Exception):
     """MELI API error response."""
-    message: str
-    error: str
-    status: int
-    cause: Optional[List[Dict[str, Any]]] = None
+    def __init__(
+        self,
+        message: str,
+        error: str,
+        status: int,
+        cause: Optional[List[Dict[str, Any]]] = None
+    ):
+        super().__init__(message)
+        self.message = message
+        self.error = error
+        self.status = status
+        self.cause = cause
     
     
 class MeliApiResponse(BaseModel):

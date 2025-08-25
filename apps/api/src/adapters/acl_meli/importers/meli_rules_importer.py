@@ -19,7 +19,8 @@ from ..models.meli_models import (
     MeliRuleSet,
     MeliCategory,
     MeliRuleAttribute,
-    MeliItemValidationRule
+    MeliItemValidationRule,
+    MeliApiError
 )
 
 logger = get_logger(__name__)
@@ -146,11 +147,34 @@ class MeliRulesImporter:
                 logger.info(f"Successfully imported {len(canonical_ruleset.rules)} rules for category {category_id}")
                 return Ok(canonical_ruleset)
                 
-        except Exception as e:
-            logger.error(f"Failed to import category rules: {e}")
+        except MeliApiError as e:
+            # Handle MELI API specific errors
+            logger.error(f"MELI API error importing category {category_id}: {e}")
+            return Err([
+                self.error_translator.translate_meli_error(e)
+            ])
+        except (ConnectionError, TimeoutError) as e:
+            # Handle network-related errors
+            logger.error(f"Network error importing category {category_id}: {e}")
             return Err([
                 self.error_translator.translate_http_error(
-                    500, f"Import failed: {str(e)}"
+                    503, f"Service unavailable: {str(e)}"
+                )
+            ])
+        except ValueError as e:
+            # Handle data validation errors
+            logger.error(f"Data validation error for category {category_id}: {e}")
+            return Err([
+                self.error_translator.translate_http_error(
+                    400, f"Invalid data: {str(e)}"
+                )
+            ])
+        except Exception as e:
+            # Only catch truly unexpected errors
+            logger.exception(f"Unexpected error importing category {category_id}")
+            return Err([
+                self.error_translator.translate_http_error(
+                    500, f"Internal error during import"
                 )
             ])
     
@@ -354,7 +378,14 @@ class MeliRulesImporter:
         try:
             with open(cache_file, "r") as f:
                 return json.load(f)
-        except Exception:
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse cache file {cache_file}: {e}")
+            return None
+        except IOError as e:
+            logger.error(f"Failed to read cache file {cache_file}: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error reading cache file {cache_file}: {e}")
             return None
     
     async def _save_to_cache(self, category_id: str, ruleset: CanonicalRuleSet):

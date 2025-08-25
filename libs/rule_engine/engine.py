@@ -226,3 +226,4 @@ def load_ruleset(rules_path: str, mappings_path: Optional[str] = None) -> RuleEn
     engine = RuleEngine()
     engine.load_ruleset(rules_path, mappings_path)
     return engine
+

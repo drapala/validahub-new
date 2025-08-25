@@ -177,3 +177,4 @@ class RuleEngine:
     def _generate_report_id(self, context: Dict[str, Any]) -> str:
         content = json.dumps(context, sort_keys=True)
         return hashlib.sha256(content.encode()).hexdigest()[:12]
+

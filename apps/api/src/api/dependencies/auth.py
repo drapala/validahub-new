@@ -32,25 +32,46 @@ def verify_jwt_token(token: str) -> Dict[str, Any]:
     Raises:
         HTTPException: If token is invalid or expired
     """
-    # Get JWT secret from environment (should be set in production)
-    jwt_secret = os.environ.get("JWT_SECRET")
-    if not jwt_secret and ENV == "production":
-        logger.error("JWT_SECRET not configured in production")
+    # Get JWT algorithm from environment (default to HS256 for backward compatibility)
+    jwt_algorithm = os.environ.get("JWT_ALGORITHM", "HS256")
+    
+    # Validate algorithm choice
+    if jwt_algorithm not in ["HS256", "RS256"]:
+        logger.error(f"Invalid JWT algorithm configured: {jwt_algorithm}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Authentication configuration error"
+            detail="Invalid JWT algorithm configuration"
         )
     
-    # Use a default secret for development (NOT for production!)
-    if not jwt_secret:
-        jwt_secret = "development-secret-key-not-for-production"
+    # Get the appropriate key based on algorithm
+    if jwt_algorithm == "HS256":
+        # Symmetric algorithm - use secret key
+        jwt_key = os.environ.get("JWT_SECRET")
+        if not jwt_key and ENV == "production":
+            logger.error("JWT_SECRET not configured in production")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Authentication configuration error"
+            )
+        # Use a default secret for development (NOT for production!)
+        if not jwt_key:
+            jwt_key = "development-secret-key-not-for-production"
+    else:  # RS256
+        # Asymmetric algorithm - use public key
+        jwt_key = os.environ.get("JWT_PUBLIC_KEY")
+        if not jwt_key:
+            logger.error("JWT_PUBLIC_KEY not configured for RS256 algorithm")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="JWT public key not configured"
+            )
     
     try:
-        # Decode and verify the token
+        # Decode and verify the token with only the configured algorithm
         payload = jwt.decode(
             token,
-            jwt_secret,
-            algorithms=["HS256", "RS256"],
+            jwt_key,
+            algorithms=[jwt_algorithm],
             options={"verify_exp": True}
         )
         
@@ -228,3 +249,4 @@ def require_admin_user(request: Request) -> str:
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Admin access required"
     )
+

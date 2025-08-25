@@ -358,6 +358,9 @@ class MeliClient:
             
         Returns:
             List of category search results
+            
+        Raises:
+            MeliApiError: If the API request fails
         """
         response = await self._make_request(
             method="GET",
@@ -365,11 +368,16 @@ class MeliClient:
             params={"q": query}
         )
         
-        if response.data:
-            return response.data
+        if response.error:
+            logger.error(f"Failed to search categories: {response.error.message}")
+            raise MeliApiError(
+                message=response.error.message,
+                error=response.error.error,
+                status=response.error.status,
+                cause=response.error.cause
+            )
         
-        logger.error(f"Failed to search categories: {response.error}")
-        return []
+        return response.data or []
     
     async def validate_item(self, category_id: str, item_data: Dict[str, Any]) -> Dict[str, Any]:
         """

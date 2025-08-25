@@ -133,7 +133,13 @@ class CanonicalRule(BaseModel):
         try:
             # First check REQUIRED rule before type checking
             if self.rule_type == RuleType.REQUIRED:
-                is_valid = value is not None and value != ""
+                # Check for None, empty string, empty list, empty dict
+                if value is None or value == "":
+                    is_valid = False
+                elif isinstance(value, (list, dict)) and len(value) == 0:
+                    is_valid = False
+                else:
+                    is_valid = True
                 return is_valid, None if is_valid else (self.message or f"{self.field_name} is required")
             
             # Skip type validation for None values (handled by REQUIRED rule)
@@ -275,7 +281,8 @@ class CanonicalRuleSet(BaseModel):
         
         # First pass: check for missing required fields
         for field in required_fields:
-            if data.get(field) is None or data.get(field) == "":
+            value = data.get(field)
+            if value is None or value == "" or (isinstance(value, (list, dict)) and len(value) == 0):
                 missing_required_fields.add(field)
         
         for rule in self.rules:
