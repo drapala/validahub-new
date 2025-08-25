@@ -5,19 +5,14 @@ import json
 import yaml
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
-import sys
-import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from tests.golden.config_schema import GoldenTestConfig
-from tests.golden.normalizers import (
+from .config_schema import GoldenTestConfig
+from .normalizers import (
     normalize_dataframe,
     normalize_json,
     normalize_numeric_columns,
 )
-from tests.golden.comparators import compare_csv, compare_json, ComparisonResult
+from .comparators import compare_csv, compare_json, ComparisonResult
 
 
 def load_spec(config_path: str) -> GoldenTestConfig:

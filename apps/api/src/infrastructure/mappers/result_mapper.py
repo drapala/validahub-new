@@ -6,12 +6,6 @@ This separates result transformation logic from business logic.
 from core.logging_config import get_logger
 from typing import Optional, Dict, Any, List
 
-# TODO: Replace with proper import once libs is properly packaged
-import sys
-from pathlib import Path
-libs_path = Path(__file__).parent.parent.parent.parent.parent.parent / "libs"
-if str(libs_path) not in sys.path:
-    sys.path.insert(0, str(libs_path))
 from rule_engine import RuleResult
 
 from schemas.validate import (
