@@ -5,10 +5,11 @@ Handles authentication, rate limiting, and API communication.
 
 import httpx
 from typing import Optional, Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import asyncio
 from functools import wraps
 import time
+import random
 
 from core.logging_config import get_logger
 from ..models.meli_models import (
@@ -56,8 +57,11 @@ def with_retry(max_retries: int = 3, backoff_factor: float = 2.0):
                 except (httpx.HTTPStatusError, httpx.RequestError) as e:
                     last_exception = e
                     if attempt < max_retries - 1:
-                        wait_time = backoff_factor ** attempt
-                        logger.warning(f"API call failed (attempt {attempt + 1}/{max_retries}), retrying in {wait_time}s: {e}")
+                        base_wait = backoff_factor ** attempt
+                        # Add jitter: randomize between 50% and 150% of base wait time
+                        jitter = random.uniform(0.5, 1.5)
+                        wait_time = base_wait * jitter
+                        logger.warning(f"API call failed (attempt {attempt + 1}/{max_retries}), retrying in {wait_time:.2f}s: {e}")
                         await asyncio.sleep(wait_time)
                     else:
                         logger.error(f"API call failed after {max_retries} attempts: {e}")
@@ -136,7 +140,7 @@ class MeliClient:
     async def _ensure_authenticated(self):
         """Ensure we have a valid access token."""
         if self.access_token and self._token_expires_at:
-            if datetime.utcnow() < self._token_expires_at:
+            if datetime.now(timezone.utc) < self._token_expires_at:
                 return
         
         if self.client_id and self.client_secret:
@@ -159,11 +163,20 @@ class MeliClient:
                 }
             )
             response.raise_for_status()
-            data = response.json()
+            
+            # Safely parse JSON response
+            try:
+                data = response.json()
+            except (ValueError, TypeError) as e:
+                logger.error(f"Failed to parse OAuth token response: {e}")
+                raise ValueError(f"Invalid OAuth response format: {e}")
+            
+            if "access_token" not in data:
+                raise ValueError("OAuth response missing access_token field")
             
             self.access_token = data["access_token"]
             expires_in = data.get("expires_in", 21600)  # Default 6 hours
-            self._token_expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+            self._token_expires_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
             
             logger.info(f"OAuth token refreshed, expires at {self._token_expires_at}")
     

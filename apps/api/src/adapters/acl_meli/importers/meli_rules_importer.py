@@ -6,7 +6,7 @@ Coordinates the client, mapper, and error translator.
 from typing import Optional, Dict, Any, List
 import json
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
@@ -116,6 +116,10 @@ class MeliRulesImporter:
                 listing_types = await self.client.get_listing_types()
                 conditions = await self.client.get_item_conditions()
                 
+                # TODO: Fetch validation rules from API when endpoint is available
+                # validation_rules = await self.client.get_category_validation_rules(category_id)
+                validation_rules = []  # Currently empty, to be implemented
+                
                 # Build MELI rule set
                 meli_ruleset = MeliRuleSet(
                     category_id=category_id,
@@ -127,6 +131,7 @@ class MeliRulesImporter:
                     optional_attributes=[
                         attr for attr in attributes if not attr.required
                     ],
+                    validation_rules=validation_rules,
                     listing_types=listing_types,
                     conditions=conditions
                 )
@@ -297,7 +302,7 @@ class MeliRulesImporter:
             "total_errors": sum(len(msgs) for msgs in errors.values()),
             "errors": errors,
             "required_fields": ruleset.get_required_fields(),
-            "validated_at": datetime.utcnow().isoformat()
+            "validated_at": datetime.now(timezone.utc).isoformat()
         }
         
         return result
