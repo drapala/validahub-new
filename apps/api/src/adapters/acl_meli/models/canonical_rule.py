@@ -130,11 +130,23 @@ class CanonicalRule(BaseModel):
             Tuple of (is_valid, error_message)
         """
         try:
+            # First check REQUIRED rule before type checking
             if self.rule_type == RuleType.REQUIRED:
                 is_valid = value is not None and value != ""
                 return is_valid, None if is_valid else (self.message or f"{self.field_name} is required")
             
-            elif self.rule_type == RuleType.MIN_LENGTH:
+            # Skip type validation for None values (handled by REQUIRED rule)
+            if value is None:
+                # For non-required fields, None is valid for most rules except MIN_*
+                if self.rule_type in [RuleType.MIN_LENGTH, RuleType.MIN_VALUE]:
+                    return False, self.message or f"{self.field_name} cannot be empty"
+                return True, None
+            
+            # Validate data type before applying rule
+            if not self._validate_data_type(value):
+                return False, f"{self.field_name} must be of type {self.data_type.value}"
+            
+            if self.rule_type == RuleType.MIN_LENGTH:
                 min_len = self.params.get("min_length", 0)
                 # Handle None separately from empty string
                 if value is None:
@@ -162,8 +174,20 @@ class CanonicalRule(BaseModel):
             
             elif self.rule_type == RuleType.ENUM:
                 allowed_values = self.params.get("values", [])
-                is_valid = value in allowed_values
-                return is_valid, None if is_valid else (self.message or f"{self.field_name} must be one of: {allowed_values}")
+                
+                # Handle object-style allowed values (e.g., [{"id": "X", "name": "Y"}])
+                if allowed_values and isinstance(allowed_values[0], dict):
+                    # Check if value matches any object's 'id' field
+                    valid_ids = [item.get("id") for item in allowed_values if "id" in item]
+                    is_valid = value in valid_ids
+                    # For error message, show only the IDs
+                    display_values = valid_ids
+                else:
+                    # Simple list of values
+                    is_valid = value in allowed_values
+                    display_values = allowed_values
+                
+                return is_valid, None if is_valid else (self.message or f"{self.field_name} must be one of: {display_values}")
             
             elif self.rule_type == RuleType.MIN_VALUE:
                 min_val = self.params.get("min_value", float('-inf'))
@@ -190,6 +214,38 @@ class CanonicalRule(BaseModel):
                 
         except Exception as e:
             return False, f"Validation error for {self.field_name}: {str(e)}"
+    
+    def _validate_data_type(self, value: Any) -> bool:
+        """
+        Validate that value matches expected data type.
+        
+        Args:
+            value: Value to check
+            
+        Returns:
+            True if type matches, False otherwise
+        """
+        if value is None:
+            return True  # None is handled separately
+        
+        if self.data_type == DataType.STRING:
+            return isinstance(value, str)
+        elif self.data_type == DataType.INTEGER:
+            return isinstance(value, int) and not isinstance(value, bool)
+        elif self.data_type == DataType.FLOAT:
+            return isinstance(value, (int, float)) and not isinstance(value, bool)
+        elif self.data_type == DataType.BOOLEAN:
+            return isinstance(value, bool)
+        elif self.data_type == DataType.DATE:
+            return isinstance(value, (str, datetime))
+        elif self.data_type == DataType.DATETIME:
+            return isinstance(value, (str, datetime))
+        elif self.data_type == DataType.ARRAY:
+            return isinstance(value, (list, tuple))
+        elif self.data_type == DataType.OBJECT:
+            return isinstance(value, dict)
+        else:
+            return True  # Unknown types pass through
 
 
 class CanonicalRuleSet(BaseModel):
@@ -230,12 +286,20 @@ class CanonicalRuleSet(BaseModel):
             Dictionary of field_name -> list of error messages
         """
         errors = {}
+        required_fields = self.get_required_fields()
         
         for rule in self.rules:
             if not rule.is_active:
                 continue
                 
             field_value = data.get(rule.field_name)
+            
+            # Skip non-required rules for missing values
+            if field_value is None and rule.field_name not in required_fields:
+                # Only REQUIRED rules should validate None values for optional fields
+                if rule.rule_type != RuleType.REQUIRED:
+                    continue
+            
             is_valid, error_msg = rule.validate_value(field_value)
             
             if not is_valid and error_msg:

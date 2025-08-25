@@ -5,8 +5,10 @@ Coordinates the client, mapper, and error translator.
 
 from typing import Optional, Dict, Any, List
 import json
+import asyncio
 from datetime import datetime
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 
 from core.logging_config import get_logger
 from core.result import Result, Ok, Err
@@ -83,7 +85,7 @@ class MeliRulesImporter:
         try:
             # Check cache first
             if use_cache:
-                cached_rules = self._load_from_cache(category_id)
+                cached_rules = await self._load_from_cache(category_id)
                 if cached_rules:
                     logger.info(f"Loaded category {category_id} rules from cache")
                     return Ok(cached_rules)
@@ -135,7 +137,7 @@ class MeliRulesImporter:
                 
                 # Save to cache if requested
                 if save_cache:
-                    self._save_to_cache(category_id, canonical_ruleset)
+                    await self._save_to_cache(category_id, canonical_ruleset)
                 
                 logger.info(f"Successfully imported {len(canonical_ruleset.rules)} rules for category {category_id}")
                 return Ok(canonical_ruleset)
@@ -293,9 +295,9 @@ class MeliRulesImporter:
         
         return result
     
-    def _load_from_cache(self, category_id: str) -> Optional[CanonicalRuleSet]:
+    async def _load_from_cache(self, category_id: str) -> Optional[CanonicalRuleSet]:
         """
-        Load rules from cache.
+        Load rules from cache (async).
         
         Args:
             category_id: Category ID
@@ -318,19 +320,34 @@ class MeliRulesImporter:
                 logger.info(f"Cache for {category_id} is expired ({cache_age_hours:.1f} hours old)")
                 return None
             
-            # Load from file
-            with open(cache_file, "r") as f:
-                data = json.load(f)
+            # Load from file using thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                data = await loop.run_in_executor(
+                    executor,
+                    self._read_cache_file,
+                    cache_file
+                )
             
-            return CanonicalRuleSet(**data)
+            if data:
+                return CanonicalRuleSet(**data)
+            return None
             
         except Exception as e:
             logger.warning(f"Failed to load cache for {category_id}: {e}")
             return None
     
-    def _save_to_cache(self, category_id: str, ruleset: CanonicalRuleSet):
+    def _read_cache_file(self, cache_file: Path) -> Optional[Dict]:
+        """Synchronous file read operation for executor."""
+        try:
+            with open(cache_file, "r") as f:
+                return json.load(f)
+        except Exception:
+            return None
+    
+    async def _save_to_cache(self, category_id: str, ruleset: CanonicalRuleSet):
         """
-        Save rules to cache.
+        Save rules to cache (async).
         
         Args:
             category_id: Category ID
@@ -339,13 +356,28 @@ class MeliRulesImporter:
         cache_file = self.cache_dir / f"{category_id}.json"
         
         try:
-            with open(cache_file, "w") as f:
-                json.dump(ruleset.model_dump(), f, indent=2, default=str)
+            # Save to file using thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                await loop.run_in_executor(
+                    executor,
+                    self._write_cache_file,
+                    cache_file,
+                    ruleset.model_dump()
+                )
             
             logger.info(f"Saved category {category_id} rules to cache")
             
         except Exception as e:
             logger.warning(f"Failed to save cache for {category_id}: {e}")
+    
+    def _write_cache_file(self, cache_file: Path, data: Dict):
+        """Synchronous file write operation for executor."""
+        try:
+            with open(cache_file, "w") as f:
+                json.dump(data, f, indent=2, default=str)
+        except Exception as e:
+            logger.error(f"Failed to write cache file: {e}")
     
     def export_rules_to_file(
         self,

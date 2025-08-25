@@ -152,7 +152,7 @@ class MeliErrorTranslator:
         CanonicalErrorCode.TOKEN_EXPIRED
     }
     
-    def translate_api_error(self, meli_error: MeliApiError) -> CanonicalError:
+    def translate_api_error(self, meli_error: MeliApiError, headers: Optional[Dict[str, str]] = None) -> CanonicalError:
         """
         Translate a MELI API error to canonical format.
         
@@ -180,7 +180,7 @@ class MeliErrorTranslator:
         # Determine retry_after for rate limiting
         retry_after = None
         if canonical_code == CanonicalErrorCode.RATE_LIMIT_EXCEEDED:
-            retry_after = 60  # Default to 60 seconds
+            retry_after = self._parse_retry_after(headers) if headers else 60
         
         # Create details dictionary
         details = {
@@ -354,3 +354,29 @@ class MeliErrorTranslator:
                 summary["errors_by_field"][error.field].append(error.message)
         
         return summary
+    
+    def _parse_retry_after(self, headers: Dict[str, str]) -> int:
+        """
+        Parse Retry-After header from API response.
+        
+        Args:
+            headers: Response headers
+            
+        Returns:
+            Number of seconds to wait, default 60 if not found
+        """
+        retry_after = headers.get("retry-after") or headers.get("Retry-After")
+        if retry_after:
+            try:
+                # Could be seconds (integer) or HTTP date
+                return int(retry_after)
+            except ValueError:
+                # If it's a date, calculate seconds from now
+                from datetime import datetime
+                try:
+                    retry_date = datetime.strptime(retry_after, "%a, %d %b %Y %H:%M:%S GMT")
+                    seconds = (retry_date - datetime.utcnow()).total_seconds()
+                    return max(int(seconds), 1)
+                except ValueError:
+                    pass
+        return 60  # Default fallback
