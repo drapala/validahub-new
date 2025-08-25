@@ -237,9 +237,9 @@ spec = importlib.util.spec_from_file_location(name, path)
 # ANTES: utils/validators.py com 10+ funções ❌
 
 # DEPOIS:
-# domain/validators/email.py
-# domain/validators/product.py  
-# domain/validators/pricing.py
+# utils/validators/email_validator.py
+# utils/validators/product_id_validator.py
+# utils/validators/pricing.py
 ```
 
 ### 4. Factory para Pipeline
