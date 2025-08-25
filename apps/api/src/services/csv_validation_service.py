@@ -42,7 +42,7 @@ class CSVValidationService:
             category: Product category
             ruleset: Ruleset to apply
             auto_fix: Whether to apply auto-corrections
-            
+        
         Returns:
             Tuple of (validation_result dict, corrected_csv string or None)
         """

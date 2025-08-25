@@ -47,7 +47,7 @@ class TelemetryService:
         self.event_buffer: List[BaseEvent] = []
         self.batch_size = 100
         self.flush_interval = 5  # seconds
-        self._last_flush = time.time()
+        self._last_flush = time.monotonic()
         self._setup_emitters()
         
     def _setup_emitters(self) -> None:
@@ -158,7 +158,7 @@ class TelemetryService:
         
         # Check if we should flush
         if len(self.event_buffer) >= self.batch_size or \
-           time.time() - self._last_flush > self.flush_interval:
+           time.monotonic() - self._last_flush > self.flush_interval:
             await self.flush()
     
     async def flush(self) -> None:

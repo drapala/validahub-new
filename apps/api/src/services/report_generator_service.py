@@ -186,9 +186,11 @@ class ReportGeneratorService:
             
             for cell in column:
                 try:
-                    if len(str(cell.value)) > max_length:
+                    if cell.value is not None and len(str(cell.value)) > max_length:
                         max_length = len(str(cell.value))
-                except:
+                except (ValueError, TypeError, AttributeError) as e:
+                    # Log the error but continue processing
+                    logger.debug(f"Error processing cell value for width calculation: {e}")
                     pass
             
             adjusted_width = min(max_length + 2, 50)
