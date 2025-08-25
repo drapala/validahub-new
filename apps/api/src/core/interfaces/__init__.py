@@ -11,10 +11,9 @@ from .rule import (
     ValidationError,
     Severity
 )
-from .validator import (
-    IValidator,
-    IValidationPipeline
-)
+from .validation import IValidator
+from .validator import IValidationPipeline
+from .rule_engine import IRuleEngineService
 from .corrector import (
     ICorrection,
     ICorrectionStrategy,
@@ -33,6 +32,8 @@ __all__ = [
     # Validator interfaces
     'IValidator',
     'IValidationPipeline',
+    # Rule engine interfaces
+    'IRuleEngineService',
     # Corrector interfaces
     'ICorrection',
     'ICorrectionStrategy',

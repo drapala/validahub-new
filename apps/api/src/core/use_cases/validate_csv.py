@@ -14,8 +14,8 @@ import pandas as pd
 from .base import UseCase
 from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
 from utils import DataFrameUtils
-from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
-from ...services.rule_engine_service import RuleEngineService
+from core.interfaces.validation import IValidator
+from core.interfaces.rule_engine import IRuleEngineService
 from ...schemas.validate import (
     ValidationResult,
     Marketplace,
@@ -50,25 +50,11 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
     without any knowledge of HTTP, file I/O, or other infrastructure concerns.
     """
     
-    def __init__(
-        self, 
-        validation_pipeline: ValidationPipelineDecoupled = None,
-        rule_engine_service: Optional[RuleEngineService] = None
-    ):
-        """
-        Initialize the use case with optional dependencies.
-        
-        Args:
-            validation_pipeline: Optional custom validation pipeline
-            rule_engine_service: Optional RuleEngineService for dependency injection
-        """
-        if validation_pipeline is None:
-            # Use injected RuleEngineService or create default if not provided
-            if rule_engine_service is None:
-                rule_engine_service = RuleEngineService()
-            validator = RuleEngineValidator(rule_engine_service)
-            validation_pipeline = ValidationPipelineDecoupled(validator)
-        self.validation_pipeline = validation_pipeline
+    def __init__(self, validator: IValidator, rule_engine_service: IRuleEngineService):
+        """Initialize the use case with injected dependencies."""
+        self.validator = validator
+        self.rule_engine_service = rule_engine_service
+        self.validation_pipeline = ValidationPipelineDecoupled(validator)
     
     async def execute(self, input_data: ValidateCsvInput) -> ValidationResult:
         """

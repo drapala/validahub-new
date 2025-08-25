@@ -15,6 +15,7 @@ from .rule_engine_service_refactored import (
 from infrastructure.loaders.rule_loader import RuleLoaderConfig
 from infrastructure.factories.rule_engine_factory import RuleEngineFactoryConfig
 from schemas.validate import ValidationItem
+from core.interfaces.rule_engine import IRuleEngineService
 
 logger = get_logger(__name__)
 
@@ -27,7 +28,7 @@ class RuleEngineConfig:
     cache_ttl: int = 3600  # seconds (not used in refactored version)
 
 
-class RuleEngineService:
+class RuleEngineService(IRuleEngineService):
     """
     Adapter class that maintains the old RuleEngineService interface
     while using the refactored implementation internally.
