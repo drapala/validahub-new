@@ -10,11 +10,26 @@ from typing import Dict, Optional, List
 from dataclasses import dataclass
 
 # TODO: Replace with proper import once libs is properly packaged
+# Temporarily add libs to path for rule_engine import
 import sys
+import importlib.util
 libs_path = Path(__file__).parent.parent.parent.parent.parent.parent / "libs"
-if str(libs_path) not in sys.path:
-    sys.path.insert(0, str(libs_path))
-from rule_engine import load_ruleset
+
+# Use a more controlled import approach
+try:
+    # Try to import normally first
+    from rule_engine import load_ruleset
+except ImportError:
+    # If that fails, try adding libs path
+    if libs_path.exists() and str(libs_path) not in sys.path:
+        # Save original path
+        original_path = sys.path.copy()
+        try:
+            sys.path.insert(0, str(libs_path))
+            from rule_engine import load_ruleset
+        finally:
+            # Restore original path to minimize side effects
+            pass  # Keep the path for now as the import needs it
 
 logger = get_logger(__name__)
 

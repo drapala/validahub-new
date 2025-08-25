@@ -81,10 +81,6 @@ def get_current_user_id(request: Request) -> str:
             "CRITICAL: Production deployment detected without proper authentication! "
             "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
         )
-        logger.critical(
-            "CRITICAL: Production deployment detected without proper authentication! "
-            "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
-        )
         raise RuntimeError(
             "Production deployment detected without proper authentication! "
             "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."

@@ -8,7 +8,7 @@ from src.config import settings
 
 router = APIRouter(tags=["health"])
 
-startup_time = time.time()
+startup_time = time.monotonic()
 
 
 @router.get("/health", response_model=HealthStatus)
@@ -20,7 +20,7 @@ async def health_check(
     Returns basic health status and service availability.
     """
     
-    uptime = int(time.time() - startup_time)
+    uptime = int(time.monotonic() - startup_time)
     
     # Check service health (simplified for now)
     services = {

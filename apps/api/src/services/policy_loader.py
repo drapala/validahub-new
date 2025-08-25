@@ -5,7 +5,7 @@ Policy Loader Service - Loads and caches validation policies from YAML files.
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import lru_cache
 from core.logging_config import get_logger
 
@@ -101,7 +101,7 @@ class PolicyLoader:
             "marketplace": marketplace,
             "category_id": category,
             "category_name": "Unknown Category",
-            "effective_date": datetime.now().isoformat(),
+            "effective_date": datetime.now(timezone.utc).isoformat(),
             "rules": {
                 "title": {
                     "required": True,
