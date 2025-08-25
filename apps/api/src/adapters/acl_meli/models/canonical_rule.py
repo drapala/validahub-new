@@ -271,12 +271,22 @@ class CanonicalRuleSet(BaseModel):
         """
         errors = {}
         required_fields = self.get_required_fields()
+        missing_required_fields = set()
+        
+        # First pass: check for missing required fields
+        for field in required_fields:
+            if data.get(field) is None or data.get(field) == "":
+                missing_required_fields.add(field)
         
         for rule in self.rules:
             if not rule.is_active:
                 continue
                 
             field_value = data.get(rule.field_name)
+            
+            # Skip non-REQUIRED rules for missing required fields to avoid redundant errors
+            if rule.field_name in missing_required_fields and rule.rule_type != RuleType.REQUIRED:
+                continue
             
             # Skip non-required rules for missing values
             if field_value is None and rule.field_name not in required_fields:

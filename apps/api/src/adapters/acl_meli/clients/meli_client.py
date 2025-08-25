@@ -103,23 +103,33 @@ class MeliClient:
         self.rate_limiter = RateLimiter(rate_limit)
         self._client: Optional[httpx.AsyncClient] = None
         self._token_expires_at: Optional[datetime] = None
+        self._context_count = 0
+        self._context_lock = asyncio.Lock()
     
     async def __aenter__(self):
-        """Async context manager entry."""
-        self._client = httpx.AsyncClient(
-            base_url=self.BASE_URL,
-            timeout=httpx.Timeout(30.0),
-            headers={
-                "User-Agent": "ValidaHub/1.0",
-                "Accept": "application/json"
-            }
-        )
+        """Async context manager entry (reentrant for concurrent use)."""
+        async with self._context_lock:
+            if self._context_count == 0:
+                # Create client only on first entry
+                self._client = httpx.AsyncClient(
+                    base_url=self.BASE_URL,
+                    timeout=httpx.Timeout(30.0),
+                    headers={
+                        "User-Agent": "ValidaHub/1.0",
+                        "Accept": "application/json"
+                    }
+                )
+            self._context_count += 1
         return self
     
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Async context manager exit."""
-        if self._client:
-            await self._client.aclose()
+        """Async context manager exit (reentrant for concurrent use)."""
+        async with self._context_lock:
+            self._context_count -= 1
+            if self._context_count == 0 and self._client:
+                # Close only when last context exits
+                await self._client.aclose()
+                self._client = None
     
     async def _ensure_authenticated(self):
         """Ensure we have a valid access token."""

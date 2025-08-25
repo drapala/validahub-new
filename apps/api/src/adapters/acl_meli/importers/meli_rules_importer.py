@@ -321,7 +321,7 @@ class MeliRulesImporter:
                 return None
             
             # Load from file using thread pool to avoid blocking
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             with ThreadPoolExecutor(max_workers=1) as executor:
                 data = await loop.run_in_executor(
                     executor,
@@ -357,7 +357,7 @@ class MeliRulesImporter:
         
         try:
             # Save to file using thread pool to avoid blocking
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             with ThreadPoolExecutor(max_workers=1) as executor:
                 await loop.run_in_executor(
                     executor,

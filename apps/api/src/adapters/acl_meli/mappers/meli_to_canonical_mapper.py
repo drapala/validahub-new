@@ -226,7 +226,7 @@ class MeliToCanonicalMapper:
             params["min_value"] = validation.validation_value
         elif validation.validation_type == "MAX_VALUE":
             params["max_value"] = validation.validation_value
-        elif validation.validation_value:
+        elif validation.validation_value is not None:  # Preserve falsy values like 0 or ""
             params["value"] = validation.validation_value
         
         # Map severity
