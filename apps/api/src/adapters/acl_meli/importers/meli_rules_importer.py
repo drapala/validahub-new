@@ -152,28 +152,56 @@ class MeliRulesImporter:
         self,
         category_ids: List[str],
         use_cache: bool = True,
-        save_cache: bool = True
+        save_cache: bool = True,
+        max_concurrent: int = 5
     ) -> Dict[str, Result[CanonicalRuleSet, List[CanonicalError]]]:
         """
-        Import rules for multiple categories.
+        Import rules for multiple categories in parallel.
         
         Args:
             category_ids: List of category IDs
             use_cache: Whether to use cached rules
             save_cache: Whether to save fetched rules
+            max_concurrent: Maximum number of concurrent imports
             
         Returns:
             Dictionary mapping category_id to Result
         """
+        import asyncio
+        
         results = {}
         
-        for category_id in category_ids:
+        # Create tasks for parallel execution
+        async def import_with_id(cat_id: str):
             result = await self.import_category_rules(
-                category_id,
+                cat_id,
                 use_cache=use_cache,
                 save_cache=save_cache
             )
-            results[category_id] = result
+            return cat_id, result
+        
+        # Process in batches to limit concurrency
+        for i in range(0, len(category_ids), max_concurrent):
+            batch = category_ids[i:i + max_concurrent]
+            tasks = [import_with_id(cat_id) for cat_id in batch]
+            
+            # Execute batch in parallel
+            batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # Process results
+            for result in batch_results:
+                if isinstance(result, Exception):
+                    logger.error(f"Failed to import category: {result}")
+                    # Create error result for exception
+                    cat_id = batch[batch_results.index(result)]
+                    results[cat_id] = Err([
+                        self.error_translator.translate_http_error(
+                            500, f"Import failed: {str(result)}"
+                        )
+                    ])
+                else:
+                    cat_id, import_result = result
+                    results[cat_id] = import_result
         
         return results
     

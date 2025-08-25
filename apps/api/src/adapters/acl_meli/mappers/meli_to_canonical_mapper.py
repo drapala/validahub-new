@@ -299,15 +299,17 @@ class MeliToCanonicalMapper:
         """
         rules = []
         
-        # Process required attributes
+        # Process required attributes (create copy to avoid mutation)
         for attribute in meli_ruleset.required_attributes:
-            attribute.required = True  # Ensure it's marked as required
-            rules.extend(self.map_attribute_to_rules(attribute))
+            # Create a copy of the attribute with required=True
+            attr_copy = attribute.model_copy(update={"required": True})
+            rules.extend(self.map_attribute_to_rules(attr_copy))
         
-        # Process optional attributes
+        # Process optional attributes (create copy to avoid mutation)
         for attribute in meli_ruleset.optional_attributes:
-            attribute.required = False  # Ensure it's marked as optional
-            rules.extend(self.map_attribute_to_rules(attribute))
+            # Create a copy of the attribute with required=False
+            attr_copy = attribute.model_copy(update={"required": False})
+            rules.extend(self.map_attribute_to_rules(attr_copy))
         
         # Process validation rules
         for validation in meli_ruleset.validation_rules:

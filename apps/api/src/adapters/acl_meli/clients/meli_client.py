@@ -24,20 +24,22 @@ logger = get_logger(__name__)
 
 
 class RateLimiter:
-    """Simple rate limiter for API calls."""
+    """Thread-safe rate limiter for API calls."""
     
     def __init__(self, calls_per_second: float = 10):
         self.calls_per_second = calls_per_second
         self.min_interval = 1.0 / calls_per_second
         self.last_call = 0
+        self._lock = asyncio.Lock()
     
     async def wait(self):
-        """Wait if necessary to respect rate limit."""
-        current = time.time()
-        elapsed = current - self.last_call
-        if elapsed < self.min_interval:
-            await asyncio.sleep(self.min_interval - elapsed)
-        self.last_call = time.time()
+        """Wait if necessary to respect rate limit (thread-safe)."""
+        async with self._lock:
+            current = time.time()
+            elapsed = current - self.last_call
+            if elapsed < self.min_interval:
+                await asyncio.sleep(self.min_interval - elapsed)
+            self.last_call = time.time()
 
 
 def with_retry(max_retries: int = 3, backoff_factor: float = 2.0):
@@ -203,6 +205,11 @@ class MeliClient:
             # Parse response
             if response.status_code >= 400:
                 error_data = response.json() if response.content else {}
+                # Raise exception for retry logic to work
+                # Don't retry on client errors (4xx), only on server errors (5xx)
+                if response.status_code >= 500:
+                    response.raise_for_status()
+                # For 4xx errors, return error response without retrying
                 return MeliApiResponse(
                     status=response.status_code,
                     error=MeliApiError(
