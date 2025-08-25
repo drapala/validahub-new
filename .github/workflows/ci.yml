@@ -80,7 +80,7 @@ jobs:
     - name: Run Python type checking (mypy)
       working-directory: ./apps/api
       run: |
-        pip install mypy types-redis types-passlib
+        pip install mypy types-redis types-passlib types-aiofiles types-requests types-PyYAML
         mypy src/ --ignore-missing-imports || true
     
     - name: Run pre-commit hooks

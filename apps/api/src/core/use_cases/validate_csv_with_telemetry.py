@@ -205,7 +205,7 @@ class ValidateCSVWithTelemetry:
         try:
             with open(file_path, "rb") as f:
                 chunk = f.read(1024 * 1024)  # Read first 1MB
-                file_hash = hashlib.md5(chunk).hexdigest()
+                file_hash = hashlib.sha256(chunk).hexdigest()
         except Exception as e:
             logger.warning(f"Failed to calculate file hash: {e}")
         
