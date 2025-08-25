@@ -150,30 +150,64 @@ graph TB
     
     subgraph "API Layer"
         API[FastAPI Gateway]
-        API --> UC[Use Cases]
+        MW[Middleware<br/>Auth/Telemetry/CORS]
+        API --> MW
+        MW --> UC[Use Cases]
     end
     
-    subgraph "Business Layer"
-        UC --> SVC[Services]
-        SVC --> |Validation| RE[Rule Engine]
-        SVC --> |Storage| ST[Storage Service]
-        SVC --> |Jobs| JS[Job Service]
-        SVC --> |Events| TEL[Telemetry]
+    subgraph "Core Domain"
+        UC[Use Cases]
+        UC --> PORTS[Ports/Interfaces]
+        PORTS --> PIPE[Pipelines]
+        PIPE --> VAL[Validators]
+        PIPE --> CORR[Corrections]
     end
     
-    subgraph "Infrastructure Layer"
-        RE --> REPO[Repositories]
-        JS --> CEL[Celery Queue]
-        ST --> S3[S3 Storage]
+    subgraph "Adapters & ACL"
+        ACL[Anti-Corruption Layer]
+        ACL --> MELI[MELI Adapter]
+        ACL --> SHOP[Shopee Adapter]
+        ACL --> AMZ[Amazon Adapter]
+    end
+    
+    subgraph "Services Layer"
+        SVC[Domain Services]
+        SVC --> JS[Job Service]
+        SVC --> RE[Rule Engine]
+        SVC --> ST[Storage Service]
+        SVC --> TEL[Telemetry]
+        SVC --> POL[Policy Loader]
+    end
+    
+    subgraph "Infrastructure"
+        REPO[Repositories]
+        QUEUE[Queue Factory]
         REPO --> PG[(PostgreSQL)]
+        QUEUE --> CEL[Celery]
         CEL --> REDIS[(Redis)]
+        ST --> S3[S3/Storage]
         TEL --> KAFKA[Event Stream]
     end
+    
+    subgraph "Cross-Cutting Libraries"
+        SEC[Security Utils]
+        RES[Resilience Utils]
+        RULE[Rule Engine DSL]
+    end
+    
+    UC --> SVC
+    SVC --> ACL
+    SVC --> REPO
+    SVC --> QUEUE
+    SVC --> SEC
+    SVC --> RES
     
     style FE fill:#61dafb
     style API fill:#009485
     style PG fill:#336791
     style REDIS fill:#dc382d
+    style SEC fill:#ff6b6b
+    style RES fill:#4ecdc4
 ```
 
 ### Layer Architecture
@@ -193,22 +227,45 @@ graph TB
 ├─────────────────────────────────────────────────────────────────┤
 │                         API Layer                                │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │ /validate_csv  /correct_csv  /jobs  /validate_row        │  │
+│  │ Endpoints: /validate_csv  /correct_csv  /jobs  /health   │  │
+│  │ Middleware: Auth, Telemetry, CORS, Rate Limiting         │  │
 │  └──────────────────────────────────────────────────────────┘  │
 ├─────────────────────────────────────────────────────────────────┤
-│                      Use Cases Layer                             │
+│                      Core Domain Layer                           │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │ ValidateCsvUseCase  CorrectCsvUseCase  ValidateRowUseCase│  │
+│  │ Use Cases: ValidateCsv, CorrectCsv, ValidateRow          │  │
+│  │ Ports: ClockPort, QueuePort, StoragePort, RuleEnginePort │  │
+│  │ Pipelines: ValidationPipeline, CorrectionPipeline        │  │
+│  │ Validators: BuiltinValidators, CustomValidators          │  │
+│  └──────────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────┤
+│                   Adapters & ACL Layer                           │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ MELI Adapter: Client, Mapper, ErrorTranslator, Importer  │  │
+│  │ Shopee Adapter: (Similar structure)                      │  │
+│  │ Amazon Adapter: (Similar structure)                      │  │
 │  └──────────────────────────────────────────────────────────┘  │
 ├─────────────────────────────────────────────────────────────────┤
 │                      Services Layer                              │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │ JobService  RuleEngineService  StorageService  Telemetry │  │
+│  │ JobService (Creation, Query, Status, Cancellation)       │  │
+│  │ RuleEngineService, PolicyLoader, StorageService          │  │
+│  │ TelemetryService, ReportGeneratorService                 │  │
 │  └──────────────────────────────────────────────────────────┘  │
 ├─────────────────────────────────────────────────────────────────┤
 │                    Infrastructure Layer                          │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │ Repositories  Queue(Celery)  Cache(Redis)  Storage(S3)   │  │
+│  │ Repositories: Job, User, ValidationResult, File          │  │
+│  │ Queue: QueueFactory, QueuePublisher, Celery Workers      │  │
+│  │ Cache: Redis, Rate Limiting                              │  │
+│  │ Storage: S3/Local Storage Adapters                       │  │
+│  └──────────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────┤
+│                 Cross-Cutting Libraries (libs/)                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ Security: JWT, Path Traversal, YAML, Rate Limiting       │  │
+│  │ Resilience: Retry, Circuit Breaker, Backoff              │  │
+│  │ Rule Engine: DSL, Engine, Core Rules                     │  │
 │  └──────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
 ```
