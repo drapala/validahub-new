@@ -14,13 +14,13 @@ if str(libs_path) not in sys.path:
     sys.path.insert(0, str(libs_path))
 from rule_engine import RuleResult
 
-from ...schemas.validate import (
+from schemas.validate import (
     ValidationItem,
     ValidationStatus,
     ErrorDetail,
     CorrectionDetail
 )
-from ...core.enums import Severity
+from core.enums import Severity
 
 logger = get_logger(__name__)
 

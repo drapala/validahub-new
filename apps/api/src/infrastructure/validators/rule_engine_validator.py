@@ -9,10 +9,10 @@ import functools
 from core.logging_config import get_logger
 from typing import Dict, List, Any, Optional, Tuple
 
-from ...core.interfaces.validation import IValidator
-from ...core.interfaces.rule_engine import IRuleEngineService
-from ...schemas.validate import ValidationItem
-from ...services.rule_engine_service import RuleEngineService
+from core.interfaces.validation import IValidator
+from core.interfaces.rule_engine import IRuleEngineService
+from schemas.validate import ValidationItem
+from services.rule_engine_service import RuleEngineService
 
 logger = get_logger(__name__)
 

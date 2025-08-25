@@ -9,8 +9,8 @@ from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 
-from ..interfaces.validation import IValidator
-from ...schemas.validate import (
+from core.interfaces.validation import IValidator
+from schemas.validate import (
     ValidationResult, 
     ValidationItem,
     ValidationStatus,

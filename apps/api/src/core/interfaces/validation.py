@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
 
-from ...schemas.validate import ValidationItem
+from schemas.validate import ValidationItem
 
 
 class IValidator(ABC):
