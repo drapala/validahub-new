@@ -286,9 +286,12 @@ class StorageService:
         
         os.makedirs(self.temp_dir, exist_ok=True)
         
-        # Sanitize the path to prevent traversal
-        safe_path = os.path.basename(path) if os.path.sep in path else path
-        file_path = os.path.join(self.temp_dir, safe_path)
+        # Normalize the path to prevent traversal while preserving subdirectories
+        normalized_path = os.path.normpath(path)
+        # Remove any leading path separators to ensure it's relative
+        if normalized_path.startswith(os.sep):
+            normalized_path = normalized_path.lstrip(os.sep)
+        file_path = os.path.join(self.temp_dir, normalized_path)
         
         # Validate the resolved path is within temp_dir
         resolved_path = os.path.realpath(file_path)
@@ -308,9 +311,12 @@ class StorageService:
         
         os.makedirs(self.temp_dir, exist_ok=True)
         
-        # Sanitize the path to prevent traversal
-        safe_path = os.path.basename(path) if os.path.sep in path else path
-        full_path = os.path.join(self.temp_dir, safe_path)
+        # Normalize the path to prevent traversal while preserving subdirectories
+        normalized_path = os.path.normpath(path)
+        # Remove any leading path separators to ensure it's relative
+        if normalized_path.startswith(os.sep):
+            normalized_path = normalized_path.lstrip(os.sep)
+        full_path = os.path.join(self.temp_dir, normalized_path)
         
         # Validate the resolved path is within temp_dir
         resolved_path = os.path.realpath(full_path)

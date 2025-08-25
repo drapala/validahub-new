@@ -193,6 +193,10 @@ class ReportGeneratorService:
                     logger.debug(f"Error processing cell value for width calculation: {e}")
                     pass
             
+            # If all cells failed or column is empty, set a reasonable default width
+            if max_length == 0:
+                max_length = 10  # Default width if no valid cell values
+            
             adjusted_width = min(max_length + 2, 50)
             worksheet.column_dimensions[column_letter].width = adjusted_width
         

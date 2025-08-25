@@ -14,7 +14,7 @@ sys.path.insert(0, str(src_path))
 # Now import only what we need, avoiding the problematic __init__.py
 import yaml
 import pandas as pd
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 import re
 
 
@@ -46,7 +46,7 @@ class SimpleRuleEngine:
     def __init__(self, policy_loader):
         self.loader = policy_loader
     
-    def validate_row(self, row: Dict, marketplace: str, category: str) -> tuple[bool, List[ValidationError]]:
+    def validate_row(self, row: Dict, marketplace: str, category: str) -> Tuple[bool, List[ValidationError]]:
         policy = self.loader.get_policy(marketplace, category)
         rules = policy.get("rules", {})
         errors = []
