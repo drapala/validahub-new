@@ -6,6 +6,7 @@ import os
 from celery import Celery, Task, signals
 from celery.signals import task_prerun, task_postrun, task_failure, task_retry
 from datetime import datetime
+from infrastructure.logging_config import setup_logging
 from core.logging_config import get_logger
 from typing import Any, Dict
 import uuid
@@ -16,6 +17,7 @@ from src.config import settings
 from src.config.queue_config import get_queue_config
 from src.telemetry.job_telemetry import get_job_telemetry
 
+setup_logging()
 logger = get_logger(__name__)
 
 # Redis URL from environment with security validation

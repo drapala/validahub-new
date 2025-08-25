@@ -74,6 +74,51 @@ repos:
       - id: markdownlint
         args: ['--disable', 'MD013', '--disable', 'MD033', '--disable', 'MD041']
 
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+
+  # Architecture validation (custom hooks)
+  - repo: local
+    hooks:
+      - id: check-core-imports
+        name: Check core layer imports
+        entry: python scripts/check_architecture.py
+        language: python
+        files: ^apps/api/src/core/
+        pass_filenames: true
+
+      - id: prohibit-pandas-in-core
+        name: Prohibit pandas in core
+        entry: bash -c 'if grep -r "import pandas\|from pandas" apps/api/src/core/ --include="*.py" 2>/dev/null | grep -v "^#"; then echo "ERROR: pandas found in core layer!"; exit 1; fi'
+        language: system
+        files: ^apps/api/src/core/.*\.py$
+        pass_filenames: false
+
+      - id: prohibit-sqlalchemy-in-core
+        name: Prohibit SQLAlchemy in core
+        entry: bash -c 'if grep -r "import sqlalchemy\|from sqlalchemy" apps/api/src/core/ --include="*.py" 2>/dev/null | grep -v "^#"; then echo "ERROR: SQLAlchemy found in core layer!"; exit 1; fi'
+        language: system
+        files: ^apps/api/src/core/.*\.py$
+        pass_filenames: false
+
+      - id: prohibit-fastapi-in-core
+        name: Prohibit FastAPI in core
+        entry: bash -c 'if grep -r "import fastapi\|from fastapi" apps/api/src/core/ --include="*.py" 2>/dev/null | grep -v "^#"; then echo "ERROR: FastAPI found in core layer!"; exit 1; fi'
+        language: system
+        files: ^apps/api/src/core/.*\.py$
+        pass_filenames: false
+
+      - id: prohibit-sys-path-manipulation
+        name: Prohibit sys.path manipulation
+        entry: bash -c 'if grep -r "sys\.path\.\(append\|insert\|extend\)" apps/api/src/ --include="*.py" 2>/dev/null | grep -v "^#"; then echo "ERROR: sys.path manipulation found!"; exit 1; fi'
+        language: system
+        files: ^apps/api/src/.*\.py$
+        pass_filenames: false
+
 # Configuration for specific tools
 default_language_version:
   python: python3.11

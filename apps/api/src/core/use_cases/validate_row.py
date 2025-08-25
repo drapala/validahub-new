@@ -4,18 +4,16 @@ Handles domain logic for row-level validation.
 """
 
 from core.logging_config import get_logger
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
 
 from .base import UseCase
 from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
-from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
-from ...services.rule_engine_service import RuleEngineService
 from ...schemas.validate import (
+    Category,
+    Marketplace,
     ValidationItem,
     ValidationStatus,
-    Marketplace,
-    Category
 )
 
 logger = get_logger(__name__)
@@ -50,24 +48,8 @@ class ValidateRowUseCase(UseCase[ValidateRowInput, ValidateRowOutput]):
     without any knowledge of HTTP or other infrastructure concerns.
     """
     
-    def __init__(
-        self,
-        validation_pipeline: ValidationPipelineDecoupled = None,
-        rule_engine_service: Optional[RuleEngineService] = None
-    ):
-        """
-        Initialize the use case with optional dependencies.
-        
-        Args:
-            validation_pipeline: Optional custom validation pipeline
-            rule_engine_service: Optional RuleEngineService for dependency injection
-        """
-        if validation_pipeline is None:
-            # Use injected RuleEngineService or create default if not provided
-            if rule_engine_service is None:
-                rule_engine_service = RuleEngineService()
-            validator = RuleEngineValidator(rule_engine_service)
-            validation_pipeline = ValidationPipelineDecoupled(validator)
+    def __init__(self, validation_pipeline: ValidationPipelineDecoupled):
+        """Initialize the use case with required validation pipeline."""
         self.validation_pipeline = validation_pipeline
     
     async def execute(self, input_data: ValidateRowInput) -> ValidateRowOutput:

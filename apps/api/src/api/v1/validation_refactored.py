@@ -37,15 +37,16 @@ from ...schemas.errors import (
     FileSizeProblemDetail,
     RateLimitProblemDetail
 )
-from ...core.use_cases import (
-    ValidateCsvUseCase,
-    CorrectCsvUseCase,
-    ValidateRowUseCase
-)
-from ...core.use_cases.validate_csv import ValidateCsvInput
-from ...core.use_cases.correct_csv import CorrectCsvInput
-from ...core.use_cases.validate_row import ValidateRowInput
+from ...core.interfaces import IRuleEngineService
 from ...core.pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
+from ...core.use_cases import (
+    CorrectCsvUseCase,
+    ValidateCsvUseCase,
+    ValidateRowUseCase,
+)
+from ...core.use_cases.correct_csv import CorrectCsvInput
+from ...core.use_cases.validate_csv import ValidateCsvInput
+from ...core.use_cases.validate_row import ValidateRowInput
 from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
 from ...services.rule_engine_service import RuleEngineService
 
@@ -59,31 +60,44 @@ MAX_FILE_SIZE = int(os.environ.get("MAX_FILE_SIZE", 50 * 1024 * 1024))          
 # Note: Chunked CSV processing for large files is tracked in BACKLOG.md under PERF-1
 
 # Dependency provider functions for better DI and testing
-def get_validator() -> RuleEngineValidator:
-    """Get or create validator instance."""
-    rule_engine_service = RuleEngineService()
+def get_rule_engine_service() -> IRuleEngineService:
+    """Provide rule engine service instance."""
+    return RuleEngineService()
+
+
+def get_validator(
+    rule_engine_service: IRuleEngineService = Depends(get_rule_engine_service),
+) -> RuleEngineValidator:
+    """Provide validator with injected rule engine service."""
     return RuleEngineValidator(rule_engine_service)
 
 
-def get_validation_pipeline() -> ValidationPipelineDecoupled:
-    """Get or create validation pipeline instance with injected validator."""
-    validator = get_validator()
+def get_validation_pipeline(
+    validator: RuleEngineValidator = Depends(get_validator),
+) -> ValidationPipelineDecoupled:
+    """Provide validation pipeline with injected validator."""
     return ValidationPipelineDecoupled(validator=validator)
 
 
-def get_validate_csv_use_case() -> ValidateCsvUseCase:
-    """Get or create validate CSV use case instance."""
-    return ValidateCsvUseCase(get_validation_pipeline())
+def get_validate_csv_use_case(
+    validation_pipeline: ValidationPipelineDecoupled = Depends(get_validation_pipeline),
+) -> ValidateCsvUseCase:
+    """Provide validate CSV use case."""
+    return ValidateCsvUseCase(validation_pipeline)
 
 
-def get_correct_csv_use_case() -> CorrectCsvUseCase:
-    """Get or create correct CSV use case instance."""
-    return CorrectCsvUseCase(get_validation_pipeline())
+def get_correct_csv_use_case(
+    validation_pipeline: ValidationPipelineDecoupled = Depends(get_validation_pipeline),
+) -> CorrectCsvUseCase:
+    """Provide correct CSV use case."""
+    return CorrectCsvUseCase(validation_pipeline)
 
 
-def get_validate_row_use_case() -> ValidateRowUseCase:
-    """Get or create validate row use case instance."""
-    return ValidateRowUseCase(get_validation_pipeline())
+def get_validate_row_use_case(
+    validation_pipeline: ValidationPipelineDecoupled = Depends(get_validation_pipeline),
+) -> ValidateRowUseCase:
+    """Provide validate row use case."""
+    return ValidateRowUseCase(validation_pipeline)
 
 
 def get_correlation_id(
@@ -177,6 +191,7 @@ async def validate_csv_clean(
     auto_fix: bool = Form(True, description="Automatically fix issues when possible"),
     options: Optional[str] = Form(None, description="Additional options as JSON"),
     correlation_id: str = Depends(get_correlation_id),
+    use_case: ValidateCsvUseCase = Depends(get_validate_csv_use_case),
 ):
     """
     Validate a CSV file - Clean Architecture implementation.
@@ -268,10 +283,8 @@ async def validate_csv_clean(
             marketplace=marketplace,
             category=category,
             auto_fix=auto_fix,
-            options=parsed_options
+            options=parsed_options,
         )
-        
-        use_case = get_validate_csv_use_case()
         result = await use_case.execute(use_case_input)
         return result
         
@@ -313,6 +326,7 @@ async def correct_csv_clean(
     category: Category = Form(..., description="Product category"),
     options: Optional[str] = Form(None, description="Additional options as JSON"),
     correlation_id: str = Depends(get_correlation_id),
+    use_case: CorrectCsvUseCase = Depends(get_correct_csv_use_case),
 ):
     """
     Correct a CSV file - Clean Architecture implementation.
@@ -403,10 +417,9 @@ async def correct_csv_clean(
             marketplace=marketplace,
             category=category,
             options=parsed_options,
-            original_filename=file.filename
+            original_filename=file.filename,
         )
-        
-        use_case = get_correct_csv_use_case()
+
         result = await use_case.execute(use_case_input)
         
         # HTTP Layer: Prepare response with streaming
@@ -472,6 +485,7 @@ async def validate_row_clean(
     auto_fix: bool = Query(True, description="Automatically fix issues when possible"),
     row_number: int = Query(1, description="Row number for context", ge=1),
     correlation_id: str = Depends(get_correlation_id),
+    use_case: ValidateRowUseCase = Depends(get_validate_row_use_case),
 ):
     """
     Validate a single row - Clean Architecture implementation.
@@ -489,10 +503,9 @@ async def validate_row_clean(
             marketplace=marketplace,
             category=category,
             row_number=row_number,
-            auto_fix=auto_fix
+            auto_fix=auto_fix,
         )
-        
-        use_case = get_validate_row_use_case()
+
         result = await use_case.execute(use_case_input)
         
         # HTTP Layer: Format response

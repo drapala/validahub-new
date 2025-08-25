@@ -1,0 +1,29 @@
+# Configuração do Bandit para análise de segurança
+# Documentação: https://bandit.readthedocs.io/
+
+[bandit]
+# Diretórios e arquivos para analisar
+targets = apps/,libs/
+
+# Diretórios e arquivos para excluir
+exclude = /tests/,/test_*.py,/.venv/,/venv/,/build/,/dist/,/.git/,/__pycache__/,/migrations/
+
+# Testes para pular (usar com parcimônia e sempre documentar o motivo)
+skips = 
+# B303 já foi removido (md5 não está mais em uso)
+# Nenhuma exclusão herdada desnecessária
+
+# Nível de severidade mínimo para reportar
+# LOW, MEDIUM, HIGH
+level = LOW
+
+# Nível de confiança mínimo para reportar  
+# LOW, MEDIUM, HIGH
+confidence = LOW
+
+# Formato de saída
+# json, csv, xml, txt, yaml, html, custom
+format = txt
+
+# Arquivo de saída (deixar vazio para stdout)
+output =
