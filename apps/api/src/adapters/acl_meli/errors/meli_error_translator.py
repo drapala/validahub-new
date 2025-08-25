@@ -218,7 +218,7 @@ class MeliErrorTranslator:
         
         return canonical_errors
     
-    def translate_http_error(self, status_code: int, message: Optional[str] = None) -> CanonicalError:
+    def translate_http_error(self, status_code: int, message: Optional[str] = None, headers: Optional[Dict[str, str]] = None) -> CanonicalError:
         """
         Translate HTTP status code to canonical error.
         
@@ -260,12 +260,17 @@ class MeliErrorTranslator:
             code = CanonicalErrorCode.UNKNOWN_ERROR
             default_message = f"HTTP error {status_code}"
         
+        # Parse Retry-After header if available
+        retry_after = None
+        if code == CanonicalErrorCode.RATE_LIMIT_EXCEEDED or code == CanonicalErrorCode.SERVICE_UNAVAILABLE:
+            retry_after = self._parse_retry_after(headers) if headers else 60
+        
         return CanonicalError(
             code=code,
             message=message or default_message,
             details={"status_code": status_code},
             recoverable=code in self.RECOVERABLE_ERRORS,
-            retry_after=60 if code == CanonicalErrorCode.RATE_LIMIT_EXCEEDED else None
+            retry_after=retry_after
         )
     
     def _translate_validation_error(self, error: Dict[str, Any]) -> CanonicalError:

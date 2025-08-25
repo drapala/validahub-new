@@ -5,7 +5,7 @@ This model represents the normalized format for all marketplace rules.
 
 from enum import Enum
 from typing import Optional, List, Dict, Any, Union
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field, field_validator
 from core.validation import validation_registry
 
@@ -90,7 +90,7 @@ class CanonicalRule(BaseModel):
     
     # Versioning and lifecycle
     version: str = Field(default="1.0.0", description="Rule version")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Rule creation timestamp")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Rule creation timestamp")
     updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
     is_active: bool = Field(default=True, description="Whether the rule is currently active")
     
@@ -239,7 +239,7 @@ class CanonicalRuleSet(BaseModel):
     name: str = Field(..., description="Rule set name")
     version: str = Field(..., description="Rule set version")
     rules: List[CanonicalRule] = Field(default_factory=list, description="List of rules")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
     

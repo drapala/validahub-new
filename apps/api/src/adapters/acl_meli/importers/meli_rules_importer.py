@@ -323,9 +323,9 @@ class MeliRulesImporter:
             return None
         
         try:
-            # Check cache age
+            # Check cache age using timezone-aware timestamps
             cache_age_hours = (
-                datetime.utcnow().timestamp() - cache_file.stat().st_mtime
+                datetime.now(timezone.utc).timestamp() - cache_file.stat().st_mtime
             ) / 3600
             
             if cache_age_hours > self.cache_ttl_hours:
@@ -419,7 +419,7 @@ class MeliRulesImporter:
             elif format == "yaml":
                 import yaml
                 with open(output_path, "w") as f:
-                    yaml.dump(ruleset.model_dump(), f, default_flow_style=False)
+                    yaml.safe_dump(ruleset.model_dump(), f, default_flow_style=False)
             
             elif format == "csv":
                 import csv

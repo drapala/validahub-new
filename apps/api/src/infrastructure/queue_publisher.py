@@ -5,7 +5,7 @@ Queue publisher abstraction for decoupling from specific queue implementations.
 from core.logging_config import get_logger
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Protocol
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from core.config import QueueConfig
@@ -202,7 +202,7 @@ class SQSQueuePublisher:
             "payload": payload,
             "priority": priority,
             "correlation_id": correlation_id or str(uuid.uuid4()),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
         # Send to SQS
@@ -267,7 +267,7 @@ class InMemoryQueuePublisher:
             "priority": priority,
             "delay_seconds": delay_seconds,
             "correlation_id": correlation_id,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
         # Insert sorted by priority
