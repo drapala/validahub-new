@@ -1,0 +1,327 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://validahub.com/schemas/policy/v1",
+  "title": "ValidaHub Policy Schema",
+  "description": "Schema for marketplace validation policy files",
+  "type": "object",
+  "required": [
+    "version",
+    "marketplace",
+    "category_id",
+    "category_name",
+    "effective_date",
+    "source",
+    "rules"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d{4}\\.\\d{2}\\.\\d{2}$",
+      "description": "Policy version in YYYY.MM.DD format"
+    },
+    "marketplace": {
+      "type": "string",
+      "enum": ["MLB", "AMZN_BR", "MGLU", "AMER", "SHOPEE"],
+      "description": "Marketplace code"
+    },
+    "category_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9_]+$",
+      "description": "Category identifier from marketplace"
+    },
+    "category_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Human-readable category name"
+    },
+    "effective_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this policy becomes active"
+    },
+    "deprecated_after": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "When this policy should no longer be used"
+    },
+    "source": {
+      "type": "object",
+      "required": ["api", "last_fetched"],
+      "properties": {
+        "api": {
+          "type": "string",
+          "format": "uri",
+          "description": "API endpoint used to fetch rules"
+        },
+        "docs": {
+          "type": "string",
+          "format": "uri",
+          "description": "Documentation URL"
+        },
+        "last_fetched": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When rules were last fetched from source"
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "$ref": "#/definitions/textRule"
+        },
+        "description": {
+          "$ref": "#/definitions/textRule"
+        },
+        "price": {
+          "$ref": "#/definitions/numericRule"
+        },
+        "stock": {
+          "$ref": "#/definitions/numericRule"
+        },
+        "brand": {
+          "$ref": "#/definitions/enumRule"
+        },
+        "condition": {
+          "$ref": "#/definitions/enumRule"
+        },
+        "pictures": {
+          "$ref": "#/definitions/fileRule"
+        },
+        "gtin": {
+          "$ref": "#/definitions/gtinRule"
+        },
+        "sku": {
+          "$ref": "#/definitions/textRule"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/genericRule"
+      }
+    },
+    "custom_attributes": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/customAttribute"
+      }
+    },
+    "error_codes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Error message for i18n"
+      }
+    },
+    "warnings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Warning message for i18n"
+      }
+    }
+  },
+  "definitions": {
+    "textRule": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "min_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Regex pattern for validation"
+        },
+        "forbidden_chars": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowed_chars": {
+          "type": "string",
+          "description": "Character class regex"
+        },
+        "transform": {
+          "type": "string",
+          "enum": ["uppercase", "lowercase", "titlecase", "trim", "normalize_unicode"],
+          "description": "Automatic transformation to apply"
+        }
+      }
+    },
+    "numericRule": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "min_value": {
+          "type": "number"
+        },
+        "max_value": {
+          "type": "number"
+        },
+        "decimal_places": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "multiple_of": {
+          "type": "number",
+          "description": "Value must be multiple of this"
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["BRL", "USD"],
+          "default": "BRL"
+        }
+      }
+    },
+    "enumRule": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "enum_values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "allow_custom": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow values outside enum"
+        },
+        "case_sensitive": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "fileRule": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "min_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_size_mb": {
+          "type": "number",
+          "minimum": 0.1
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["jpg", "jpeg", "png", "gif", "webp", "bmp"]
+          }
+        },
+        "min_dimensions": {
+          "type": "object",
+          "properties": {
+            "width": {"type": "integer"},
+            "height": {"type": "integer"}
+          }
+        },
+        "max_dimensions": {
+          "type": "object",
+          "properties": {
+            "width": {"type": "integer"},
+            "height": {"type": "integer"}
+          }
+        }
+      }
+    },
+    "gtinRule": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["EAN-8", "EAN-13", "UPC-A", "UPC-E", "ISBN-10", "ISBN-13"]
+          }
+        },
+        "validate_checksum": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "customAttribute": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "boolean", "enum", "date", "array"]
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "For enum type"
+        },
+        "min_length": {
+          "type": "integer"
+        },
+        "max_length": {
+          "type": "integer"
+        },
+        "min_value": {
+          "type": "number"
+        },
+        "max_value": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "default_value": {
+          "description": "Default value if not provided"
+        }
+      }
+    },
+    "genericRule": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string"
+        },
+        "validation": {
+          "type": "object",
+          "description": "Custom validation rules"
+        }
+      }
+    }
+  }
+}
