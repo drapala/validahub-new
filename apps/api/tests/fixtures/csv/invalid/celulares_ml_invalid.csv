@@ -1,0 +1,8 @@
+sku,title,description,price,stock,brand,condition,model,storage_capacity,ram_memory,color,operating_system,network_type,dual_sim,screen_size,battery_capacity,gtin,image_url_1
+,Título curto,,0,10,MARCA_INVALIDA,novo,,32GB,4GB,,,,,,,https://site-invalido
+SKU@INVALIDO#123,Este título tem caracteres especiais proibidos @#$% e é muito longo demais para o limite de 60 caracteres do Mercado Livre,"Descrição OK",999.99,-5,APPLE,refurbished,iPhone 14,64GB,6GB,Preto,iOS,5G,true,6.1",3279 mAh,123456789,
+SKU-OK-001,Produto sem imagem mas título OK,,1500000.00,10,SAMSUNG,new,Galaxy A54,128GB,8GB,Azul,Android,5G,false,6.4",5000 mAh,8806095123456,
+SKU-OK-002,Samsung Galaxy Note 20 Ultra Bronze,,-99.99,abc,SAMSUNG,used,Note 20 Ultra,TAMANHO_INVALIDO,RAM_INVALIDA,Bronze,Android,4G,sim,6.9 polegadas,4500,GTIN_INVALIDO_123,http://imagem.jpg
+SKU-OK-003,T,Descrição muito curta,10.999,10,OUTROS,estado_invalido,Modelo genérico,16GB,2GB,Preto,Android,3G,false,5.5",3000 mAh,,https://http2.mlstatic.com/D_NQ_NP_1.jpg
+123,iPhone 13 Pro Max 1TB Dourado Produto Apple Original,Esta é uma descrição normal para um produto Apple. O iPhone 13 Pro Max conta com tela de 6.7 polegadas Super Retina XDR com ProMotion.,12999.99,3,apple,New,iPhone 13 Pro Max,1TB,6GB,Dourado,iOS,5G,false,6.7",4352 mAh,0194252709115,imagem_sem_protocolo.jpg
+SKU-SPECIAL-CHARS,Samsung Galaxy A15 5G €299 Promoção!!!,"Descrição com caracteres especiais: <script>alert('hack')</script> e tags HTML <b>negrito</b>",299.00,20,SAMSUNG,new,Galaxy A15,128GB,4GB,Preto,Android,5G,true,6.5",5000 mAh,8806095999999,https://http2.mlstatic.com/D_NQ_NP_15.jpg

@@ -3,14 +3,14 @@ Optimized decoupled validation pipeline with parallel processing.
 """
 
 import time
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 import asyncio
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 
-from ..interfaces.validation import IValidator
-from ...schemas.validate import (
+from core.interfaces.validation import IValidator
+from schemas.validate import (
     ValidationResult, 
     ValidationItem,
     ValidationStatus,

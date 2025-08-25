@@ -9,9 +9,13 @@ import sys
 from typing import Dict, Any, Optional
 from pathlib import Path
 import json
-from datetime import datetime
+from datetime import datetime, timezone
+import contextvars
 
-from ..core.settings import get_settings
+from .settings import get_settings
+
+# Shared context variable for correlation ID
+correlation_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar('correlation_id', default=None)
 
 
 class CorrelationFilter(logging.Filter):
@@ -19,8 +23,6 @@ class CorrelationFilter(logging.Filter):
     
     def filter(self, record):
         # Try to get correlation ID from context
-        import contextvars
-        correlation_id_var = contextvars.ContextVar('correlation_id', default=None)
         record.correlation_id = correlation_id_var.get() or 'no-correlation-id'
         return True
 
@@ -30,7 +32,7 @@ class JSONFormatter(logging.Formatter):
     
     def format(self, record):
         log_obj = {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'level': record.levelname,
             'logger': record.name,
             'message': record.getMessage(),
@@ -282,8 +284,6 @@ def set_correlation_id(correlation_id: str) -> None:
     Args:
         correlation_id: Correlation ID to set
     """
-    import contextvars
-    correlation_id_var = contextvars.ContextVar('correlation_id', default=None)
     correlation_id_var.set(correlation_id)
 
 
@@ -294,8 +294,6 @@ def get_correlation_id() -> Optional[str]:
     Returns:
         Current correlation ID or None
     """
-    import contextvars
-    correlation_id_var = contextvars.ContextVar('correlation_id', default=None)
     return correlation_id_var.get()
 
 

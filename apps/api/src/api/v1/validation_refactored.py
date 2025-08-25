@@ -20,7 +20,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from typing import Optional, Dict, Any, Union
 import io
 import json
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 import os
 import uuid
 from datetime import datetime

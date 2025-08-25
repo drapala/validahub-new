@@ -7,11 +7,12 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
-from ..core.logging_config import get_logger
+from sqlalchemy.exc import SQLAlchemyError
+from core.logging_config import get_logger
 
 from .base_repository import BaseRepository
-from ...models.file import File
-from ...core.result import Result, Ok, Err
+from models.file import File
+from core.result import Result, Ok, Err
 
 logger = get_logger(__name__)
 
@@ -57,9 +58,9 @@ class FileRepository(BaseRepository[File]):
                 desc(File.created_at)
             ).offset(skip).limit(limit).all()
             return Ok(files)
-        except Exception as e:
-            logger.error(f"Failed to find files by job {job_id}: {e}")
-            return Err(str(e))
+        except SQLAlchemyError as e:
+            logger.error(f"Database error finding files by job {job_id}: {e}")
+            return Err("Database error occurred")
     
     def find_by_s3_key(self, s3_key: str) -> Result[Optional[File], str]:
         """
@@ -76,9 +77,9 @@ class FileRepository(BaseRepository[File]):
                 File.s3_key == s3_key
             ).first()
             return Ok(file)
-        except Exception as e:
-            logger.error(f"Failed to find file by S3 key {s3_key}: {e}")
-            return Err(str(e))
+        except SQLAlchemyError as e:
+            logger.error(f"Database error finding file by S3 key {s3_key}: {e}")
+            return Err("Database error occurred")
     
     def find_by_filename(
         self,
@@ -105,9 +106,9 @@ class FileRepository(BaseRepository[File]):
             
             files = query.all()
             return Ok(files)
-        except Exception as e:
-            logger.error(f"Failed to find files by filename {filename}: {e}")
-            return Err(str(e))
+        except SQLAlchemyError as e:
+            logger.error(f"Database error finding files by filename {filename}: {e}")
+            return Err("Database error occurred")
     
     def find_by_content_type(
         self,

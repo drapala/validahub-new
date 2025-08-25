@@ -5,10 +5,10 @@ Queue publisher abstraction for decoupling from specific queue implementations.
 from core.logging_config import get_logger
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Protocol
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
-from ..core.config import QueueConfig
+from core.config import QueueConfig
 
 logger = get_logger(__name__)
 
@@ -196,13 +196,17 @@ class SQSQueuePublisher:
         if not queue_url:
             raise ValueError(f"Unknown queue: {queue}")
         
+        # Generate correlation ID if not provided
+        if not correlation_id:
+            correlation_id = str(uuid.uuid4())
+        
         # Prepare message
         message_body = {
             "task_name": task_name,
             "payload": payload,
             "priority": priority,
-            "correlation_id": correlation_id or str(uuid.uuid4()),
-            "timestamp": datetime.utcnow().isoformat()
+            "correlation_id": correlation_id,
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
         # Send to SQS
@@ -213,7 +217,7 @@ class SQSQueuePublisher:
             MessageAttributes={
                 "task_name": {"StringValue": task_name, "DataType": "String"},
                 "priority": {"StringValue": str(priority), "DataType": "Number"},
-                "correlation_id": {"StringValue": correlation_id or "", "DataType": "String"}
+                "correlation_id": {"StringValue": correlation_id, "DataType": "String"}
             }
         )
         
@@ -267,7 +271,7 @@ class InMemoryQueuePublisher:
             "priority": priority,
             "delay_seconds": delay_seconds,
             "correlation_id": correlation_id,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
         # Insert sorted by priority
@@ -305,3 +309,4 @@ class InMemoryQueuePublisher:
                         'error': None
                     }
         return None
+

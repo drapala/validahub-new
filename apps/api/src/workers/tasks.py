@@ -13,13 +13,13 @@ import io
 
 from .celery_app import celery_app, DatabaseTask, update_job_progress
 from ..services.rule_engine_service import RuleEngineService
-from ..core.pipeline.validation_pipeline import ValidationPipeline
+from core.pipeline.validation_pipeline import ValidationPipeline
 from ..services.csv_validation_service import CSVValidationService
 from ..services.storage_service import get_storage_service
-from ..exceptions import TransientError, MissingParameterError
-from ..telemetry.job_telemetry import get_job_telemetry
-from ..telemetry.metrics import MetricsCollector, ValidationMetrics
-from ..core.config import QueueConfig
+from exceptions import TransientError, MissingParameterError
+from telemetry.job_telemetry import get_job_telemetry
+from telemetry.metrics import MetricsCollector, ValidationMetrics
+from core.config import QueueConfig
 
 logger = get_logger(__name__)
 

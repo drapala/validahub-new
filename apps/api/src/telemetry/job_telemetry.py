@@ -6,7 +6,7 @@ import time
 from core.logging_config import get_logger
 import threading
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .emitter import get_telemetry_emitter
 
@@ -48,7 +48,7 @@ class JobTelemetry:
         """Emit job.queued event when job is added to queue."""
         
         # Track queue time for wait time calculation
-        self._queue_times[job_id] = time.time()
+        self._queue_times[job_id] = time.monotonic()
         
         # Extract context from params
         marketplace = params.get("marketplace", "unknown")
@@ -64,7 +64,7 @@ class JobTelemetry:
             "marketplace": marketplace,
             "category": category,
             "region": region,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "queue": queue,
             "priority": priority
         }
@@ -87,12 +87,12 @@ class JobTelemetry:
         """Emit job.started event."""
         
         # Track start time for latency calculation
-        self._start_times[job_id] = time.time()
+        self._start_times[job_id] = time.monotonic()
         
         # Calculate queue wait time if available
         queue_wait_ms = None
         if job_id in self._queue_times:
-            queue_wait_ms = int((time.time() - self._queue_times[job_id]) * 1000)
+            queue_wait_ms = int((time.monotonic() - self._queue_times[job_id]) * 1000)
             del self._queue_times[job_id]
         
         # Extract context from params
@@ -109,7 +109,7 @@ class JobTelemetry:
             "marketplace": marketplace,
             "category": category,
             "region": region,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "params": params
         }
         
@@ -138,7 +138,7 @@ class JobTelemetry:
         # Calculate latency
         latency_ms = None
         if job_id in self._start_times:
-            latency_ms = int((time.time() - self._start_times[job_id]) * 1000)
+            latency_ms = int((time.monotonic() - self._start_times[job_id]) * 1000)
             del self._start_times[job_id]
             
         # Extract context from result or use defaults
@@ -170,7 +170,7 @@ class JobTelemetry:
             "marketplace": marketplace,
             "category": category,
             "region": region,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": all_metrics,
             "result_summary": {
                 "status": result.get("status", "success"),
@@ -198,7 +198,7 @@ class JobTelemetry:
         # Calculate latency if available
         latency_ms = None
         if job_id in self._start_times:
-            latency_ms = int((time.time() - self._start_times[job_id]) * 1000)
+            latency_ms = int((time.monotonic() - self._start_times[job_id]) * 1000)
             # Keep start time for potential retry
             
         # Extract context
@@ -215,7 +215,7 @@ class JobTelemetry:
             "marketplace": marketplace,
             "category": category,
             "region": region,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "error": {
                 "type": error.__class__.__name__,
                 "message": str(error)
@@ -258,7 +258,7 @@ class JobTelemetry:
             "marketplace": marketplace,
             "category": category,
             "region": region,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "retry_count": retry_count,
             "max_retries": max_retries,
             "error": {
@@ -299,7 +299,7 @@ class JobTelemetry:
             "marketplace": marketplace,
             "category": category,
             "region": region,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "progress": progress,
             "message": message
         }

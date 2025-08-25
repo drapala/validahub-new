@@ -10,7 +10,7 @@ from pathlib import Path
 from datetime import datetime
 import aiofiles
 
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 from .events import BaseEvent
 
 logger = get_logger(__name__)

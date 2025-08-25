@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 from enum import Enum
 
-from ...schemas.job import (
+from schemas.job import (
     JobCreate, 
     JobOut, 
     JobResultOut,

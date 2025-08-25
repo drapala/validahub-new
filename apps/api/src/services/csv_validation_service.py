@@ -8,8 +8,8 @@ from typing import Dict, Any, Optional, Tuple
 import pandas as pd
 import io
 
-from ..services.rule_engine_service import RuleEngineService
-from ..core.pipeline.validation_pipeline import ValidationPipeline
+from .rule_engine_service import RuleEngineService
+from core.pipeline.validation_pipeline import ValidationPipeline
 
 logger = get_logger(__name__)
 
@@ -32,7 +32,7 @@ class CSVValidationService:
         category: str = "general",
         ruleset: str = "default",
         auto_fix: bool = False
-    ) -> Dict[str, Any]:
+    ) -> Tuple[Dict[str, Any], Optional[str]]:
         """
         Validate CSV content and return results.
         
@@ -42,63 +42,100 @@ class CSVValidationService:
             category: Product category
             ruleset: Ruleset to apply
             auto_fix: Whether to apply auto-corrections
-            
+        
         Returns:
-            Dictionary with validation results and optional corrections
+            Tuple of (validation_result dict, corrected_csv string or None)
         """
         
-        # Parse CSV
-        df = pd.read_csv(io.StringIO(csv_content))
-        total_rows = len(df)
+        if not csv_content:
+            return {"total_rows": 0, "valid_rows": 0, "error_rows": 0, "errors": [], "warnings": []}, None
         
-        logger.info(f"Validating CSV with {total_rows} rows for {marketplace}/{category}")
-        
-        # Perform validation
-        result = self.pipeline.validate(
-            data=df,
-            marketplace=marketplace,
-            category=category,
-            auto_fix=auto_fix
-        )
-        
-        # Build response
-        validation_result = {
-            "total_rows": result.total_rows,
-            "valid_rows": result.valid_rows,
-            "error_rows": result.error_rows,
-            "warning_rows": result.warning_rows,
-            "errors": [
-                {
-                    "row": err.row,
-                    "field": err.field,
-                    "value": err.value,
-                    "rule": err.rule,
-                    "message": err.message,
-                    "severity": err.severity
-                }
-                for err in result.errors
-            ],
-            "warnings": [
-                {
-                    "row": warn.row,
-                    "field": warn.field,
-                    "value": warn.value,
-                    "rule": warn.rule,
-                    "message": warn.message
-                }
-                for warn in result.warnings
-            ]
-        }
-        
-        # Add corrected data if auto_fix was enabled
-        corrected_csv = None
-        if auto_fix and result.corrected_data is not None:
-            corrected_csv = result.corrected_data.to_csv(index=False)
-            validation_result["has_corrections"] = True
-        else:
-            validation_result["has_corrections"] = False
+        try:
+            # Parse CSV
+            df = pd.read_csv(io.StringIO(csv_content))
             
-        return validation_result, corrected_csv
+            if df.empty:
+                return {
+                    "total_rows": 0,
+                    "valid_rows": 0,
+                    "error_rows": 0,
+                    "errors": [],
+                    "warnings": []
+                }, None
+            
+            logger.info(f"Validating CSV with {len(df)} rows for {marketplace}/{category}")
+            
+            # Convert string to enum if needed
+            from schemas.validate import Marketplace, Category
+            try:
+                marketplace_enum = Marketplace[marketplace.upper()] if isinstance(marketplace, str) else marketplace
+            except (KeyError, AttributeError):
+                marketplace_enum = Marketplace.MERCADO_LIVRE  # Default
+            
+            try:
+                category_enum = Category[category.upper()] if isinstance(category, str) else category
+            except (KeyError, AttributeError):
+                category_enum = None
+            
+            # Perform validation
+            result = self.pipeline.validate(
+                df=df,
+                marketplace=marketplace_enum,
+                category=category_enum,
+                auto_fix=auto_fix
+            )
+            
+            # Extract errors and warnings from validation items
+            errors = []
+            warnings = []
+            
+            for item in result.validation_items:
+                for error in item.errors:
+                    if error.severity == "ERROR":
+                        errors.append({
+                            "row": item.row_number,
+                            "field": error.field,
+                            "value": error.value,
+                            "rule": error.code,
+                            "message": error.message,
+                            "severity": error.severity
+                        })
+                    elif error.severity == "WARNING":
+                        warnings.append({
+                            "row": item.row_number,
+                            "field": error.field,
+                            "value": error.value,
+                            "rule": error.code,
+                            "message": error.message
+                        })
+            
+            # Build response
+            validation_result = {
+                "total_rows": result.total_rows,
+                "valid_rows": result.valid_rows,
+                "error_rows": result.error_rows,
+                "warning_rows": len(set(w["row"] for w in warnings)),
+                "errors": errors,
+                "warnings": warnings,
+                "has_corrections": result.auto_fix_applied and result.corrected_data is not None
+            }
+            
+            # Add corrected data if auto_fix was enabled
+            corrected_csv = None
+            if result.auto_fix_applied and result.corrected_data is not None:
+                corrected_csv = result.corrected_data.to_csv(index=False)
+            
+            return validation_result, corrected_csv
+            
+        except Exception as e:
+            logger.error(f"Error validating CSV: {e}")
+            return {
+                "total_rows": 0,
+                "valid_rows": 0,
+                "error_rows": 0,
+                "errors": [{"message": str(e), "severity": "ERROR"}],
+                "warnings": []
+            }, None
     
     def calculate_metrics(
         self,

@@ -8,7 +8,7 @@ from datetime import datetime
 from uuid import UUID
 import enum
 
-from ..models.job import JobStatus, JobPriority
+from models.job import JobStatus, JobPriority
 
 
 class JobPlan(str, enum.Enum):

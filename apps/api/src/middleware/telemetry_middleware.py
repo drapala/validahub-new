@@ -9,9 +9,9 @@ from starlette.types import ASGIApp
 import time
 import asyncio
 
-from ..core.logging_config import get_logger
-from ..telemetry.telemetry_service import get_telemetry_service
-from ..telemetry.events import EventType
+from core.logging_config import get_logger
+from telemetry.telemetry_service import get_telemetry_service
+from telemetry.events import EventType
 
 logger = get_logger(__name__)
 
@@ -73,7 +73,7 @@ class TelemetryMiddleware(BaseHTTPMiddleware):
             self.telemetry.set_context(user_id=user_id)
         
         # Track request start
-        start_time = time.time()
+        start_time = time.monotonic()
         
         # Emit request event
         await self.telemetry.emit_api_request(
@@ -104,7 +104,7 @@ class TelemetryMiddleware(BaseHTTPMiddleware):
             raise
         finally:
             # Calculate response time
-            response_time_ms = int((time.time() - start_time) * 1000)
+            response_time_ms = int((time.monotonic() - start_time) * 1000)
             
             # Emit response event
             if response:
@@ -178,8 +178,8 @@ class PerformanceTrackingMiddleware(BaseHTTPMiddleware):
                 # Get system metrics
                 import psutil
                 
-                # CPU usage
-                cpu_percent = psutil.cpu_percent(interval=1)
+                # CPU usage - use non-blocking approach
+                cpu_percent = await asyncio.to_thread(psutil.cpu_percent, interval=0.1)
                 await self.telemetry.emit_performance_metric(
                     metric_name="cpu_usage",
                     metric_value=cpu_percent,
@@ -240,13 +240,13 @@ class PerformanceTrackingMiddleware(BaseHTTPMiddleware):
         self.concurrent_requests += 1
         
         # Track timing
-        start_time = time.time()
+        start_time = time.monotonic()
         
         try:
             response = await call_next(request)
             
             # Update metrics
-            response_time_ms = (time.time() - start_time) * 1000
+            response_time_ms = (time.monotonic() - start_time) * 1000
             self.request_count += 1
             self.total_response_time += response_time_ms
             

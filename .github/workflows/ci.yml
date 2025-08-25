@@ -93,7 +93,10 @@ jobs:
         NEXT_PUBLIC_MOCK: "1"
       run: |
         pnpm run test:ci
-        cd apps/api && pip install pytest-cov && pytest -v --cov=src --cov-report=xml --cov-report=term-missing
+        cd apps/api
+        find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+        pip install pytest-cov
+        pytest -v --cov=src --cov-report=xml --cov-report=term-missing
     
     - name: Build applications
       env:

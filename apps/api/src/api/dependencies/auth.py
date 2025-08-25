@@ -3,17 +3,119 @@ Authentication dependencies for API endpoints.
 """
 
 import os
-from ..core.logging_config import get_logger
-from typing import Optional
+import jwt
+from core.logging_config import get_logger
+from typing import Optional, Dict, Any
 from fastapi import HTTPException, status, Request, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from datetime import datetime, timezone, timedelta
 
 logger = get_logger(__name__)
+
+# Security scheme for JWT Bearer authentication
+security = HTTPBearer(auto_error=False)
 
 # Get environment at module level for safety checks
 ENV = os.environ.get("ENV", "development").lower()
 
 
-def get_current_user_id(request: Request) -> str:
+def verify_jwt_token(token: str) -> Dict[str, Any]:
+    """
+    Verify and decode JWT token.
+    
+    Args:
+        token: JWT token string
+    
+    Returns:
+        Dict containing token claims
+    
+    Raises:
+        HTTPException: If token is invalid or expired
+    """
+    # Get JWT algorithm from environment (default to HS256 for backward compatibility)
+    jwt_algorithm = os.environ.get("JWT_ALGORITHM", "HS256")
+    
+    # Validate algorithm choice
+    if jwt_algorithm not in ["HS256", "RS256"]:
+        logger.error(f"Invalid JWT algorithm configured: {jwt_algorithm}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Invalid JWT algorithm configuration"
+        )
+    
+    # Get the appropriate key based on algorithm
+    if jwt_algorithm == "HS256":
+        # Symmetric algorithm - use secret key
+        jwt_key = os.environ.get("JWT_SECRET")
+        if not jwt_key and ENV == "production":
+            logger.error("JWT_SECRET not configured in production")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Authentication configuration error"
+            )
+        # Use a default secret for development (NOT for production!)
+        if not jwt_key:
+            jwt_key = "development-secret-key-not-for-production"
+    else:  # RS256
+        # Asymmetric algorithm - use public key
+        jwt_key = os.environ.get("JWT_PUBLIC_KEY")
+        if not jwt_key:
+            logger.error("JWT_PUBLIC_KEY not configured for RS256 algorithm")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="JWT public key not configured"
+            )
+    
+    try:
+        # Decode and verify the token with only the configured algorithm
+        payload = jwt.decode(
+            token,
+            jwt_key,
+            algorithms=[jwt_algorithm],
+            options={"verify_exp": True}
+        )
+        
+        # Verify token has required fields
+        if "sub" not in payload:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token: missing subject"
+            )
+        
+        # Check if token is not expired (redundant but explicit)
+        if "exp" in payload:
+            exp_timestamp = payload["exp"]
+            if datetime.fromtimestamp(exp_timestamp, tz=timezone.utc) < datetime.now(timezone.utc):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Token has expired"
+                )
+        
+        return payload
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired"
+        )
+    except jwt.InvalidTokenError as e:
+        logger.warning(f"Invalid token: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+    except Exception as e:
+        logger.error(f"Token verification error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed"
+        )
+
+
+def get_current_user_id(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+) -> str:
     """
     Get current user ID from authentication context.
     
@@ -66,35 +168,51 @@ def get_current_user_id(request: Request) -> str:
         logger.debug(f"Using mock user ID: {mock_user_id}")
         return mock_user_id
     
-    # TODO: Implement proper authentication for production
-    # This should:
-    # 1. Extract and validate JWT/API key from request headers
-    # 2. Verify token signature and expiration
-    # 3. Extract user ID from token claims
-    # 4. Optional: Check user permissions/roles
+    # Production authentication using JWT
+    if ENV == "production" or os.environ.get("USE_JWT_AUTH") == "true":
+        # Require bearer token in production
+        if not credentials:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        
+        # Verify and decode the JWT token
+        try:
+            payload = verify_jwt_token(credentials.credentials)
+            user_id = payload.get("sub")  # Subject claim contains user ID
+            
+            if not user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token: no user ID"
+                )
+            
+            # Store user info in request state for logging/telemetry
+            if hasattr(request, "state"):
+                request.state.user_id = user_id
+                request.state.user_claims = payload
+            
+            logger.debug(f"Authenticated user: {user_id}")
+            return user_id
+            
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Authentication error: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication failed"
+            )
     
-    # Additional safety check: Ensure this code is not running in production
-    # This will cause the application to fail fast if deployed without proper auth
-    if ENV == "production" and not os.environ.get("PRODUCTION_AUTH_IMPLEMENTED"):
-        import sys
-        logger.critical(
-            "CRITICAL: Production deployment detected without proper authentication! "
-            "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
+    # If we reach here in production without auth, it's a configuration error
+    if ENV == "production":
+        logger.critical("Production environment detected without authentication configured")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Authentication not configured"
         )
-        logger.critical(
-            "CRITICAL: Production deployment detected without proper authentication! "
-            "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
-        )
-        raise RuntimeError(
-            "Production deployment detected without proper authentication! "
-            "Set PRODUCTION_AUTH_IMPLEMENTED=true ONLY after implementing real authentication."
-        )
-    
-    # For now, raise an HTTP error to prevent unintentional production use
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Authentication not implemented for production. Please implement proper authentication before deploying to production."
-    )
 
 
 def get_optional_user_id(request: Request) -> Optional[str]:
@@ -131,3 +249,4 @@ def require_admin_user(request: Request) -> str:
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Admin access required"
     )
+

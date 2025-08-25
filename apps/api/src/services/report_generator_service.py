@@ -16,7 +16,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -186,10 +186,16 @@ class ReportGeneratorService:
             
             for cell in column:
                 try:
-                    if len(str(cell.value)) > max_length:
+                    if cell.value is not None and len(str(cell.value)) > max_length:
                         max_length = len(str(cell.value))
-                except:
+                except (ValueError, TypeError, AttributeError) as e:
+                    # Log the error but continue processing
+                    logger.debug(f"Error processing cell value for width calculation: {e}")
                     pass
+            
+            # If all cells failed or column is empty, set a reasonable default width
+            if max_length == 0:
+                max_length = 10  # Default width if no valid cell values
             
             adjusted_width = min(max_length + 2, 50)
             worksheet.column_dimensions[column_letter].width = adjusted_width

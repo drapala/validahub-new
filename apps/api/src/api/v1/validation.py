@@ -185,21 +185,28 @@ async def validate_csv_v2(
         content = await file.read()
         csv_str = content.decode('utf-8', errors='replace')
         
-        # Parse CSV to DataFrame
-        df = pd.read_csv(io.StringIO(csv_str))
+        # Define synchronous processing function
+        def process_csv():
+            # Parse CSV to DataFrame
+            df = pd.read_csv(io.StringIO(csv_str))
+            
+            # Handle NaN and inf values right after reading
+            import numpy as np
+            df = df.replace([np.inf, -np.inf], None)
+            df = df.where(pd.notnull(df), None)
+            
+            # Validate using pipeline
+            result = validation_pipeline.validate(
+                df=df,
+                marketplace=marketplace,
+                category=category,
+                auto_fix=auto_fix
+            )
+            return result
         
-        # Handle NaN and inf values right after reading
-        import numpy as np
-        df = df.replace([np.inf, -np.inf], None)
-        df = df.where(pd.notnull(df), None)
-        
-        # Validate using pipeline
-        result = validation_pipeline.validate(
-            df=df,
-            marketplace=marketplace,
-            category=category,
-            auto_fix=auto_fix
-        )
+        # Run CPU-intensive processing in thread pool
+        import asyncio
+        result = await asyncio.to_thread(process_csv)
         
         # Add job_id for tracking
         result.job_id = str(uuid.uuid4())
@@ -423,28 +430,34 @@ async def correct_csv_v2(
         content = await file.read()
         csv_str = content.decode('utf-8', errors='replace')
         
-        # Parse CSV to DataFrame
-        df = pd.read_csv(io.StringIO(csv_str))
+        # Define synchronous processing function
+        def process_and_fix_csv():
+            # Parse CSV to DataFrame
+            df = pd.read_csv(io.StringIO(csv_str))
+            
+            # Handle NaN and inf values right after reading
+            import numpy as np
+            df = df.replace([np.inf, -np.inf], None)
+            df = df.where(pd.notnull(df), None)
+            
+            # Validate and fix using pipeline
+            result = validation_pipeline.validate(
+                df=df,
+                marketplace=marketplace,
+                category=category,
+                auto_fix=True  # Always fix for this endpoint
+            )
+            
+            # Convert corrected DataFrame to CSV
+            if result.corrected_data is not None:
+                corrected_csv = result.corrected_data.to_csv(index=False)
+            else:
+                # If no corrections, return original
+                corrected_csv = csv_str
+            return result, corrected_csv
         
-        # Handle NaN and inf values right after reading
-        import numpy as np
-        df = df.replace([np.inf, -np.inf], None)
-        df = df.where(pd.notnull(df), None)
-        
-        # Validate and fix using pipeline
-        result = validation_pipeline.validate(
-            df=df,
-            marketplace=marketplace,
-            category=category,
-            auto_fix=True  # Always fix for this endpoint
-        )
-        
-        # Convert corrected DataFrame to CSV
-        if result.corrected_data is not None:
-            corrected_csv = result.corrected_data.to_csv(index=False)
-        else:
-            # If no corrections, return original
-            corrected_csv = csv_str
+        # Run CPU-intensive processing in thread pool
+        result, corrected_csv = await asyncio.to_thread(process_and_fix_csv)
         
         # Create response with corrected CSV
         output = io.BytesIO(corrected_csv.encode('utf-8'))

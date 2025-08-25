@@ -1,0 +1,188 @@
+# Mercado Livre - Celulares e Smartphones
+version: "2024.08.25"
+marketplace: MLB
+category_id: MLB1743
+category_name: "Celulares e Smartphones"
+effective_date: 2024-08-25T00:00:00Z
+deprecated_after: null
+source:
+  api: "https://api.mercadolibre.com/categories/MLB1743/attributes"
+  docs: "https://developers.mercadolivre.com.br/pt_br/categorias-e-atributos"
+  last_fetched: 2024-08-25T03:00:00Z
+
+rules:
+  title:
+    required: true
+    min_length: 10
+    max_length: 60
+    forbidden_chars: ["@", "#", "$", "%", "&", "*"]
+    transform: trim
+    
+  description:
+    required: false
+    min_length: 20
+    max_length: 5000
+    forbidden_chars: ["<", ">", "script"]
+    
+  price:
+    required: true
+    min_value: 1.00
+    max_value: 999999.99
+    decimal_places: 2
+    currency: BRL
+    
+  stock:
+    required: true
+    min_value: 0
+    max_value: 99999
+    decimal_places: 0
+    
+  brand:
+    required: true
+    enum_values:
+      - SAMSUNG
+      - APPLE
+      - MOTOROLA
+      - XIAOMI
+      - LG
+      - NOKIA
+      - ASUS
+      - HUAWEI
+      - SONY
+      - LENOVO
+      - POSITIVO
+      - MULTILASER
+      - TCL
+      - REALME
+      - OPPO
+      - VIVO
+      - ONEPLUS
+      - GOOGLE
+      - OUTROS
+    case_sensitive: false
+    
+  condition:
+    required: true
+    enum_values: ["new", "used", "refurbished"]
+    
+  pictures:
+    required: true
+    min_count: 1
+    max_count: 10
+    max_size_mb: 10
+    formats: ["jpg", "jpeg", "png", "webp"]
+    min_dimensions:
+      width: 500
+      height: 500
+    max_dimensions:
+      width: 3000
+      height: 3000
+      
+  gtin:
+    required: false
+    types: ["EAN-13", "UPC-A"]
+    validate_checksum: true
+    
+  sku:
+    required: true
+    min_length: 1
+    max_length: 100
+    pattern: "^[A-Za-z0-9_-]+$"
+
+custom_attributes:
+  MODEL:
+    required: true
+    type: string
+    max_length: 50
+    pattern: "^[A-Za-z0-9 _-]+$"
+    
+  STORAGE_CAPACITY:
+    required: true
+    type: enum
+    values:
+      - "8GB"
+      - "16GB"
+      - "32GB"
+      - "64GB"
+      - "128GB"
+      - "256GB"
+      - "512GB"
+      - "1TB"
+      
+  RAM_MEMORY:
+    required: false
+    type: enum
+    values:
+      - "512MB"
+      - "1GB"
+      - "2GB"
+      - "3GB"
+      - "4GB"
+      - "6GB"
+      - "8GB"
+      - "12GB"
+      - "16GB"
+      
+  COLOR:
+    required: true
+    type: string
+    max_length: 30
+    
+  OPERATING_SYSTEM:
+    required: false
+    type: enum
+    values:
+      - "Android"
+      - "iOS"
+      - "Windows Phone"
+      - "KaiOS"
+      - "Outro"
+      
+  NETWORK_TYPE:
+    required: false
+    type: enum
+    values:
+      - "2G"
+      - "3G"
+      - "4G"
+      - "5G"
+      
+  DUAL_SIM:
+    required: false
+    type: boolean
+    
+  SCREEN_SIZE:
+    required: false
+    type: string
+    pattern: "^\\d+(\\.\\d+)?\"?$"
+    
+  BATTERY_CAPACITY:
+    required: false
+    type: string
+    pattern: "^\\d+ ?mAh$"
+
+error_codes:
+  MLB_TITLE_TOO_SHORT: "O título deve ter pelo menos 10 caracteres"
+  MLB_TITLE_TOO_LONG: "O título não pode exceder 60 caracteres"
+  MLB_TITLE_FORBIDDEN_CHARS: "O título contém caracteres não permitidos"
+  MLB_PRICE_INVALID: "O preço deve estar entre R$ 1,00 e R$ 999.999,99"
+  MLB_PRICE_DECIMAL: "O preço deve ter no máximo 2 casas decimais"
+  MLB_BRAND_NOT_RECOGNIZED: "Marca não reconhecida para esta categoria"
+  MLB_CONDITION_INVALID: "Condição deve ser: new, used ou refurbished"
+  MLB_PICTURES_REQUIRED: "Pelo menos uma imagem é obrigatória"
+  MLB_PICTURES_TOO_MANY: "Máximo de 10 imagens permitido"
+  MLB_PICTURE_SIZE_EXCEEDED: "Imagem não pode exceder 10MB"
+  MLB_PICTURE_DIMENSION_TOO_SMALL: "Imagem deve ter pelo menos 500x500 pixels"
+  MLB_SKU_INVALID_CHARS: "SKU contém caracteres inválidos"
+  MLB_MODEL_REQUIRED: "Modelo do aparelho é obrigatório"
+  MLB_STORAGE_REQUIRED: "Capacidade de armazenamento é obrigatória"
+  MLB_COLOR_REQUIRED: "Cor do aparelho é obrigatória"
+  MLB_GTIN_INVALID_CHECKSUM: "Código de barras inválido (checksum incorreto)"
+
+warnings:
+  MLB_DESCRIPTION_MISSING: "Descrição melhora a conversão de vendas"
+  MLB_GTIN_MISSING: "Código de barras ajuda na indexação"
+  MLB_RAM_MISSING: "Memória RAM é informação importante para compradores"
+  MLB_OS_MISSING: "Sistema operacional ajuda na busca"
+  MLB_BRAND_OTHER: "Marca 'OUTROS' pode reduzir visibilidade"
+  MLB_LOW_IMAGE_COUNT: "Mais imagens aumentam a taxa de conversão"

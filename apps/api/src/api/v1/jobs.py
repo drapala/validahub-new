@@ -2,7 +2,7 @@
 Job queue API endpoints.
 """
 
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 from typing import Optional
 from uuid import UUID
 from fastapi import (
@@ -105,7 +105,7 @@ async def create_job(
         logger.error(f"Error creating job: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail="An error occurred while creating the job. Please try again later."
         )
 
 
@@ -140,7 +140,7 @@ async def get_job_status(
         logger.error(f"Error getting job {job_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail="An error occurred while retrieving the job. Please try again later."
         )
 
 
@@ -179,7 +179,7 @@ async def get_job_result(
         logger.error(f"Error getting job result {job_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail="An error occurred while retrieving the job result. Please try again later."
         )
 
 
@@ -219,7 +219,7 @@ async def cancel_job(
         logger.error(f"Error cancelling job {job_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail="An error occurred while cancelling the job. Please try again later."
         )
 
 
@@ -283,5 +283,5 @@ async def list_jobs(
         logger.error(f"Error listing jobs: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail="An error occurred while listing jobs. Please try again later."
         )
