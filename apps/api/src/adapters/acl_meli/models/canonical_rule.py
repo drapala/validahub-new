@@ -6,7 +6,7 @@ This model represents the normalized format for all marketplace rules.
 from enum import Enum
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class RuleType(str, Enum):
@@ -48,8 +48,9 @@ class RuleCondition(BaseModel):
     operator: str = Field(..., description="Comparison operator (==, !=, >, <, >=, <=, in, not_in)")
     value: Any = Field(..., description="Value to compare against")
     
-    @validator('operator')
-    def validate_operator(cls, v):
+    @field_validator('operator')
+    @classmethod
+    def validate_operator(cls, v: str) -> str:
         valid_operators = ['==', '!=', '>', '<', '>=', '<=', 'in', 'not_in', 'contains', 'starts_with', 'ends_with']
         if v not in valid_operators:
             raise ValueError(f"Invalid operator: {v}. Must be one of {valid_operators}")
@@ -135,18 +136,28 @@ class CanonicalRule(BaseModel):
             
             elif self.rule_type == RuleType.MIN_LENGTH:
                 min_len = self.params.get("min_length", 0)
-                is_valid = len(str(value)) >= min_len if value else False
+                # Handle None separately from empty string
+                if value is None:
+                    return False, self.message or f"{self.field_name} must have at least {min_len} characters"
+                is_valid = len(str(value)) >= min_len
                 return is_valid, None if is_valid else (self.message or f"{self.field_name} must have at least {min_len} characters")
             
             elif self.rule_type == RuleType.MAX_LENGTH:
                 max_len = self.params.get("max_length", float('inf'))
-                is_valid = len(str(value)) <= max_len if value else True
+                # None is considered valid for max_length
+                if value is None:
+                    return True, None
+                is_valid = len(str(value)) <= max_len
                 return is_valid, None if is_valid else (self.message or f"{self.field_name} must have at most {max_len} characters")
             
             elif self.rule_type == RuleType.PATTERN:
                 import re
                 pattern = self.params.get("pattern", ".*")
-                is_valid = bool(re.match(pattern, str(value))) if value else False
+                # Handle None separately
+                if value is None:
+                    return False, self.message or f"{self.field_name} does not match required pattern"
+                # Use fullmatch to ensure entire string matches pattern
+                is_valid = bool(re.fullmatch(pattern, str(value)))
                 return is_valid, None if is_valid else (self.message or f"{self.field_name} does not match required pattern")
             
             elif self.rule_type == RuleType.ENUM:
@@ -156,12 +167,18 @@ class CanonicalRule(BaseModel):
             
             elif self.rule_type == RuleType.MIN_VALUE:
                 min_val = self.params.get("min_value", float('-inf'))
-                is_valid = float(value) >= min_val if value else False
+                # Handle None separately, but allow 0 and other falsy numeric values
+                if value is None:
+                    return False, self.message or f"{self.field_name} must be at least {min_val}"
+                is_valid = float(value) >= min_val
                 return is_valid, None if is_valid else (self.message or f"{self.field_name} must be at least {min_val}")
             
             elif self.rule_type == RuleType.MAX_VALUE:
                 max_val = self.params.get("max_value", float('inf'))
-                is_valid = float(value) <= max_val if value else True
+                # None is considered valid for max_value
+                if value is None:
+                    return True, None
+                is_valid = float(value) <= max_val
                 return is_valid, None if is_valid else (self.message or f"{self.field_name} must be at most {max_val}")
             
             elif self.rule_type == RuleType.CUSTOM:

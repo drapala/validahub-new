@@ -204,7 +204,12 @@ class MeliClient:
             
             # Parse response
             if response.status_code >= 400:
-                error_data = response.json() if response.content else {}
+                # Safely parse JSON error response
+                try:
+                    error_data = response.json() if response.content else {}
+                except (ValueError, TypeError):
+                    error_data = {"message": response.text or "Unknown error"}
+                
                 # Raise exception for retry logic to work
                 # Don't retry on client errors (4xx), only on server errors (5xx)
                 if response.status_code >= 500:
@@ -221,9 +226,16 @@ class MeliClient:
                     headers=dict(response.headers)
                 )
             
+            # Safely parse successful response
+            try:
+                data = response.json() if response.content else None
+            except (ValueError, TypeError):
+                # If response is not JSON, return raw text
+                data = response.text if response.content else None
+            
             return MeliApiResponse(
                 status=response.status_code,
-                data=response.json() if response.content else None,
+                data=data,
                 headers=dict(response.headers)
             )
             
