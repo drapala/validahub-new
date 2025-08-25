@@ -82,12 +82,10 @@ def get_validation_pipeline(
 
 def get_validate_csv_use_case(
     validator: IValidator = Depends(get_validator),
-    rule_engine_service: IRuleEngineService = Depends(get_rule_engine_service),
 ) -> ValidateCsvUseCase:
     """Factory for validate CSV use case."""
     return ValidateCsvUseCase(
         validator=validator,
-        rule_engine_service=rule_engine_service,
     )
 
 

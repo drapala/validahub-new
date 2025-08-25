@@ -15,7 +15,6 @@ from .base import UseCase
 from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
 from utils import DataFrameUtils
 from core.interfaces.validation import IValidator
-from core.interfaces.rule_engine import IRuleEngineService
 from ...schemas.validate import (
     ValidationResult,
     Marketplace,
@@ -50,10 +49,9 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
     without any knowledge of HTTP, file I/O, or other infrastructure concerns.
     """
     
-    def __init__(self, validator: IValidator, rule_engine_service: IRuleEngineService):
-        """Initialize the use case with injected dependencies."""
+    def __init__(self, validator: IValidator):
+        """Initialize the use case with injected validator."""
         self.validator = validator
-        self.rule_engine_service = rule_engine_service
         self.validation_pipeline = ValidationPipelineDecoupled(validator)
     
     async def execute(self, input_data: ValidateCsvInput) -> ValidationResult:
