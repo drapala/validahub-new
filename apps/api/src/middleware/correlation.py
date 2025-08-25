@@ -90,6 +90,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             while client_window and client_window[0] < window_start:
                 client_window.popleft()
             
+            # Clean up empty windows to prevent memory leak
+            if not client_window and client_id in self.request_windows:
+                del self.request_windows[client_id]
+                # Re-create if this is a new request after cleanup
+                client_window = self.request_windows[client_id]
+            
             # Check if rate limit exceeded
             if len(client_window) >= self.rate_limit:
                 # Calculate when the oldest request will expire
