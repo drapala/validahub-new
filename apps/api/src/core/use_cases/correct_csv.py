@@ -12,7 +12,7 @@ import pandas as pd
 
 from .base import UseCase
 from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
-from utils import DataFrameUtils
+from ..utils import DataFrameUtils
 from ...schemas.validate import (
     Category,
     Marketplace,
