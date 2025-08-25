@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-import sys
 import json
 from pathlib import Path
-
-# Adicionar libs ao path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'libs'))
 
 from rule_engine import RuleEngine, load_ruleset
 

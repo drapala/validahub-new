@@ -10,12 +10,6 @@ import yaml
 from typing import Dict, Optional, List
 from dataclasses import dataclass
 
-# TODO: Replace with proper import once libs is properly packaged
-import sys
-from pathlib import Path
-libs_path = Path(__file__).parent.parent.parent.parent.parent.parent / "libs"
-if str(libs_path) not in sys.path:
-    sys.path.insert(0, str(libs_path))
 from rule_engine import RuleEngine
 
 from ..loaders.rule_loader import RuleLoader, RuleLoaderConfig

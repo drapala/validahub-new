@@ -6,7 +6,7 @@ from typing import List
 import tempfile
 import shutil
 
-from tests.golden.golden_runner import run_golden_case, discover_cases, load_spec
+from .golden_runner import run_golden_case, discover_cases, load_spec
 
 
 def pytest_configure(config):

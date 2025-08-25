@@ -1,3 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "validahub-rule-engine"
+version = "0.1.0"
+description = "Rule engine library"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["libs"]
+include = ["rule_engine"]
+
 [tool.black]
 line-length = 100
 target-version = ['py311']
