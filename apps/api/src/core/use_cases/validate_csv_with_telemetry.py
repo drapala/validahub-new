@@ -8,7 +8,7 @@ import hashlib
 from pathlib import Path
 
 from ..pipeline.validation_pipeline_decoupled_optimized import ValidationPipelineDecoupledOptimized
-from ..interfaces import IValidator
+from interfaces import IValidator
 from ...telemetry.telemetry_service import get_telemetry_service
 from ...telemetry.events import EventType, EventSeverity
 from ...core.logging_config import get_logger

@@ -1,0 +1,48 @@
+name: Diff Coverage Check
+
+on:
+  pull_request:
+    paths:
+      - 'apps/api/**/*.py'
+      - 'apps/api/tests/**'
+
+jobs:
+  diff-coverage:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Full history for diff
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        cd apps/api
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov diff-cover
+    
+    - name: Run tests with coverage
+      run: |
+        cd apps/api
+        python -m pytest tests/ --cov=src --cov-report=xml --cov-report=term
+    
+    - name: Generate diff coverage report
+      run: |
+        cd apps/api
+        diff-cover coverage.xml --compare-branch=origin/main --fail-under=85
+    
+    - name: Comment PR with coverage
+      if: always()
+      uses: py-cov-action/python-coverage-comment-action@v3
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MINIMUM_GREEN: 85
+        MINIMUM_ORANGE: 70
+        ANNOTATE_MISSING_LINES: true
+        ANNOTATION_TYPE: warning

@@ -3,7 +3,7 @@ Mapper for converting between rule engine results and API validation items.
 This separates result transformation logic from business logic.
 """
 
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 from typing import Optional, Dict, Any, List
 
 # TODO: Replace with proper import once libs is properly packaged

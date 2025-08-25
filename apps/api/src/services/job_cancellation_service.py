@@ -7,13 +7,13 @@ import uuid
 from typing import Optional
 from datetime import datetime, timezone
 
-from ..core.logging_config import get_logger
-from ..schemas.job import JobOut
-from ..models.job import Job, JobStatus
-from ..core.result import Result, Ok, Err, JobError
-from ..infrastructure.repositories.job_repository import JobRepository
-from ..infrastructure.queue_publisher import QueuePublisher
-from ..telemetry.telemetry_service import TelemetryService
+from core.logging_config import get_logger
+from schemas.job import JobOut
+from models.job import Job, JobStatus
+from core.result import Result, Ok, Err, JobError
+from infrastructure.repositories.job_repository import JobRepository
+from infrastructure.queue_publisher import QueuePublisher
+from telemetry.telemetry_service import TelemetryService
 
 logger = get_logger(__name__)
 

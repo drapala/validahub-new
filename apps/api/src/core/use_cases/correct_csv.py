@@ -5,14 +5,14 @@ Handles domain logic for automatic CSV corrections.
 
 import io
 import uuid
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 from typing import Optional, Dict, Any
 from dataclasses import dataclass
 import pandas as pd
 
 from .base import UseCase
 from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
-from ..utils import DataFrameUtils
+from utils import DataFrameUtils
 from ...infrastructure.validators.rule_engine_validator import RuleEngineValidator
 from ...services.rule_engine_service import RuleEngineService
 from ...schemas.validate import (

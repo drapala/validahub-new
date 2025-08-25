@@ -12,9 +12,9 @@ from .rule_engine_service_refactored import (
     RuleEngineServiceRefactored,
     RuleEngineServiceConfig
 )
-from ..infrastructure.loaders.rule_loader import RuleLoaderConfig
-from ..infrastructure.factories.rule_engine_factory import RuleEngineFactoryConfig
-from ..schemas.validate import ValidationItem
+from infrastructure.loaders.rule_loader import RuleLoaderConfig
+from infrastructure.factories.rule_engine_factory import RuleEngineFactoryConfig
+from schemas.validate import ValidationItem
 
 logger = get_logger(__name__)
 

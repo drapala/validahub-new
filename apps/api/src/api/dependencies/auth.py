@@ -3,7 +3,7 @@ Authentication dependencies for API endpoints.
 """
 
 import os
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 from typing import Optional
 from fastapi import HTTPException, status, Request, Depends
 

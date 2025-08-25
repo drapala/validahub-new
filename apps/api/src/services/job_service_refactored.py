@@ -6,17 +6,17 @@ Delegates to specialized services following Single Responsibility Principle.
 from typing import Optional, Tuple, List
 from sqlalchemy.orm import Session
 
-from ..core.logging_config import get_logger
-from ..schemas.job import (
+from core.logging_config import get_logger
+from schemas.job import (
     JobCreate, JobOut, JobResultOut, JobListQuery,
     JobListResponse, JobStatusUpdate
 )
-from ..core.result import Result, Ok, Err, JobError
-from ..infrastructure.repositories.job_repository import JobRepository
-from ..infrastructure.queue_publisher import QueuePublisher
-from ..infrastructure.queue_factory import get_queue_publisher
-from ..core.validators.job_validator import JobValidator
-from ..telemetry.telemetry_service import TelemetryService
+from core.result import Result, Ok, Err, JobError
+from infrastructure.repositories.job_repository import JobRepository
+from infrastructure.queue_publisher import QueuePublisher
+from infrastructure.queue_factory import get_queue_publisher
+from core.validators.job_validator import JobValidator
+from telemetry.telemetry_service import TelemetryService
 
 # Import specialized services
 from .job_creation_service import JobCreationService
@@ -439,7 +439,7 @@ class JobServiceRefactored:
     
     def _should_sync_status(self, job: JobOut) -> bool:
         """Check if job status should be synced."""
-        from ..models.job import JobStatus
+        from models.job import JobStatus
         
         return job.status in [
             JobStatus.QUEUED,

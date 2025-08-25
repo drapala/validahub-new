@@ -6,7 +6,7 @@ Bridges the existing rule engine with the new interface.
 import asyncio
 import copy
 import functools
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 from typing import Dict, List, Any, Optional, Tuple
 
 from ...core.interfaces.validation import IValidator

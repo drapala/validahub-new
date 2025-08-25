@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, Protocol
 from datetime import datetime
 import uuid
 
-from ..core.config import QueueConfig
+from core.config import QueueConfig
 
 logger = get_logger(__name__)
 

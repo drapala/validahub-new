@@ -1,0 +1,33 @@
+# Mutmut configuration for mutation testing
+
+# Paths to test
+paths_to_mutate:
+  - src/services/
+  - src/core/
+  - src/validators/
+
+# Test command
+test_command: python -m pytest tests/unit/ -x --no-cov -q
+
+# Paths to exclude from mutation
+paths_to_exclude:
+  - src/*/__init__.py
+  - src/*/test_*.py
+  - src/migrations/
+  - src/config.py
+  - src/settings.py
+
+# Runner settings
+runner: python -m pytest
+dict_synonyms:
+  - 'Dict'
+  - 'dict'
+  
+# Mutation operators to use
+disable_mutation_types: []
+
+# Baseline file for storing mutation results
+baseline_file: .mutmut-cache
+
+# Timeout for each mutation test (in seconds)
+timeout_factor: 1.5

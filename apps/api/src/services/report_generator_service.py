@@ -16,7 +16,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 
 logger = get_logger(__name__)
 

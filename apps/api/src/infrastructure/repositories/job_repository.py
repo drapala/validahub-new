@@ -4,7 +4,7 @@ Isolates database operations from business logic.
 """
 
 import uuid
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from sqlalchemy.orm import Session

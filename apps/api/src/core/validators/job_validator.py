@@ -3,15 +3,15 @@ Job validation logic separated from service layer.
 Follows Single Responsibility Principle.
 """
 
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 import re
 from typing import Optional, List, Set
 from datetime import datetime
 
 from ...schemas.job import JobCreate, JobPlan
 from ...core.result import Result, Ok, Err, JobError
-from ..config_adapter import ValidationConfig, QueueConfig
-from ..constants import (
+from config_adapter import ValidationConfig, QueueConfig
+from constants import (
     PARAM_INPUT_URI,
     PARAM_MARKETPLACE,
     PARAM_CATEGORY,

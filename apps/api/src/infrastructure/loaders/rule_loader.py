@@ -3,7 +3,7 @@ Rule loader component responsible for loading ruleset files.
 This separates file system concerns from the business logic.
 """
 
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 import yaml
 from pathlib import Path
 from typing import Dict, Optional, List

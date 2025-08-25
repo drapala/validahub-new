@@ -8,8 +8,8 @@ from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 from sqlalchemy.orm import Session
 
-from ..core.interfaces.job_service import IJobService, JobStatus as IJobStatus
-from ..schemas.job import (
+from core.interfaces.job_service import IJobService, JobStatus as IJobStatus
+from schemas.job import (
     JobCreate,
     JobOut,
     JobResultOut,
@@ -17,7 +17,7 @@ from ..schemas.job import (
     JobListResponse,
     JobStatusUpdate
 )
-from ..infrastructure.queue_publisher import QueuePublisher
+from infrastructure.queue_publisher import QueuePublisher
 from .job_service import JobService as LegacyJobService
 
 logger = get_logger(__name__)

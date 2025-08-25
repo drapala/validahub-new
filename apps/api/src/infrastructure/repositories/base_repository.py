@@ -6,7 +6,7 @@ Provides a foundation for all repositories.
 from typing import TypeVar, Generic, Optional, List, Type, Any, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from ..core.logging_config import get_logger
+from core.logging_config import get_logger
 import uuid
 
 from ...db.base import Base
