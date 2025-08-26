@@ -124,6 +124,13 @@ export default function DataProof() {
   // Keep internal state for each row; start with all false
   const [states, setStates] = React.useState<RowState[]>(() => RAW_ROWS.map(() => ({ hovered: false, fixed: false })));
 
+  const handleScrollToPricing = () => {
+    const pricingSection = document.querySelector('[data-section="pricing"]');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   // Build a safe view over state to avoid undefined indices during hot reloads or transient renders
   const safeStates = React.useMemo<RowState[]>(
     () => Array.from({ length: RAW_ROWS.length }, (_, i) => states[i] ?? { hovered: false, fixed: false }),
@@ -165,15 +172,12 @@ export default function DataProof() {
 
         <Card className="bg-neutral-900/60 border-neutral-800 shadow-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div className="flex items-center gap-3">
-              <CardTitle className="text-xl flex items-center gap-3">
-                <span className="inline-block h-4 w-4 rounded-sm bg-red-500" />
-                CSV com Erros
-              </CardTitle>
-              <Badge className={allFixed ? "bg-emerald-600" : "bg-amber-600"}>
-                {allFixed ? "✅ Apto para publicar" : "⚠️ Impede publicação"}
-              </Badge>
-            </div>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <span className="text-lg">
+                {allFixed ? "🟢" : "🔴"}
+              </span>
+              {allFixed ? "Apto para publicar" : "CSV com Erros"}
+            </CardTitle>
           </CardHeader>
 
           <CardContent>
@@ -269,7 +273,13 @@ export default function DataProof() {
                       <p className="font-medium text-emerald-300">Pronto para publicar</p>
                       <p className="text-sm text-emerald-200/80">Todos os erros foram corrigidos automaticamente.</p>
                     </div>
-                    <Button variant="default" className="bg-emerald-600 hover:bg-emerald-500">Corrigir meu CSV agora</Button>
+                    <Button 
+                      variant="default" 
+                      className="bg-emerald-600 hover:bg-emerald-500"
+                      onClick={handleScrollToPricing}
+                    >
+                      Corrigir meu CSV agora
+                    </Button>
                   </motion.div>
                 )}
               </AnimatePresence>
