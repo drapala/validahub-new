@@ -4,7 +4,6 @@ import Hero from '@/components/ui/Hero'
 import ERPComparison from '@/components/ui/ERPComparison'
 import SocialProof from '@/components/ui/SocialProof'
 import DataProof from '@/components/ui/DataProof'
-import PainGainVisualization from '@/components/ui/PainGainVisualization'
 import Features from '@/components/ui/Features'
 import ROICalculator from '@/components/ui/ROICalculator'
 import Pricing from '@/components/ui/Pricing'
@@ -30,10 +29,6 @@ export default function LandingPage() {
         
         <section className="snap-section min-h-[80vh] md:min-h-screen" data-section="data">
           <DataProof />
-        </section>
-        
-        <section className="snap-section min-h-[80vh] md:min-h-screen" data-section="visualization">
-          <PainGainVisualization />
         </section>
         
         <section className="snap-section min-h-[90vh] md:min-h-screen" data-section="features">

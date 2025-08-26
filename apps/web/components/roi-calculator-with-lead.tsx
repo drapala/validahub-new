@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calculator, TrendingUp, AlertTriangle, DollarSign, Lock, ArrowRight, Mail, CheckCircle2 } from 'lucide-react'
+import { Calculator, TrendingUp, AlertTriangle, DollarSign, Lock, ArrowRight, Mail, Phone, CheckCircle2, X } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -32,11 +32,13 @@ export default function ROICalculatorWithLead() {
   const [hasAccess, setHasAccess] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [email, setEmail] = useState("")
+  const [whatsapp, setWhatsapp] = useState("")
   const [consent, setConsent] = useState(false)
   const [emailError, setEmailError] = useState("")
+  const [whatsappError, setWhatsappError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const VALIDAHUB_PRICE = 97 // Plano Pro
+  const VALIDAHUB_PRICE = 47 // Plano Pro
   const REDUCED_REJECTION_RATE = 2.8
   const DAYS_PER_MONTH = 30
 
@@ -118,24 +120,80 @@ export default function ROICalculatorWithLead() {
     return true
   }
 
+  const validateWhatsApp = (phone: string): boolean => {
+    // Remove all non-numeric characters
+    const cleaned = phone.replace(/\D/g, '')
+    
+    // Check if it's a valid Brazilian phone number (11 digits)
+    if (cleaned.length !== 11) {
+      setWhatsappError("Digite um número válido com DDD (11 dígitos)")
+      return false
+    }
+    
+    // Check if it starts with a valid area code (11-99)
+    const areaCode = parseInt(cleaned.substring(0, 2))
+    if (areaCode < 11 || areaCode > 99) {
+      setWhatsappError("DDD inválido")
+      return false
+    }
+    
+    // Check if it's a mobile number (starts with 9)
+    if (cleaned[2] !== '9') {
+      setWhatsappError("Digite um número de celular válido")
+      return false
+    }
+    
+    return true
+  }
+
+  const formatWhatsApp = (value: string): string => {
+    const cleaned = value.replace(/\D/g, '')
+    
+    if (cleaned.length <= 2) {
+      return cleaned
+    } else if (cleaned.length <= 7) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`
+    } else if (cleaned.length <= 11) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`
+    }
+    
+    return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`
+  }
+
   const handleEmailSubmit = async () => {
-    if (!validateEmail(email)) return
+    let hasError = false
+    
+    if (!validateEmail(email)) {
+      hasError = true
+    }
+    
+    if (!validateWhatsApp(whatsapp)) {
+      hasError = true
+    }
     
     if (!consent) {
       setEmailError("Você precisa concordar com os termos")
-      return
+      hasError = true
     }
+    
+    if (hasError) return
     
     setIsSubmitting(true)
     setEmailError("")
+    setWhatsappError("")
     
     try {
-      // Mock API call
+      // Mock API call - would send email and whatsapp to backend
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       // Save to localStorage for 30 days
       const expiry = Date.now() + (30 * 24 * 60 * 60 * 1000)
-      localStorage.setItem("vh_roi_access", JSON.stringify({ ok: true, exp: expiry }))
+      localStorage.setItem("vh_roi_access", JSON.stringify({ 
+        ok: true, 
+        exp: expiry,
+        email,
+        whatsapp: whatsapp.replace(/\D/g, '')
+      }))
       
       setHasAccess(true)
       setDialogOpen(false)
@@ -320,7 +378,7 @@ export default function ROICalculatorWithLead() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Investimento ValidaHub:</span>
-                    <span className="text-gray-300 font-bold">R$ 97/mês</span>
+                    <span className="text-gray-300 font-bold">R$ 47/mês</span>
                   </div>
                 </div>
               </div>
@@ -388,14 +446,19 @@ export default function ROICalculatorWithLead() {
       </div>
 
       {/* Email Capture Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={(open) => {
-        if (!hasAccess) setDialogOpen(open)
-      }}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
           <DialogHeader>
+            <button
+              onClick={() => setDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Fechar</span>
+            </button>
             <DialogTitle>Veja seu resultado completo</DialogTitle>
             <DialogDescription>
-              Insira seu e-mail para desbloquear a análise detalhada do ROI
+              Insira seus dados para desbloquear a análise detalhada do ROI
             </DialogDescription>
           </DialogHeader>
           
@@ -421,6 +484,30 @@ export default function ROICalculatorWithLead() {
                 <p className="text-sm text-red-500">{emailError}</p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp">WhatsApp</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="whatsapp"
+                  type="tel"
+                  placeholder="(11) 98765-4321"
+                  className="pl-9"
+                  value={whatsapp}
+                  onChange={(e) => {
+                    const formatted = formatWhatsApp(e.target.value)
+                    setWhatsapp(formatted)
+                    setWhatsappError("")
+                  }}
+                  maxLength={15}
+                  disabled={isSubmitting}
+                />
+              </div>
+              {whatsappError && (
+                <p className="text-sm text-red-500">{whatsappError}</p>
+              )}
+            </div>
             
             <div className="flex items-start space-x-2">
               <Checkbox
@@ -433,7 +520,7 @@ export default function ROICalculatorWithLead() {
                 htmlFor="consent"
                 className="text-sm text-muted-foreground leading-tight cursor-pointer"
               >
-                Usaremos seu e-mail para enviar materiais do ValidaHub. 
+                Usaremos seus dados para enviar materiais exclusivos do ValidaHub. 
                 Você pode cancelar quando quiser.
               </label>
             </div>
@@ -442,7 +529,7 @@ export default function ROICalculatorWithLead() {
           <DialogFooter>
             <Button 
               onClick={handleEmailSubmit} 
-              disabled={isSubmitting || !email || !consent}
+              disabled={isSubmitting || !email || !whatsapp || !consent}
               className="w-full"
             >
               {isSubmitting ? (
