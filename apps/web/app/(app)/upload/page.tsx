@@ -5,6 +5,8 @@ import { DropzoneCard } from "@/components/dropzone-card";
 import { CategoryPicker } from "@/components/category-picker";
 import { ResultSummary } from "@/components/result-summary";
 import { ApplyFixesBar } from "@/components/apply-fixes-bar";
+import { ValidationSuccess } from "@/components/validation-success";
+import { ValidationError } from "@/components/validation-error";
 import { api, ValidationResult } from "@/lib/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -101,14 +103,46 @@ export default function UploadPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <ResultSummary results={results} />
-              <ResultsTable results={results} />
-              <ApplyFixesBar 
-                results={results} 
-                file={file}
-                marketplace={marketplace}
-                category={category}
-              />
+              {/* Show premium success/error component based on validation status */}
+              {results.error_rows === 0 || (results.validation_items && 
+                results.validation_items.every(item => !item.errors || item.errors.length === 0)) ? (
+                <ValidationSuccess 
+                  results={results}
+                  onExport={() => {
+                    // Handle CSV export
+                    toast.success("CSV exportado com sucesso");
+                  }}
+                  onPublish={() => {
+                    // Handle publish to marketplace
+                    toast.success("Publicando no marketplace...");
+                  }}
+                />
+              ) : (
+                <ValidationError
+                  results={results}
+                  onRetry={() => handleValidateSync()}
+                  onViewDetails={() => {
+                    // Show detailed error view
+                  }}
+                />
+              )}
+              
+              {/* Original components for fallback/details */}
+              <details className="group">
+                <summary className="cursor-pointer text-sm text-zinc-400 hover:text-zinc-200">
+                  Ver detalhes técnicos
+                </summary>
+                <div className="mt-4 space-y-4">
+                  <ResultSummary results={results} />
+                  <ResultsTable results={results} />
+                  <ApplyFixesBar 
+                    results={results} 
+                    file={file}
+                    marketplace={marketplace}
+                    category={category}
+                  />
+                </div>
+              </details>
             </div>
           )}
         </div>

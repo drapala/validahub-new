@@ -1,0 +1,7 @@
+'use client'
+
+import RoiLeadMagnetDashboard from '@/components/roi-lead-magnet-dashboard'
+
+export default function ROICalculator() {
+  return <RoiLeadMagnetDashboard />
+}

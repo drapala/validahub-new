@@ -3,7 +3,7 @@
  * Centralizes all design decisions for the ValidaHub application
  */
 
-export const tokens = {
+const tokens = {
   // ============================================
   // COLORS
   // ============================================
@@ -266,11 +266,8 @@ export const tokens = {
   },
 }
 
-// Export individual token groups for convenience
-export const { colors, typography, spacing, borderRadius, shadows, transitions, zIndex, breakpoints } = tokens
-
 // CSS Variables for runtime theming
-export const cssVariables = {
+const cssVariables = {
   light: {
     // Base colors
     '--background': '0 0% 100%',
@@ -355,6 +352,22 @@ export const cssVariables = {
     '--radius': '1rem',
   },
 }
+
+// Export for CommonJS compatibility (used by Tailwind config)
+module.exports = { tokens, cssVariables }
+
+// Export for ES6 modules
+export { tokens, cssVariables }
+
+// Export individual token groups for convenience
+export const colors = tokens.colors
+export const typography = tokens.typography
+export const spacing = tokens.spacing
+export const borderRadius = tokens.borderRadius
+export const shadows = tokens.shadows
+export const transitions = tokens.transitions
+export const zIndex = tokens.zIndex
+export const breakpoints = tokens.breakpoints
 
 // Type exports
 export type ColorToken = keyof typeof tokens.colors

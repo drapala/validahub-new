@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import CookieBanner from "@/components/ui/CookieBanner";
 
 export const metadata = {
   title: "ValidaHub",
@@ -12,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Providers>
           {children}
+          <CookieBanner />
         </Providers>
       </body>
     </html>

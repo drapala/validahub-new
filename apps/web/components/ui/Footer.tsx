@@ -152,15 +152,16 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="text-center space-y-2">
             <p className="text-gray-400 text-sm">
               © {currentYear} ValidaHub. Todos os direitos reservados.
             </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <span className="text-gray-500 text-sm">
-                Feito com 💚 no Brasil
-              </span>
-            </div>
+            <p className="text-gray-500 text-xs">
+              Drapala Technology Solutions Ltda | CNPJ: 57.508.298/0001-62
+            </p>
+            <p className="text-gray-500 text-sm">
+              Feito com 💚 no Brasil
+            </p>
           </div>
         </div>
       </div>

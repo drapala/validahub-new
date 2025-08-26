@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Button } from './button'
-import AuthModal from './AuthModal'
+// AuthModal is temporarily commented out
+// import AuthModal from './AuthModal'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +24,6 @@ const navLinks = [
   { href: '#how-it-works', label: 'Como funciona' },
   { href: '/pricing', label: 'Preços' },
   { href: '/faq', label: 'FAQ' },
-  { href: '/docs', label: 'Docs' },
 ]
 
 export default function Navbar() {
@@ -255,12 +255,13 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* AuthModal temporarily disabled
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         mode={authMode}
         onModeChange={setAuthMode}
-      />
+      /> */}
     </>
   )
 }
