@@ -4,11 +4,11 @@ import { getAuthContainer } from '@/src/auth/infrastructure/auth-container';
 
 const authContainer = getAuthContainer();
 
-const authConfig = createNextAuthConfig({
+export const authOptions = createNextAuthConfig({
   loginWithEmailUseCase: authContainer.loginWithEmailUseCase,
   loginWithOAuthUseCase: authContainer.loginWithOAuthUseCase
 });
 
-const handler = NextAuth(authConfig);
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
