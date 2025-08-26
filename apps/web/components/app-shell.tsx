@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Upload, ListChecks, ServerCog, Webhook, Code2, Settings, FileText, CheckSquare } from "lucide-react";
+import { AuthNavbar } from "@/src/auth/ui/components/auth-navbar";
 
 const NAV = [
   { href: "/upload", label: "Upload", icon: Upload },
@@ -21,7 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen grid grid-cols-12">
       <aside className="col-span-12 md:col-span-3 lg:col-span-2 border-r border-border px-4 py-6">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Link href="/" className="font-semibold text-xl">ValidaHub</Link>
         </div>
         <nav className="space-y-1">
@@ -44,9 +45,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
       </aside>
-      <main className="col-span-12 md:col-span-9 lg:col-span-10 px-6 py-8">
-        {children}
-      </main>
+      <div className="col-span-12 md:col-span-9 lg:col-span-10 flex flex-col">
+        <header className="px-6 py-4 border-b border-border">
+          <AuthNavbar />
+        </header>
+        <main className="flex-1 px-6 py-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

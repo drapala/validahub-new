@@ -3,18 +3,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LoginForm } from '@/src/auth/ui/components/login-form';
+import { SignupForm } from '@/src/auth/ui/components/signup-form';
 import { OAuthButton } from '@/src/auth/ui/components/oauth-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
 
-  const handleLoginSuccess = () => {
-    router.push('/upload'); // Redirect to main app after login
+  const handleSignupSuccess = () => {
+    router.push('/upload'); // Redirect to main app after signup
   };
 
-  const handleOAuthLogin = (provider: 'google' | 'github' | 'microsoft') => {
+  const handleOAuthSignup = (provider: 'google' | 'github' | 'microsoft') => {
     // In a real implementation, this would redirect to NextAuth OAuth flow
     console.log(`Initiating ${provider} OAuth flow`);
     // window.location.href = `/api/auth/signin/${provider}`;
@@ -24,17 +24,19 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+          <CardTitle className="text-2xl font-bold">Create your account</CardTitle>
           <CardDescription>
-            Sign in to your ValidaHub account
+            Get started with ValidaHub today
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <OAuthButton
               provider="google"
-              onClick={() => handleOAuthLogin('google')}
-            />
+              onClick={() => handleOAuthSignup('google')}
+            >
+              Sign up with Google
+            </OAuthButton>
           </div>
           
           <div className="relative">
@@ -43,29 +45,34 @@ export default function LoginPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with email
+                Or create account with email
               </span>
             </div>
           </div>
 
-          <LoginForm onSuccess={handleLoginSuccess} />
+          <SignupForm onSuccess={handleSignupSuccess} />
 
-          <div className="text-center space-y-2">
+          <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <Link 
-                href="/auth/signup" 
+                href="/auth/login" 
                 className="text-primary underline-offset-4 hover:underline"
               >
-                Sign up
+                Sign in
               </Link>
             </p>
-            <p className="text-xs text-muted-foreground">
-              <Link 
-                href="/auth/forgot-password" 
-                className="underline-offset-4 hover:underline"
-              >
-                Forgot your password?
+          </div>
+
+          <div className="text-xs text-muted-foreground text-center space-y-1">
+            <p>
+              By creating an account, you agree to our{' '}
+              <Link href="/terms" className="underline-offset-4 hover:underline">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="underline-offset-4 hover:underline">
+                Privacy Policy
               </Link>
             </p>
           </div>
