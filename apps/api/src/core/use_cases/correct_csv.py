@@ -3,16 +3,15 @@ Use case for CSV correction.
 Handles domain logic for automatic CSV corrections.
 """
 
-import io
 import uuid
 from core.logging_config import get_logger
 from typing import Any, Dict, Optional
 from dataclasses import dataclass
-import pandas as pd
 
 from .base import UseCase
 from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
 from ..utils import DataFrameUtils
+from ..ports.tabular_data_port import TabularDataPort
 from ...schemas.validate import (
     Category,
     Marketplace,
@@ -55,9 +54,20 @@ class CorrectCsvUseCase(UseCase[CorrectCsvInput, CorrectCsvOutput]):
     without any knowledge of HTTP, file I/O, or other infrastructure concerns.
     """
     
-    def __init__(self, validation_pipeline: ValidationPipelineDecoupled):
-        """Initialize the use case with required validation pipeline."""
+    def __init__(
+        self,
+        validation_pipeline: ValidationPipelineDecoupled,
+        tabular_adapter: TabularDataPort
+    ):
+        """
+        Initialize the use case with required dependencies.
+        
+        Args:
+            validation_pipeline: Pipeline for validation logic
+            tabular_adapter: Adapter for tabular data operations
+        """
         self.validation_pipeline = validation_pipeline
+        self.data_utils = DataFrameUtils(tabular_adapter)
     
     async def execute(self, input_data: CorrectCsvInput) -> CorrectCsvOutput:
         """
@@ -73,25 +83,28 @@ class CorrectCsvUseCase(UseCase[CorrectCsvInput, CorrectCsvOutput]):
             ValueError: If CSV parsing fails
             Exception: For other processing errors
         """
+        import time
+        start_time = time.time()
+        
         try:
-            # Parse CSV to DataFrame
-            df = self._parse_csv(input_data.csv_content)
+            # Parse CSV using adapter (no direct pandas usage)
+            data = self.data_utils.parse_csv(input_data.csv_content)
             
-            # Clean data using shared utility (required: pipeline doesn't clean data)
-            df = DataFrameUtils.clean_dataframe(df)
+            # Clean data using adapter
+            data = self.data_utils.clean_dataframe(data)
             
             # Validate and fix using pipeline with job_id (now async)
             job_id = str(uuid.uuid4())
             result = await self.validation_pipeline.validate(
-                df=df,
+                df=data,
                 marketplace=input_data.marketplace,
                 category=input_data.category,
                 auto_fix=True,  # Always fix for correction use case
                 job_id=job_id
             )
             
-            # Convert corrected DataFrame to CSV using shared utility
-            corrected_csv = DataFrameUtils.dataframe_to_csv(result.corrected_data)
+            # Convert corrected data to CSV using adapter
+            corrected_csv = self.data_utils.dataframe_to_csv(result.corrected_data)
             if corrected_csv is None:
                 # If no corrections, return original
                 corrected_csv = input_data.csv_content
@@ -102,20 +115,13 @@ class CorrectCsvUseCase(UseCase[CorrectCsvInput, CorrectCsvOutput]):
                 total_corrections=result.summary.total_corrections,
                 total_errors=result.summary.total_errors,
                 total_warnings=result.summary.total_warnings,
-                processing_time=result.summary.processing_time_seconds,
+                processing_time=time.time() - start_time,
                 job_id=job_id
             )
             
-        except pd.errors.EmptyDataError:
-            raise ValueError("CSV file is empty or invalid")
+        except ValueError as e:
+            # Re-raise ValueError from adapter
+            raise
         except Exception as e:
             logger.exception(f"Error correcting CSV: {e}")
             raise
-    
-    def _parse_csv(self, csv_content: str) -> pd.DataFrame:
-        """Parse CSV string to DataFrame."""
-        try:
-            return pd.read_csv(io.StringIO(csv_content))
-        except Exception as e:
-            raise ValueError(f"Failed to parse CSV: {str(e)}")
-    

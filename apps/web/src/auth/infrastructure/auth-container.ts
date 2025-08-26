@@ -109,6 +109,16 @@ export function createAuthContainer(): AuthContainer {
 }
 
 export function getAuthContainer(): AuthContainer {
+  // Use mock container in development without backend
+  const useMock = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true' || 
+                  (process.env.NODE_ENV === 'development');
+  
+  if (useMock) {
+    // Dynamic import to avoid bundling in production
+    const { getMockAuthContainer } = require('./auth-container-mock');
+    return getMockAuthContainer();
+  }
+  
   if (!container) {
     return createAuthContainer();
   }

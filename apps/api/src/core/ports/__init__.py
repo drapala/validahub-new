@@ -10,6 +10,7 @@ from .policy_loader_port import PolicyLoaderPort
 from .queue_port import QueuePort
 from .rule_engine_port import RuleEnginePort
 from .storage_port import StoragePort
+from .tabular_data_port import TabularDataPort
 from .tabular_reader_port import TabularReaderPort
 from .validation_service_port import ValidationServicePort
 
@@ -19,6 +20,7 @@ __all__ = [
     "QueuePort",
     "RuleEnginePort",
     "StoragePort",
+    "TabularDataPort",
     "TabularReaderPort",
     "ValidationServicePort",
 ]

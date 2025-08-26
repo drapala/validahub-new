@@ -3,16 +3,15 @@ Use case for CSV validation.
 Handles domain logic without I/O concerns.
 """
 
-import io
 import uuid
 from core.logging_config import get_logger
 from typing import Any, Dict, Optional
 from dataclasses import dataclass
-import pandas as pd
 
 from .base import UseCase
 from ..pipeline.validation_pipeline_decoupled import ValidationPipelineDecoupled
 from ..utils import DataFrameUtils
+from ..ports.tabular_data_port import TabularDataPort
 from ...schemas.validate import (
     Marketplace,
     Category,
@@ -47,9 +46,20 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
     without any knowledge of HTTP, file I/O, or other infrastructure concerns.
     """
     
-    def __init__(self, validation_pipeline: ValidationPipelineDecoupled):
-        """Initialize the use case with required validation pipeline."""
+    def __init__(
+        self,
+        validation_pipeline: ValidationPipelineDecoupled,
+        tabular_adapter: TabularDataPort
+    ):
+        """
+        Initialize the use case with required dependencies.
+        
+        Args:
+            validation_pipeline: Pipeline for validation logic
+            tabular_adapter: Adapter for tabular data operations
+        """
         self.validation_pipeline = validation_pipeline
+        self.data_utils = DataFrameUtils(tabular_adapter)
     
     async def execute(self, input_data: ValidateCsvInput) -> ValidationResult:
         """
@@ -66,15 +76,15 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
             Exception: For other processing errors
         """
         try:
-            # Parse CSV to DataFrame
-            df = self._parse_csv(input_data.csv_content)
+            # Parse CSV using adapter (no direct pandas usage)
+            data = self.data_utils.parse_csv(input_data.csv_content)
             
-            # Clean data using shared utility (required: pipeline doesn't clean data)
-            df = DataFrameUtils.clean_dataframe(df)
+            # Clean data using adapter
+            data = self.data_utils.clean_dataframe(data)
             
             # Validate using pipeline with job_id (now async)
             result = await self.validation_pipeline.validate(
-                df=df,
+                df=data,
                 marketplace=input_data.marketplace,
                 category=input_data.category,
                 auto_fix=input_data.auto_fix,
@@ -83,20 +93,15 @@ class ValidateCsvUseCase(UseCase[ValidateCsvInput, ValidationResult]):
             
             # Convert corrected DataFrame to dict using shared utility
             if result.corrected_data is not None:
-                result.corrected_data = DataFrameUtils.dataframe_to_dict(result.corrected_data)
+                result.corrected_data = self.data_utils.dataframe_to_dict(result.corrected_data)
             
             return result
             
-        except pd.errors.EmptyDataError:
-            raise ValueError("CSV file is empty or invalid")
+        except ValueError as e:
+            # Re-raise ValueError from adapter
+            raise
         except Exception as e:
             logger.exception(f"Error processing CSV: {e}")
             raise
     
-    def _parse_csv(self, csv_content: str) -> pd.DataFrame:
-        """Parse CSV string to DataFrame."""
-        try:
-            return pd.read_csv(io.StringIO(csv_content))
-        except Exception as e:
-            raise ValueError(f"Failed to parse CSV: {str(e)}")
-    
+    # Note: _parse_csv method removed - now using adapter

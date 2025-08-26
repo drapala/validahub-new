@@ -2,62 +2,78 @@
 Shared utilities for use cases.
 """
 
-import pandas as pd
-import numpy as np
 from typing import Optional, List, Dict, Any
+from core.ports.tabular_data_port import TabularDataPort
 
 
 class DataFrameUtils:
-    """Utility class for DataFrame operations."""
+    """
+    Utility class for tabular data operations.
     
-    @staticmethod
-    def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    This class uses the TabularDataPort abstraction to perform
+    operations without depending on any specific implementation.
+    """
+    
+    def __init__(self, tabular_adapter: TabularDataPort):
         """
-        Clean DataFrame by handling NaN and inf values.
+        Initialize with a tabular data adapter.
         
         Args:
-            df: DataFrame to clean
-            
-        Returns:
-            Cleaned DataFrame
+            tabular_adapter: Concrete implementation of TabularDataPort
         """
-        # Explicitly immutable operations (inplace=False is default, but being explicit)
-        df = df.replace([np.inf, -np.inf], None, inplace=False)
-        df = df.where(pd.notnull(df), None, inplace=False)
-        return df
+        self.adapter = tabular_adapter
     
-    @staticmethod
-    def dataframe_to_dict(df: Optional[pd.DataFrame]) -> Optional[List[Dict[str, Any]]]:
+    def parse_csv(self, csv_content: str) -> Any:
         """
-        Convert DataFrame to dictionary format for JSON serialization.
+        Parse CSV string to tabular data.
         
         Args:
-            df: DataFrame to convert
+            csv_content: CSV content as string
             
         Returns:
-            List of dictionaries representing rows, or None if DataFrame is None
+            Tabular data structure
+            
+        Raises:
+            ValueError: If parsing fails
         """
-        if df is None:
+        return self.adapter.parse_csv(csv_content)
+    
+    def clean_dataframe(self, data: Any) -> Any:
+        """
+        Clean tabular data by handling special values.
+        
+        Args:
+            data: Tabular data to clean
+            
+        Returns:
+            Cleaned tabular data
+        """
+        return self.adapter.clean_data(data)
+    
+    def dataframe_to_dict(self, data: Optional[Any]) -> Optional[List[Dict[str, Any]]]:
+        """
+        Convert tabular data to dictionary format for JSON serialization.
+        
+        Args:
+            data: Tabular data to convert
+            
+        Returns:
+            List of dictionaries representing rows, or None if data is None
+        """
+        if data is None:
             return None
-        
-        # Clean the dataframe first
-        df = DataFrameUtils.clean_dataframe(df)
-        return df.to_dict('records')
+        return self.adapter.to_dict_records(data)
     
-    @staticmethod
-    def dataframe_to_csv(df: Optional[pd.DataFrame]) -> Optional[str]:
+    def dataframe_to_csv(self, data: Optional[Any]) -> Optional[str]:
         """
-        Convert DataFrame to CSV string.
+        Convert tabular data to CSV string.
         
         Args:
-            df: DataFrame to convert
+            data: Tabular data to convert
             
         Returns:
-            CSV string or None if DataFrame is None
+            CSV string or None if data is None
         """
-        if df is None:
+        if data is None:
             return None
-        
-        # Clean the dataframe first  
-        df = DataFrameUtils.clean_dataframe(df)
-        return df.to_csv(index=False)
+        return self.adapter.to_csv_string(data)
