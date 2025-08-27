@@ -4,7 +4,7 @@ import { getAuthContainer } from '@/src/auth/infrastructure/auth-container';
 
 const authContainer = getAuthContainer();
 
-export const authOptions = createNextAuthConfig({
+const authOptions = createNextAuthConfig({
   loginWithEmailUseCase: authContainer.loginWithEmailUseCase,
   loginWithOAuthUseCase: authContainer.loginWithOAuthUseCase
 });
