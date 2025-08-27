@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState } from "react";
 import { DropzoneCard } from "@/components/dropzone-card";
 import { CategoryPicker } from "@/components/category-picker";
