@@ -49,7 +49,7 @@ export default function SocialProof() {
           
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             7 das 10 maiores agências de marketplace
-            <span className="block text-green-400">já migraram para ValidaHub</span>
+            <span className="block dark:text-green-400 text-purple-600">já migraram para ValidaHub</span>
           </h2>
           
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">

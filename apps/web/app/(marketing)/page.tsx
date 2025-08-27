@@ -1,46 +1,51 @@
 'use client'
 
 import Hero from '@/components/ui/Hero'
-import SocialProof from '@/components/ui/SocialProof'
+import SectionEnterprise from '@/components/ui/SectionEnterprise'
 import DataProof from '@/components/ui/DataProof'
 import Features from '@/components/ui/Features'
 import ROICalculatorWithLead from '@/components/roi-calculator-with-lead'
 import Pricing from '@/components/ui/Pricing'
 import Footer from '@/components/ui/Footer'
-import SmoothScrollSimple from '@/components/ui/SmoothScrollSimple'
+import WhatsAppFloatPremium from '@/components/ui/WhatsAppFloatPremium'
+import CookieBanner from '@/components/ui/CookieBanner'
 
 export default function LandingPage() {
   return (
-    <SmoothScrollSimple>
-      <main id="snap-container" className="bg-gray-900 md:h-screen md:overflow-y-scroll">
-        <section className="snap-section min-h-screen" data-section="hero">
+    <>
+      <main className="dark:bg-zinc-950 bg-white">
+        <section id="hero" className="min-h-screen">
           <Hero />
         </section>
         
-        <section className="snap-section min-h-[80vh] md:min-h-screen" data-section="calculator">
+        <section id="enterprise" className="min-h-screen">
+          <SectionEnterprise />
+        </section>
+        
+        <section id="calculator" className="min-h-[80vh] md:min-h-screen">
           <ROICalculatorWithLead />
         </section>
         
-        <section className="snap-section min-h-[50vh] md:min-h-[60vh]" data-section="social">
-          <SocialProof />
-        </section>
-        
-        <section className="snap-section min-h-[80vh] md:min-h-screen" data-section="data">
+        <section id="data" className="min-h-[80vh] md:min-h-screen">
           <DataProof />
         </section>
         
-        <section className="snap-section min-h-[90vh] md:min-h-screen" data-section="features">
+        <section id="features" className="min-h-[90vh] md:min-h-screen">
           <Features />
         </section>
         
-        <section className="snap-section min-h-[90vh] md:min-h-screen" data-section="pricing">
+        <section id="pricing" className="min-h-[90vh] md:min-h-screen">
           <Pricing />
         </section>
         
-        <section className="snap-section min-h-[40vh] md:min-h-[50vh]" data-section="footer">
+        <section id="footer" className="min-h-[40vh] md:min-h-[50vh]">
           <Footer />
         </section>
       </main>
-    </SmoothScrollSimple>
+      
+      {/* Componentes flutuantes */}
+      <WhatsAppFloatPremium />
+      <CookieBanner />
+    </>
   )
 }

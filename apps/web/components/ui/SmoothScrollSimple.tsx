@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import ProgressRail from './ProgressRail'
 import './smooth-scroll-simple.css'
 
 export default function SmoothScrollSimple({ children }: { children: React.ReactNode }) {
@@ -48,36 +49,24 @@ export default function SmoothScrollSimple({ children }: { children: React.React
 
   // Removed smooth scroll wheel/keyboard handlers - using native scroll only
 
-  const sections = ['hero', 'calculator', 'social', 'data', 'features', 'pricing', 'footer']
+  const sections = [
+    { id: 'inicio', label: 'Início', targetId: '#hero' },
+    { id: 'calc', label: 'Calculadora', targetId: '#calculator' },
+    { id: 'depoimentos', label: 'Depoimentos', targetId: '#social' },
+    { id: 'demo', label: 'Demonstração', targetId: '#data' },
+    { id: 'recursos', label: 'Recursos', targetId: '#features' },
+    { id: 'planos', label: 'Planos', targetId: '#pricing' },
+    { id: 'contato', label: 'Contato', targetId: '#footer' }
+  ]
 
   return (
     <>
-      {mounted && window.innerWidth >= 768 && (
-        <div className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-3">
-          {sections.map((sectionName, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                const container = document.getElementById('snap-container')
-                if (!container) return
-                
-                const sections = container.querySelectorAll('.snap-section')
-                if (sections[index]) {
-                  // Use native scrollIntoView without smooth behavior
-                  sections[index].scrollIntoView({ behavior: 'auto', block: 'start' })
-                }
-                
-                setCurrentSection(index)
-              }}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                currentSection === index 
-                  ? 'bg-green-400 scale-125' 
-                  : 'bg-gray-600 hover:bg-gray-400'
-              }`}
-              aria-label={`Go to ${sectionName} section`}
-            />
-          ))}
-        </div>
+      {/* Progress Rail with Scrollspy */}
+      {mounted && (
+        <ProgressRail 
+          sections={sections}
+          whatsapp="5511999999999"
+        />
       )}
       {children}
     </>

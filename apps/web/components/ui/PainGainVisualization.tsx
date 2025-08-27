@@ -160,7 +160,7 @@ export default function PainGainVisualization() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-full mb-6">
             <AlertCircle className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-purple-400 font-medium">
+            <span className="text-sm dark:text-green-400 text-purple-600 font-medium">
               Visualização em tempo real
             </span>
           </div>

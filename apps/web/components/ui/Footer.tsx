@@ -7,9 +7,9 @@ export default function Footer() {
   const footerLinks = {
     produto: [
       { label: 'Features', href: '#features' },
-      { label: 'Pricing', href: '/pricing' },
-      { label: 'FAQ', href: '/faq' },
-      { label: 'Docs', href: '/docs' },
+      { label: 'Pricing', href: '#pricing' },
+      { label: 'API Docs', href: '/docs/api' },
+      { label: 'Status', href: '/status' },
     ],
     empresa: [
       { label: 'Sobre', href: '/about' },
@@ -21,10 +21,10 @@ export default function Footer() {
       { label: 'Privacidade', href: '/privacy' },
       { label: 'Termos', href: '/terms' },
       { label: 'SLA', href: '/sla' },
-      { label: 'Status', href: '/status' },
+      { label: 'LGPD', href: '/lgpd' },
     ],
-    recursos: [
-      { label: 'API Docs', href: '/docs/api' },
+    suporte: [
+      { label: 'FAQ', href: '/faq' },
       { label: 'Integrações', href: '/integrations' },
       { label: 'Changelog', href: '/changelog' },
       { label: 'Suporte', href: 'mailto:suporte@validahub.com' },
@@ -32,54 +32,12 @@ export default function Footer() {
   }
 
   return (
-    <footer className="border-t border-gray-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-          {/* Logo and description */}
-          <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center space-x-2 text-white font-bold text-xl mb-4">
-              <svg className="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-              </svg>
-              <span>ValidaHub</span>
-            </Link>
-            <p className="text-gray-400 text-sm mb-4">
-              Validação inteligente de catálogos para marketplaces brasileiros.
-            </p>
-            <div className="flex space-x-4">
-              <a
-                href="https://github.com/validahub"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="GitHub"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-              <a
-                href="https://linkedin.com/company/validahub"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a
-                href="https://twitter.com/validahub"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-
-          {/* Links sections */}
+    <footer className="border-t border-zinc-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-950/80 backdrop-blur-sm">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+        {/* Links Grid - mais compacto */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 text-sm">
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
+            <h3 className="text-zinc-900 dark:text-white font-semibold mb-3 text-sm">
               Produto
             </h3>
             <ul className="space-y-2">
@@ -87,7 +45,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                    className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors leading-tight"
                   >
                     {link.label}
                   </Link>
@@ -97,7 +55,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
+            <h3 className="text-zinc-900 dark:text-white font-semibold mb-3 text-sm">
               Empresa
             </h3>
             <ul className="space-y-2">
@@ -105,7 +63,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                    className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors leading-tight"
                   >
                     {link.label}
                   </Link>
@@ -115,7 +73,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
+            <h3 className="text-zinc-900 dark:text-white font-semibold mb-3 text-sm">
               Legal
             </h3>
             <ul className="space-y-2">
@@ -123,7 +81,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                    className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors leading-tight"
                   >
                     {link.label}
                   </Link>
@@ -133,15 +91,15 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">
-              Recursos
+            <h3 className="text-zinc-900 dark:text-white font-semibold mb-3 text-sm">
+              Suporte
             </h3>
             <ul className="space-y-2">
-              {footerLinks.recursos.map((link) => (
+              {footerLinks.suporte.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
+                    className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors leading-tight"
                   >
                     {link.label}
                   </Link>
@@ -151,17 +109,50 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8">
-          <div className="text-center space-y-2">
-            <p className="text-gray-400 text-sm">
-              © {currentYear} ValidaHub. Todos os direitos reservados.
-            </p>
-            <p className="text-gray-500 text-xs">
-              Drapala Technology Solutions Ltda | CNPJ: 57.508.298/0001-62
-            </p>
-            <p className="text-gray-500 text-sm">
-              Feito com 💚 no Brasil
-            </p>
+        {/* Bottom section - mais compacto */}
+        <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2
+                        border-t border-zinc-200/70 dark:border-zinc-800 pt-4 text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            {/* Logo compacto */}
+            <Link href="/" className="flex items-center gap-2 text-zinc-900 dark:text-white font-bold">
+              <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+              </svg>
+              <span>ValidaHub</span>
+            </Link>
+            <span className="hidden sm:inline text-zinc-400 dark:text-zinc-600">•</span>
+            <p>© {currentYear} Todos os direitos reservados</p>
+          </div>
+          
+          {/* Social icons */}
+          <div className="flex items-center gap-4">
+            <a
+              href="https://github.com/validahub"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              aria-label="GitHub"
+            >
+              <Github className="w-4 h-4" />
+            </a>
+            <a
+              href="https://linkedin.com/company/validahub"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="w-4 h-4" />
+            </a>
+            <a
+              href="https://twitter.com/validahub"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              aria-label="Twitter"
+            >
+              <Twitter className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </div>

@@ -1,212 +1,245 @@
 'use client'
 
-import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { 
   Shield, 
   Zap, 
   AlertTriangle, 
-  GitBranch, 
   Link, 
   History,
-  Globe,
-  Cpu,
-  Lock,
   DollarSign,
   ArrowRight,
-  Info
+  Activity,
+  Lock,
+  Database,
+  PlayCircle
 } from 'lucide-react'
-import { Button } from './button'
-import { useRouter } from 'next/navigation'
+
+// BenefitCard component with proper hierarchy
+function BenefitCard({ 
+  icon: Icon, 
+  title, 
+  value, 
+  pill, 
+  delay = 0 
+}: {
+  icon: any
+  title: string
+  value: string
+  pill: string
+  delay?: number
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay }}
+      className="group rounded-2xl border border-zinc-200/80 dark:border-zinc-800 
+        bg-white dark:bg-zinc-900/50 backdrop-blur-md p-6
+        hover:shadow-lg dark:hover:shadow-zinc-950/50 
+        hover:border-zinc-300 dark:hover:border-zinc-700
+        transition-all duration-200"
+    >
+      <div className="flex flex-col h-full">
+        {/* Icon */}
+        <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 
+          text-zinc-600 dark:text-zinc-400 flex items-center justify-center mb-4">
+          <Icon className="w-6 h-6" />
+        </div>
+        
+        {/* Title */}
+        <h3 className="font-semibold text-lg text-zinc-900 dark:text-white mb-2">
+          {title}
+        </h3>
+        
+        {/* Value */}
+        <div className="text-2xl font-bold text-zinc-900 dark:text-white mb-4 flex-1">
+          {value}
+        </div>
+        
+        {/* Pill */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 
+          bg-emerald-50 dark:bg-emerald-950/30 
+          border border-emerald-200/50 dark:border-emerald-800/50 
+          rounded-full text-sm font-medium text-emerald-600 dark:text-emerald-400 w-fit">
+          <div className="w-2 h-2 bg-emerald-500 rounded-full" />
+          {pill}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
 
 export default function Features() {
-  const router = useRouter()
-  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
-  
-  const errorExamples = [
-    'Título com mais de 60 caracteres',
-    'Preço sem casas decimais corretas',
-    'GTIN/EAN com dígito verificador inválido',
-    'Categoria não mapeada para o marketplace',
-    'Imagem com resolução menor que 500x500px',
-    'SKU duplicado no catálogo',
-    'Atributos obrigatórios vazios',
-    'Unidade de medida incorreta',
-    'Descrição com HTML não permitido',
-    'Estoque negativo ou inválido'
-  ]
-  
-  const features = [
+  const benefits = [
     {
       icon: AlertTriangle,
-      title: 'Detecta os 47 erros fatais do MELI',
-      description: 'Para de perder vendas por "título muito longo", "categoria errada", "EAN inválido" e outros 44 erros bestas que você nem sabia que existiam.',
-      benefit: 'De 30% → menos de 3% de rejeição',
-      color: 'text-red-400',
-      bgColor: 'bg-red-500/10',
-      hasExamples: true
+      title: "Diagnóstico (o que está matando)",
+      value: "47 tipos de erro fatal detectados",
+      pill: "Zero perda por erro bobo"
     },
     {
       icon: Zap,
-      title: 'Corrige antes da rejeição',
-      description: 'Não espera o marketplace rejeitar. Corrige títulos, formata preços, valida atributos e ajusta tudo ANTES de você enviar.',
-      benefit: 'Zero retrabalho',
-      color: 'text-yellow-400',
-      bgColor: 'bg-yellow-500/10'
+      title: "Correção (arrumamos pra você)",
+      value: "Corrige automaticamente",
+      pill: "90% dos erros auto-fix"
     },
     {
       icon: Shield,
-      title: 'Regras específicas por marketplace',
-      description: 'MELI tem uma regra, Amazon tem outra, Magalu tem a dela. ValidaHub conhece TODAS e aplica a certa pro lugar certo.',
-      benefit: 'Publicação garantida',
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/10'
+      title: "Publicação (confiança 100%)",
+      value: "Taxa de rejeição ≤ 3%",
+      pill: "vs 28% sem ValidaHub"
     },
     {
       icon: Link,
-      title: 'API pronta pro seu ERP',
-      description: 'Integra em 15 minutos com Bling, Tiny, Linx ou qualquer sistema. Webhooks prontos, documentação clara, suporte real.',
-      benefit: 'Setup em 15 minutos',
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10'
+      title: "Integração (plug & play)",
+      value: "APIs enterprise-ready",
+      pill: "Setup em 15 minutos"
     },
     {
       icon: History,
-      title: 'Histórico pra auditoria LGPD',
-      description: 'Cada validação fica gravada. Quem validou, quando, o que mudou. Seu jurídico dorme tranquilo, você também.',
-      benefit: 'Compliance garantido',
-      color: 'text-purple-400',
-      bgColor: 'bg-purple-500/10'
+      title: "Auditoria (compliance LGPD)",
+      value: "Histórico completo gravado",
+      pill: "Jurídico aprovado"
     },
     {
       icon: DollarSign,
-      title: 'ROI desde o primeiro mês',
-      description: 'Custa menos que 1 produto rejeitado. Economiza 16h/mês. Faz a conta: você ganha dinheiro usando ValidaHub.',
-      benefit: 'Lucro de R$2.034+/mês',
-      color: 'text-emerald-400',
-      bgColor: 'bg-emerald-500/10'
+      title: "ROI (resultado comprovado)",
+      value: "R$ 2.034+ economia/mês",
+      pill: "Paga sozinho"
     }
   ]
 
   return (
     <section 
-      id="features" 
-      className="scroll-mt-20 py-24 pb-20 relative"
-      data-section="features"
-      aria-label="Benefícios que importam">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/8 to-emerald-500/8 border border-green-500/20 rounded-full mb-6">
-            <Zap className="w-4 h-4 text-green-400" />
-            <span className="text-sm text-green-400 font-medium">
-              Benefícios que importam
-            </span>
-          </div>
+      className="py-20 relative overflow-hidden bg-white dark:bg-zinc-950"
+      id="features"
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto">
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            Não vendemos features.
-            <span className="block text-green-400">Vendemos vendas.</span>
-          </h2>
-          
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Cada feature do ValidaHub existe por um único motivo: 
-            <span className="text-white font-semibold"> fazer você vender mais, perder menos.</span>
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => {
-            const Icon = feature.icon
-            return (
-              <div
-                key={index}
-                className="group relative bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:shadow-xl hover:shadow-black/20"
-              >
-                {/* Gradient effect on hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500/0 via-green-500/5 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-                
-                <div className="relative">
-                  {/* Icon */}
-                  <div className={`w-12 h-12 ${feature.bgColor} rounded-lg flex items-center justify-center mb-4`}>
-                    <Icon className={`w-6 h-6 ${feature.color}`} />
-                  </div>
-                  
-                  {/* Content */}
-                  <div 
-                    className="relative"
-                    onMouseEnter={() => feature.hasExamples && setHoveredFeature(index)}
-                    onMouseLeave={() => setHoveredFeature(null)}
-                  >
-                    <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                      {feature.title}
-                      {feature.hasExamples && (
-                        <Info className="w-4 h-4 text-gray-500 cursor-help" />
-                      )}
-                    </h3>
-                    
-                    {/* Tooltip with error examples */}
-                    {feature.hasExamples && hoveredFeature === index && (
-                      <div className="absolute z-50 top-full left-0 mt-2 w-80 bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-xl">
-                        <p className="text-sm font-semibold text-white mb-3">Exemplos dos 47 erros detectados:</p>
-                        <ul className="space-y-2">
-                          {errorExamples.slice(0, 5).map((error, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-xs text-gray-300">
-                              <span className="text-red-400 mt-0.5">•</span>
-                              {error}
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="text-xs text-gray-500 mt-3">...e mais 42 erros validados automaticamente</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <p className="text-gray-400 leading-relaxed mb-4">
-                    {feature.description}
-                  </p>
-                  
-                  {/* Benefit Badge */}
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-green-400">
-                      {feature.benefit}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Additional features grid */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { icon: Globe, label: 'Multi-marketplace' },
-            { icon: Cpu, label: 'Processamento rápido' },
-            { icon: Lock, label: 'Dados seguros' },
-            { icon: History, label: 'Auditoria completa' },
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-center space-x-2 bg-gray-800/30 rounded-lg py-3 px-4 border border-gray-700/50"
+          {/* Header */}
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
             >
-              <item.icon className="w-4 h-4 text-green-400" />
-              <span className="text-sm text-gray-300">{item.label}</span>
-            </div>
-          ))}
-        </div>
-        
-        {/* CTA Intermediário */}
-        <div className="mt-16 text-center">
-          <p className="text-2xl font-bold text-white mb-4">
-            Para de vender features. Comece a vender mais.
-          </p>
-          <Button
-            onClick={() => router.push('/upload')}
-            className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-lg shadow-lg shadow-green-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-green-500/30 group"
+              <p className="text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-4">
+                O que o ValidaHub resolve
+              </p>
+            </motion.div>
+            
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-zinc-900 dark:text-white"
+            >
+              Diagnóstico → Correção → Publicação
+            </motion.h2>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="mt-4 text-lg text-zinc-600 dark:text-zinc-300 max-w-2xl mx-auto"
+            >
+              Enquanto outros mostram dashboards bonitos, nós eliminamos erros e rejeições
+            </motion.p>
+          </div>
+
+          {/* Benefits Grid - 3x2 equal height */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 max-w-6xl mx-auto">
+            {benefits.map((benefit, i) => (
+              <BenefitCard
+                key={i}
+                icon={benefit.icon}
+                title={benefit.title}
+                value={benefit.value}
+                pill={benefit.pill}
+                delay={i * 0.1}
+              />
+            ))}
+          </div>
+
+          {/* Enterprise Guarantees */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-16"
           >
-            Validar grátis agora
-            <ArrowRight className="inline ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
+            <h3 className="text-center text-sm font-medium uppercase tracking-wider 
+              text-zinc-500 dark:text-zinc-400 mb-8">
+              Garantias enterprise
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+              {[
+                { icon: Activity, title: 'SLA 99.9%', desc: 'monitorado 24/7' },
+                { icon: Lock, title: 'LGPD/SOC2', desc: 'compliance total' },
+                { icon: Database, title: 'API REST', desc: '100k req/min' },
+              ].map(({ icon: Icon, title, desc }, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ y: -2 }}
+                  className="flex items-center gap-3 p-4 rounded-xl 
+                    border border-zinc-200/80 dark:border-zinc-800
+                    bg-white dark:bg-zinc-900/50 backdrop-blur-sm
+                    hover:shadow-md transition-all duration-200"
+                  aria-label={`${title}: ${desc}`}
+                >
+                  <Icon className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                  <div>
+                    <div className="font-semibold text-sm text-zinc-900 dark:text-white">
+                      {title}
+                    </div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400">{desc}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Dual CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col sm:flex-row gap-3 justify-center"
+          >
+            <button
+              className="rounded-2xl bg-violet-600 dark:bg-emerald-600 text-white px-8 py-4 font-semibold 
+                shadow-lg ring-2 ring-violet-400/30 dark:ring-emerald-400/30 hover:ring-violet-400/50 dark:hover:ring-emerald-400/50 
+                focus-visible:ring-4 focus-visible:ring-violet-400/70 dark:focus-visible:ring-emerald-400/70
+                hover:shadow-xl hover:scale-[1.02] 
+                transition-all duration-200"
+              data-analytics-id="features-trial-click"
+              onClick={() => window.dispatchEvent(new CustomEvent('features_trial_click'))}
+              aria-label="Começar validação gratuita"
+            >
+              Validar grátis agora
+              <ArrowRight className="inline-block ml-2 w-4 h-4" />
+            </button>
+            
+            <button
+              className="rounded-2xl border border-zinc-300 dark:border-zinc-700
+                bg-white dark:bg-transparent px-8 py-4 
+                text-zinc-800 dark:text-white font-medium
+                hover:bg-zinc-50 dark:hover:bg-zinc-900
+                transition-all duration-200"
+              data-analytics-id="features-demo-click"
+              onClick={() => window.dispatchEvent(new CustomEvent('features_demo_open'))}
+              aria-label="Assistir demonstração de 90 segundos"
+            >
+              <PlayCircle className="inline-block mr-2 w-4 h-4" />
+              Ver demo de 90s
+            </button>
+          </motion.div>
         </div>
       </div>
     </section>

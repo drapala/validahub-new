@@ -57,19 +57,19 @@ export default function CookieBanner() {
       }`}
     >
       <div className="w-[380px] max-w-[calc(100vw-2rem)]">
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl p-6">
+        <div className="dark:bg-zinc-900 dark:border-zinc-800 bg-white border-gray-200 rounded-2xl shadow-2xl p-6">
           {/* Header with icon */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Shield className="w-5 h-5 text-green-400" />
+            <div className="w-10 h-10 dark:bg-emerald-500/10 bg-violet-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Shield className="w-5 h-5 dark:text-emerald-400 text-violet-600" />
             </div>
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold dark:text-white text-gray-900">
               Cookies & Privacidade
             </h3>
             {/* Close button */}
             <button
               onClick={handleReject}
-              className="ml-auto text-gray-500 hover:text-gray-300 transition-colors"
+              className="ml-auto dark:text-zinc-500 dark:hover:text-zinc-300 text-gray-500 hover:text-gray-700 transition-colors"
               aria-label="Fechar"
             >
               <X className="w-4 h-4" />
@@ -77,19 +77,19 @@ export default function CookieBanner() {
           </div>
 
           {/* Content */}
-          <p className="text-sm text-gray-400 leading-relaxed mb-4">
+          <p className="text-sm dark:text-zinc-400 text-gray-600 leading-relaxed mb-4">
             Usamos cookies para melhorar sua experiência. 
             Veja nossa{' '}
             <Link 
               href="/privacy" 
-              className="text-green-400 hover:text-green-300 underline transition-colors"
+              className="dark:text-emerald-400 dark:hover:text-emerald-300 text-violet-600 hover:text-violet-700 underline transition-colors"
             >
               Política de Privacidade
             </Link>
             {' '}e{' '}
             <Link 
               href="/terms" 
-              className="text-green-400 hover:text-green-300 underline transition-colors"
+              className="dark:text-emerald-400 dark:hover:text-emerald-300 text-violet-600 hover:text-violet-700 underline transition-colors"
             >
               Termos
             </Link>
@@ -101,13 +101,13 @@ export default function CookieBanner() {
             <Button
               onClick={handleReject}
               variant="outline"
-              className="flex-1 px-4 py-2 text-sm border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white transition-all"
+              className="flex-1 px-4 py-2 text-sm dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all"
             >
               Essenciais
             </Button>
             <Button
               onClick={handleAccept}
-              className="flex-1 px-4 py-2 text-sm bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold shadow-lg shadow-green-500/20 transition-all"
+              className="flex-1 px-4 py-2 text-sm dark:bg-gradient-to-r dark:from-emerald-500 dark:to-teal-500 dark:hover:from-emerald-600 dark:hover:to-teal-600 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white font-semibold dark:shadow-lg dark:shadow-emerald-500/20 shadow-lg shadow-violet-500/20 transition-all"
             >
               Aceitar tudo
             </Button>

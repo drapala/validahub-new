@@ -21,6 +21,19 @@ export default function ROICalculatorWithLead() {
   const [rejectionRate, setRejectionRate] = useState(20)
   const [averageTicket, setAverageTicket] = useState(150)
   
+  // Check if we're in dark mode
+  const [isDark, setIsDark] = useState(false)
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains('dark'))
+    }
+    checkDarkMode()
+    // Listen for theme changes
+    const observer = new MutationObserver(checkDarkMode)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
+  }, [])
+  
   // Calculated values
   const [rejectedProducts, setRejectedProducts] = useState(0)
   const [lostSalesWithout, setLostSalesWithout] = useState(0)
@@ -127,6 +140,16 @@ export default function ROICalculatorWithLead() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value)
+  }
+
+  const formatNumber = (value: number) => {
+    return new Intl.NumberFormat('pt-BR').format(Math.round(value))
+  }
+
+  const formatROI = (roiPercent: number) => {
+    return roiPercent >= 1000 
+      ? `${(roiPercent/100).toFixed(1)}×` 
+      : `${formatNumber(roiPercent)}%`
   }
 
   const handleViewResult = () => {
@@ -257,37 +280,47 @@ export default function ROICalculatorWithLead() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full mb-6">
-            <Calculator className="w-4 h-4 text-green-400" />
-            <span className="text-sm text-green-400 font-medium">
+          <div className="inline-flex items-center gap-2 px-4 py-2 
+            dark:bg-green-500/10 dark:border-green-500/20 
+            bg-purple-500/10 border-purple-500/20 
+            rounded-full mb-6">
+            <Calculator className="w-4 h-4 dark:text-green-400 text-purple-600" />
+            <span className="text-sm dark:text-green-400 text-purple-600 font-medium">
               Calculadora de ROI interativa
             </span>
           </div>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 outline-none" data-heading>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight dark:text-white text-gray-900 mb-6 outline-none" data-heading>
             Ainda não se convenceu?
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">Veja os números reais</span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-violet-600 dark:from-emerald-500 dark:to-emerald-600">Veja os números reais</span>
           </h2>
           
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Ajuste com seus dados e descubra quanto está deixando na mesa todo mês.
-            <span className="text-white font-semibold"> Spoiler: é mais que R$97.</span>
+          <p className="text-xl text-zinc-600 dark:text-zinc-300 max-w-3xl mx-auto">
+            Ajuste seus dados e veja o impacto <span className="font-semibold text-zinc-900 dark:text-zinc-100">agora</span>.
+            <span className="text-zinc-900 dark:text-zinc-100 font-semibold"> Spoiler: é mais que R$97.</span>
           </p>
         </div>
 
-        {/* Calculator Container */}
+        {/* Calculator Container - Premium spacing */}
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Input Controls */}
+          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-y-6 gap-x-8">
+            {/* Input Controls - Premium card with light surface */}
             <div>
-              <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
-                <h3 className="text-xl font-bold text-white mb-6">Seus números atuais</h3>
+              <div className="rounded-2xl border border-zinc-200/80 dark:border-white/10
+                bg-white/90 dark:bg-white/[0.06]
+                backdrop-blur-md
+                shadow-[0_2px_0_rgba(2,6,23,.04),0_24px_48px_-12px_rgba(2,6,23,.12)] 
+                dark:shadow-[0_24px_40px_-16px_rgba(0,0,0,.65)]
+                p-5 md:p-6">
+                <h3 className="text-xl font-bold dark:text-white text-zinc-900 mb-6">Seus números atuais</h3>
                 
                 {/* Products per month */}
                 <div className="mb-8">
-                  <label className="flex justify-between text-gray-300 mb-3">
-                    <span>Produtos cadastrados/mês</span>
-                    <span className="text-white font-bold">{productsPerMonth}</span>
+                  <label className="flex justify-between items-center mb-3">
+                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Produtos cadastrados/mês</span>
+                    <span className="ml-auto rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-white px-2.5 py-0.5 text-sm font-medium tabular-nums">
+                      {formatNumber(productsPerMonth)}
+                    </span>
                   </label>
                   <input
                     type="range"
@@ -296,12 +329,13 @@ export default function ROICalculatorWithLead() {
                     step="10"
                     value={productsPerMonth}
                     onChange={(e) => setProductsPerMonth(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                    aria-valuetext={`${productsPerMonth} produtos por mês`}
+                    className="vh-slider"
                     style={{
-                      background: `linear-gradient(to right, #10b981 0%, #10b981 ${(productsPerMonth - 10) / 9.9}%, #374151 ${(productsPerMonth - 10) / 9.9}%, #374151 100%)`
+                      background: `linear-gradient(to right, ${isDark ? '#10b981' : '#7c3aed'} 0%, ${isDark ? '#10b981' : '#7c3aed'} ${((productsPerMonth - 10) / (1000 - 10)) * 100}%, ${isDark ? '#3f3f46' : '#e4e4e7'} ${((productsPerMonth - 10) / (1000 - 10)) * 100}%, ${isDark ? '#3f3f46' : '#e4e4e7'} 100%)`
                     }}
                   />
-                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                  <div className="flex justify-between text-xs dark:text-zinc-600 text-zinc-400 mt-2">
                     <span>10</span>
                     <span>1.000</span>
                   </div>
@@ -309,9 +343,17 @@ export default function ROICalculatorWithLead() {
 
                 {/* Rejection rate */}
                 <div className="mb-8">
-                  <label className="flex justify-between text-gray-300 mb-3">
-                    <span>Taxa de rejeição atual</span>
-                    <span className="text-red-400 font-bold">{rejectionRate}%</span>
+                  <label className="flex justify-between items-center mb-3">
+                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Taxa de rejeição atual</span>
+                    <span className={`ml-auto rounded-lg px-2.5 py-0.5 text-sm font-semibold tabular-nums ${
+                      rejectionRate < 8 
+                        ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:ring-emerald-900/30'
+                        : rejectionRate < 20
+                        ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:ring-amber-900/30'
+                        : 'bg-rose-100 text-rose-700 ring-1 ring-rose-200 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-900/30'
+                    }`}>
+                      {rejectionRate}%
+                    </span>
                   </label>
                   <input
                     type="range"
@@ -320,12 +362,13 @@ export default function ROICalculatorWithLead() {
                     step="1"
                     value={rejectionRate}
                     onChange={(e) => setRejectionRate(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    aria-valuetext={`Taxa de rejeição: ${rejectionRate}%`}
+                    className="vh-slider"
                     style={{
-                      background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${(rejectionRate - 5) / 0.45}%, #374151 ${(rejectionRate - 5) / 0.45}%, #374151 100%)`
+                      background: `linear-gradient(to right, ${isDark ? '#10b981' : '#7c3aed'} 0%, ${isDark ? '#10b981' : '#7c3aed'} ${((rejectionRate - 5) / (50 - 5)) * 100}%, ${isDark ? '#3f3f46' : '#e4e4e7'} ${((rejectionRate - 5) / (50 - 5)) * 100}%, ${isDark ? '#3f3f46' : '#e4e4e7'} 100%)`
                     }}
                   />
-                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                  <div className="flex justify-between text-xs dark:text-zinc-600 text-zinc-400 mt-2">
                     <span>5%</span>
                     <span>50%</span>
                   </div>
@@ -333,9 +376,11 @@ export default function ROICalculatorWithLead() {
 
                 {/* Average ticket */}
                 <div className="mb-8">
-                  <label className="flex justify-between text-gray-300 mb-3">
-                    <span>Ticket médio do produto</span>
-                    <span className="text-white font-bold">{formatCurrency(averageTicket)}</span>
+                  <label className="flex justify-between items-center mb-3">
+                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Ticket médio do produto</span>
+                    <span className="ml-auto rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-white px-2.5 py-0.5 text-sm font-medium tabular-nums">
+                      {formatCurrency(averageTicket)}
+                    </span>
                   </label>
                   <input
                     type="range"
@@ -344,12 +389,13 @@ export default function ROICalculatorWithLead() {
                     step="10"
                     value={averageTicket}
                     onChange={(e) => setAverageTicket(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    aria-valuetext={`Ticket médio: ${formatCurrency(averageTicket)}`}
+                    className="vh-slider"
                     style={{
-                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(averageTicket - 50) / 9.5}%, #374151 ${(averageTicket - 50) / 9.5}%, #374151 100%)`
+                      background: `linear-gradient(to right, ${isDark ? '#10b981' : '#7c3aed'} 0%, ${isDark ? '#10b981' : '#7c3aed'} ${((averageTicket - 50) / (1000 - 50)) * 100}%, ${isDark ? '#3f3f46' : '#e4e4e7'} ${((averageTicket - 50) / (1000 - 50)) * 100}%, ${isDark ? '#3f3f46' : '#e4e4e7'} 100%)`
                     }}
                   />
-                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                  <div className="flex justify-between text-xs dark:text-zinc-600 text-zinc-400 mt-2">
                     <span>R$ 50</span>
                     <span>R$ 1.000</span>
                   </div>
@@ -357,30 +403,34 @@ export default function ROICalculatorWithLead() {
               </div>
             </div>
 
-            {/* Results Display */}
-            <div className="space-y-4">
-              {/* Current Loss */}
-              <div className="bg-gradient-to-b from-red-950/30 to-red-950/20 border border-red-500/20 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="w-4 h-4 text-red-400" />
-                  <h4 className="text-sm font-bold text-white">Seu prejuízo atual</h4>
+            {/* Results Display - Premium cards with equal heights */}
+            <div className="flex flex-col gap-4">
+              {/* Current Loss - Rose theme with premium tint */}
+              <div className="rounded-2xl bg-rose-50 border-rose-200 border 
+                dark:bg-rose-500/10 dark:border-rose-300/20
+                shadow-[0_2px_0_rgba(2,6,23,.04),0_24px_48px_-12px_rgba(2,6,23,.12)]
+                dark:shadow-[0_24px_40px_-16px_rgba(0,0,0,.65)]
+                p-5 md:p-6 min-h-[140px]">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 opacity-70" />
+                  <h4 className="text-sm font-semibold text-rose-800 dark:text-rose-200">Seu prejuízo atual</h4>
                 </div>
-                <div className="space-y-1 relative">
-                  <div className="flex justify-between">
-                    <span className="text-xs text-gray-400">Produtos rejeitados/mês:</span>
+                <div className="space-y-3 relative">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-300">Produtos rejeitados/mês:</span>
                     <div className="relative">
-                      <span className={`font-semibold text-sm text-red-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
-                        {rejectedProducts}
+                      <span className={`font-medium text-sm tabular-nums text-rose-800 dark:text-white/90 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                        {formatNumber(rejectedProducts)}
                       </span>
                       {!hasAccess && (
                         <div className="absolute inset-0 bg-gradient-to-r from-gray-900/[0.005] to-transparent" />
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-gray-400">Potencial perdido/mês:</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-300">Potencial perdido/mês:</span>
                     <div className="relative">
-                      <span className={`font-bold text-base text-red-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <span className={`font-bold text-base tabular-nums text-rose-800 dark:text-white/90 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         {formatCurrency(lostSalesWithout)}
                       </span>
                       {!hasAccess && (
@@ -391,17 +441,21 @@ export default function ROICalculatorWithLead() {
                 </div>
               </div>
 
-              {/* With ValidaHub */}
-              <div className="bg-gradient-to-b from-green-950/30 to-green-950/20 border border-green-500/20 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-green-400" />
-                  <h4 className="text-sm font-bold text-white">Com ValidaHub</h4>
+              {/* With ValidaHub - Emerald theme with premium tint */}
+              <div className="rounded-2xl bg-emerald-50 border-emerald-200 border 
+                dark:bg-emerald-500/10 dark:border-emerald-300/20
+                shadow-[0_2px_0_rgba(2,6,23,.04),0_24px_48px_-12px_rgba(2,6,23,.12)]
+                dark:shadow-[0_24px_40px_-16px_rgba(0,0,0,.65)]
+                p-5 md:p-6 min-h-[140px]">
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400 opacity-70" />
+                  <h4 className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">Com ValidaHub</h4>
                 </div>
-                <div className="space-y-1 relative">
-                  <div className="flex justify-between">
-                    <span className="text-xs text-gray-400">Taxa de rejeição:</span>
+                <div className="space-y-3 relative">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-300">Taxa de rejeição:</span>
                     <div className="relative">
-                      <span className={`font-semibold text-sm text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <span className={`font-medium text-sm tabular-nums text-emerald-700 dark:text-white/90 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         2.8%
                       </span>
                       {!hasAccess && (
@@ -409,10 +463,10 @@ export default function ROICalculatorWithLead() {
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-gray-400">Potencial perdido/mês:</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-300">Potencial perdido/mês:</span>
                     <div className="relative">
-                      <span className={`font-semibold text-sm text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <span className={`font-medium text-sm tabular-nums text-emerald-700 dark:text-white/90 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         {formatCurrency(lostSalesWith)}
                       </span>
                       {!hasAccess && (
@@ -420,69 +474,108 @@ export default function ROICalculatorWithLead() {
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-gray-400">Investimento ValidaHub:</span>
-                    <span className="text-gray-300 font-semibold text-sm">R$ 47/mês</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-300">Investimento ValidaHub:</span>
+                    <span className="font-medium text-sm tabular-nums text-zinc-700 dark:text-white/90">R$ 47/mês</span>
                   </div>
                 </div>
               </div>
 
-              {/* ROI Summary */}
-              <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4 relative overflow-hidden">
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="w-4 h-4 text-green-400" />
-                  <h4 className="text-sm font-bold text-white">Seu retorno</h4>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-center py-2 border-b border-gray-700">
-                    <div className={`text-2xl font-bold text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
-                      {formatCurrency(monthlySavings)}
-                    </div>
-                    <div className="text-xs text-gray-400">Economia mensal líquida</div>
+              {/* ROI Summary - Premium with selective blur */}
+              <div className={`relative group ${!hasAccess ? '' : 'unlocked'}`}>
+                <div className="rounded-2xl border border-zinc-200/80 dark:border-white/10
+                  bg-white/90 dark:bg-white/[0.06]
+                  backdrop-blur-md
+                  shadow-[0_2px_0_rgba(2,6,23,.04),0_24px_48px_-12px_rgba(2,6,23,.12)]
+                  dark:shadow-[0_24px_40px_-16px_rgba(0,0,0,.65)]
+                  p-5 md:p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <DollarSign className="w-4 h-4 dark:text-emerald-400 text-emerald-600" />
+                    <h4 className="text-sm font-semibold dark:text-zinc-200 text-zinc-700">Seu retorno</h4>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="text-center">
-                      <div className={`text-lg font-bold text-white ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
-                        {roi > 0 ? `${roi.toFixed(0)}%` : '—'}
+                  <div className="space-y-3">
+                    <div className="text-center pb-3 border-b border-zinc-200/70 dark:border-zinc-700/70">
+                      <div className="relative">
+                        <div className={`text-2xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400 ${!hasAccess ? 'blur-sm select-none' : ''}`}>
+                          {formatCurrency(monthlySavings)}
+                        </div>
+                        {!hasAccess && (
+                          <div className="absolute inset-0 rounded-lg backdrop-blur-[2px] bg-white/55 dark:bg-black/35" />
+                        )}
                       </div>
-                      <div className="text-xs text-gray-400">ROI</div>
+                      <div className="text-xs dark:text-zinc-500 text-zinc-600 mt-1">Economia mensal líquida</div>
                     </div>
-                    <div className="text-center">
-                      <div className={`text-lg font-bold text-white ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
-                        {paybackDays < 999 ? `${paybackDays} dias` : '—'}
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-center">
+                        <div className="relative">
+                          <div className={`text-lg font-bold tabular-nums text-zinc-900 dark:text-white ${!hasAccess ? 'blur-sm select-none' : ''}`}>
+                            {roi > 0 ? formatROI(roi) : '—'}
+                          </div>
+                          {!hasAccess && (
+                            <div className="absolute inset-0 rounded backdrop-blur-[2px] bg-white/55 dark:bg-black/35" />
+                          )}
+                        </div>
+                        <div className="text-xs dark:text-zinc-500 text-zinc-600 mt-1">ROI</div>
                       </div>
-                      <div className="text-xs text-gray-400">Payback</div>
+                      <div className="text-center">
+                        <div className="relative">
+                          <div className={`text-lg font-bold tabular-nums text-zinc-900 dark:text-white ${!hasAccess ? 'blur-sm select-none' : ''}`}>
+                            {paybackDays < 999 ? `${paybackDays} dias` : '—'}
+                          </div>
+                          {!hasAccess && (
+                            <div className="absolute inset-0 rounded backdrop-blur-[2px] bg-white/55 dark:bg-black/35" />
+                          )}
+                        </div>
+                        <div className="text-xs dark:text-zinc-500 text-zinc-600 mt-1">Payback</div>
+                      </div>
                     </div>
-                  </div>
 
-                  {monthlySavings > 0 && (
-                    <div className="pt-2 border-t border-gray-700">
-                      <p className="text-center text-xs text-gray-400">
-                        Em 1 ano você economiza
-                        <span className={`block text-lg font-bold text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
-                          {formatCurrency(monthlySavings * 12)}
-                        </span>
-                      </p>
-                    </div>
-                  )}
+                    {monthlySavings > 0 && (
+                      <div className="pt-3 mt-3 border-t border-zinc-200/70 dark:border-zinc-700/70">
+                        <p className="text-center text-xs dark:text-zinc-500 text-zinc-600">
+                          Em 1 ano você economiza
+                        </p>
+                        <div className="relative mt-1">
+                          <span className={`block text-lg text-center font-bold tabular-nums text-emerald-700 dark:text-emerald-400 ${!hasAccess ? 'blur-sm select-none' : ''}`}>
+                            {formatCurrency(monthlySavings * 12)}
+                          </span>
+                          {!hasAccess && (
+                            <div className="absolute inset-0 rounded backdrop-blur-[2px] bg-white/55 dark:bg-black/35" />
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
+                {/* CTA button outside the card */}
                 {!hasAccess && (
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-gray-900/95 via-gray-900/80 to-transparent flex items-center justify-center">
-                    <Button size="lg" onClick={handleViewResult} className="bg-green-500 hover:bg-green-600 z-10">
-                      <Lock className="mr-2 h-4 w-4" />
-                      Ver resultado completo
-                    </Button>
-                  </div>
+                  <button
+                    onClick={handleViewResult}
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                      rounded-2xl bg-violet-600 dark:bg-emerald-600 text-white px-5 py-2.5 
+                      font-semibold shadow-lg
+                      ring-2 ring-violet-400/30 dark:ring-emerald-400/30 hover:ring-violet-400/50 dark:hover:ring-emerald-400/50
+                      focus-visible:ring-4 focus-visible:ring-violet-400/70 dark:focus-visible:ring-emerald-400/70
+                      hover:scale-105 transition-all duration-200"
+                  >
+                    <Lock className="inline-block mr-2 h-4 w-4" />
+                    Desbloquear resultado
+                  </button>
                 )}
               </div>
 
-              {/* CTA */}
+              {/* Premium CTA with elevation */}
               {hasAccess && (
                 <button 
                   onClick={() => navigateToSection('pricing')}
-                  className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-lg shadow-lg shadow-green-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-green-500/30">
+                  className="w-full rounded-2xl bg-violet-600 dark:bg-emerald-500 text-white py-3.5 font-semibold
+                    shadow-lg ring-2 ring-violet-300/40 hover:ring-violet-400/60
+                    dark:ring-emerald-400/40 dark:hover:ring-emerald-300/60
+                    focus:outline-none focus-visible:ring-4 focus-visible:ring-violet-400/70 dark:focus-visible:ring-emerald-400/70
+                    hover:scale-[1.02] transition-all duration-200">
                   Começar a economizar agora
                 </button>
               )}

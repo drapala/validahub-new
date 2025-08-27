@@ -36,10 +36,13 @@
 
   .snap-section {
     scroll-snap-align: start;
+    scroll-snap-stop: always;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Padding para compensar promo bar + navbar fixa */
+    scroll-margin-top: 100px;
   }
 
   /* Ensure sections fill their min-height properly */
