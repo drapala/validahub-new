@@ -1,13 +1,11 @@
 'use client'
 
 import Hero from '@/components/ui/Hero'
-import ERPComparison from '@/components/ui/ERPComparison'
 import SocialProof from '@/components/ui/SocialProof'
 import DataProof from '@/components/ui/DataProof'
 import Features from '@/components/ui/Features'
-import ROICalculator from '@/components/ui/ROICalculator'
+import ROICalculatorWithLead from '@/components/roi-calculator-with-lead'
 import Pricing from '@/components/ui/Pricing'
-import CTA from '@/components/ui/CTA'
 import Footer from '@/components/ui/Footer'
 import SmoothScrollSimple from '@/components/ui/SmoothScrollSimple'
 
@@ -19,8 +17,8 @@ export default function LandingPage() {
           <Hero />
         </section>
         
-        <section className="snap-section min-h-[70vh] md:min-h-screen" data-section="erp">
-          <ERPComparison />
+        <section className="snap-section min-h-[80vh] md:min-h-screen" data-section="calculator">
+          <ROICalculatorWithLead />
         </section>
         
         <section className="snap-section min-h-[50vh] md:min-h-[60vh]" data-section="social">
@@ -35,16 +33,8 @@ export default function LandingPage() {
           <Features />
         </section>
         
-        <section className="snap-section min-h-[80vh] md:min-h-screen" data-section="calculator">
-          <ROICalculator />
-        </section>
-        
         <section className="snap-section min-h-[90vh] md:min-h-screen" data-section="pricing">
           <Pricing />
-        </section>
-        
-        <section className="snap-section min-h-[70vh] md:min-h-[80vh]" data-section="cta">
-          <CTA />
         </section>
         
         <section className="snap-section min-h-[40vh] md:min-h-[50vh]" data-section="footer">

@@ -2,6 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Smooth scroll disabled for better control */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Header offset for scroll padding */
+:root {
+  --header-h: 72px;
+  --footer-pad: 0px;
+  --banner-h: 0px; /* Will be updated when banner is visible */
+}
+
+/* Scroll snapping for main container - THE container that scrolls */
+.snap-container {
+  min-height: 100svh; /* Minimum height but can grow */
+  height: auto; /* Allow natural height */
+  overflow-y: auto;
+  scroll-snap-type: y proximity; /* Use proximity to allow footer access */
+  scroll-padding-top: 0; /* No padding at top - hero handles its own padding */
+  scroll-padding-bottom: 0;
+}
+
+/* Disable snap temporarily during keyboard navigation */
+.snap-container.navigating {
+  scroll-snap-type: none !important;
+}
+
+/* Each snappable section - no external margins */
+.snap-section {
+  min-height: 100svh; /* Full viewport height */
+  scroll-snap-align: start; /* Start is more predictable */
+  scroll-snap-stop: normal; /* Allow free scrolling */
+  scroll-margin-top: 0; /* No margin needed */
+  /* NO margin-top or margin-bottom - use padding instead */
+  padding: 0; /* Reset any default padding */
+}
+
+/* All sections except first need header compensation */
+.snap-section:not(:first-child) {
+  scroll-margin-top: var(--header-h); /* Offset for fixed header */
+}
+
+/* Inner content wrapper for sections - removed to avoid conflicts */
+/* Padding should be managed by individual components */
+
+/* Last snap section before footer - special handling */
+.last-snap-section {
+  scroll-snap-align: start;
+  min-height: auto !important; /* Allow natural height */
+  scroll-snap-stop: normal; /* Allow scrolling past to footer */
+  margin-bottom: 0; /* Ensure no gap */
+}
+
+/* Ensure footer is accessible */
+footer {
+  scroll-snap-align: none !important; /* No snap on footer */
+  min-height: auto;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  .snap-container {
+    scroll-snap-type: none !important;
+  }
+}
+
 @layer base {
   /* ============================================
    * CSS VARIABLES - DARK THEME (DEFAULT)
@@ -106,7 +175,7 @@
   }
   
   html {
-    scroll-behavior: smooth;
+    /* scroll-behavior: smooth; -- disabled for instant navigation */
   }
   
   body {

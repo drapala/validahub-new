@@ -40,7 +40,7 @@ export default function Features() {
       icon: AlertTriangle,
       title: 'Detecta os 47 erros fatais do MELI',
       description: 'Para de perder vendas por "título muito longo", "categoria errada", "EAN inválido" e outros 44 erros bestas que você nem sabia que existiam.',
-      benefit: 'De 30% → 2,8% de rejeição',
+      benefit: 'De 30% → menos de 3% de rejeição',
       color: 'text-red-400',
       bgColor: 'bg-red-500/10',
       hasExamples: true
@@ -88,13 +88,17 @@ export default function Features() {
   ]
 
   return (
-    <section id="features" className="py-24 bg-gradient-to-b from-black to-gray-900">
+    <section 
+      id="features" 
+      className="scroll-mt-20 py-24 pb-20 relative"
+      data-section="features"
+      aria-label="Benefícios que importam">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/8 to-emerald-500/8 border border-green-500/20 rounded-full mb-6">
             <Zap className="w-4 h-4 text-green-400" />
             <span className="text-sm text-green-400 font-medium">
-              Features traduzidas em resultados
+              Benefícios que importam
             </span>
           </div>
           

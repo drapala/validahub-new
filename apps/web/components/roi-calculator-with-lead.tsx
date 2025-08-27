@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Calculator, TrendingUp, AlertTriangle, DollarSign, Lock, ArrowRight, Mail, Phone, CheckCircle2, X } from 'lucide-react'
+import { navigateToSection } from '@/lib/navigation'
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,15 @@ export default function ROICalculatorWithLead() {
   // Lead capture states
   const [hasAccess, setHasAccess] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+  
+  const closeDialog = useCallback(() => {
+    console.log('closeDialog called, forcing close')
+    setDialogOpen(false)
+    // Force update
+    setTimeout(() => {
+      console.log('Dialog should be closed after timeout')
+    }, 0)
+  }, [])
   const [email, setEmail] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
   const [consent, setConsent] = useState(false)
@@ -45,7 +55,7 @@ export default function ROICalculatorWithLead() {
   // Check localStorage on mount
   useEffect(() => {
     // Debug: Para testar, descomente a linha abaixo para limpar o acesso
-    // localStorage.removeItem("vh_roi_access")
+    localStorage.removeItem("vh_roi_access")
     
     const stored = localStorage.getItem("vh_roi_access")
     if (stored) {
@@ -94,6 +104,20 @@ export default function ROICalculatorWithLead() {
     setMonthlySavings(netSavings)
     setROI(roiPercent)
     setPaybackDays(payback)
+    
+    // Save calculation to sessionStorage for Pricing component
+    sessionStorage.setItem('roiCalculation', JSON.stringify({
+      monthlyLoss: monthlyLossWithout,
+      monthlySavings: netSavings,
+      productsPerMonth,
+      rejectionRate,
+      averageTicket
+    }))
+    
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('roiCalculationUpdated', {
+      detail: { monthlyLoss: monthlyLossWithout }
+    }))
   }, [productsPerMonth, rejectionRate, averageTicket])
 
   const formatCurrency = (value: number) => {
@@ -161,6 +185,7 @@ export default function ROICalculatorWithLead() {
   }
 
   const handleEmailSubmit = async () => {
+    console.log('handleEmailSubmit called')
     let hasError = false
     
     if (!validateEmail(email)) {
@@ -176,13 +201,17 @@ export default function ROICalculatorWithLead() {
       hasError = true
     }
     
-    if (hasError) return
+    if (hasError) {
+      console.log('Validation error, returning')
+      return
+    }
     
     setIsSubmitting(true)
     setEmailError("")
     setWhatsappError("")
     
     try {
+      console.log('Processing submission...')
       // Mock API call - would send email and whatsapp to backend
       await new Promise(resolve => setTimeout(resolve, 1000))
       
@@ -196,9 +225,19 @@ export default function ROICalculatorWithLead() {
       }))
       
       setHasAccess(true)
-      setDialogOpen(false)
+      console.log('Closing dialog...')
+      closeDialog()
+      
+      // Dispatch event to update Pricing component after lead capture
+      window.dispatchEvent(new CustomEvent('roiCalculationUpdated', {
+        detail: { 
+          monthlyLoss: lostSalesWithout,
+          hasAccess: true 
+        }
+      }))
       
     } catch (error) {
+      console.error('Error:', error)
       setEmailError("Erro ao processar. Tente novamente.")
     } finally {
       setIsSubmitting(false)
@@ -206,9 +245,14 @@ export default function ROICalculatorWithLead() {
   }
 
   return (
-    <section className="py-24 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
+    <section 
+      className="py-20 relative overflow-hidden"
+      id="roi-calculator"
+      data-section="calculator"
+      aria-label="Calculadora de ROI"
+    >
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
+      <div className="absolute inset-0 bg-grid-white/[0.01] bg-[size:80px_80px]" />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section header */}
@@ -220,22 +264,22 @@ export default function ROICalculatorWithLead() {
             </span>
           </div>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            Calcule quanto você está
-            <span className="block text-red-400">perdendo agora</span>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 outline-none" data-heading>
+            Ainda não se convenceu?
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">Veja os números reais</span>
           </h2>
           
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Ajuste os valores abaixo com seus números reais. 
-            <span className="text-white font-semibold"> A matemática não mente.</span>
+            Ajuste com seus dados e descubra quanto está deixando na mesa todo mês.
+            <span className="text-white font-semibold"> Spoiler: é mais que R$97.</span>
           </p>
         </div>
 
         {/* Calculator Container */}
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-8">
             {/* Input Controls */}
-            <div className="space-y-8">
+            <div>
               <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-8">
                 <h3 className="text-xl font-bold text-white mb-6">Seus números atuais</h3>
                 
@@ -314,18 +358,18 @@ export default function ROICalculatorWithLead() {
             </div>
 
             {/* Results Display */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Current Loss */}
-              <div className="bg-gradient-to-b from-red-950/30 to-red-950/20 border border-red-500/20 rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <AlertTriangle className="w-6 h-6 text-red-400" />
-                  <h4 className="text-lg font-bold text-white">Seu prejuízo atual</h4>
+              <div className="bg-gradient-to-b from-red-950/30 to-red-950/20 border border-red-500/20 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-4 h-4 text-red-400" />
+                  <h4 className="text-sm font-bold text-white">Seu prejuízo atual</h4>
                 </div>
-                <div className="space-y-3 relative">
+                <div className="space-y-1 relative">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Produtos rejeitados/mês:</span>
+                    <span className="text-xs text-gray-400">Produtos rejeitados/mês:</span>
                     <div className="relative">
-                      <span className={`font-bold text-red-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <span className={`font-semibold text-sm text-red-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         {rejectedProducts}
                       </span>
                       {!hasAccess && (
@@ -334,9 +378,9 @@ export default function ROICalculatorWithLead() {
                     </div>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Potencial perdido/mês:</span>
+                    <span className="text-xs text-gray-400">Potencial perdido/mês:</span>
                     <div className="relative">
-                      <span className={`font-bold text-xl text-red-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <span className={`font-bold text-base text-red-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         {formatCurrency(lostSalesWithout)}
                       </span>
                       {!hasAccess && (
@@ -348,16 +392,16 @@ export default function ROICalculatorWithLead() {
               </div>
 
               {/* With ValidaHub */}
-              <div className="bg-gradient-to-b from-green-950/30 to-green-950/20 border border-green-500/20 rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <TrendingUp className="w-6 h-6 text-green-400" />
-                  <h4 className="text-lg font-bold text-white">Com ValidaHub</h4>
+              <div className="bg-gradient-to-b from-green-950/30 to-green-950/20 border border-green-500/20 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-4 h-4 text-green-400" />
+                  <h4 className="text-sm font-bold text-white">Com ValidaHub</h4>
                 </div>
-                <div className="space-y-3 relative">
+                <div className="space-y-1 relative">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Taxa de rejeição:</span>
+                    <span className="text-xs text-gray-400">Taxa de rejeição:</span>
                     <div className="relative">
-                      <span className={`font-bold text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <span className={`font-semibold text-sm text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         2.8%
                       </span>
                       {!hasAccess && (
@@ -366,9 +410,9 @@ export default function ROICalculatorWithLead() {
                     </div>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Potencial perdido/mês:</span>
+                    <span className="text-xs text-gray-400">Potencial perdido/mês:</span>
                     <div className="relative">
-                      <span className={`font-bold text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <span className={`font-semibold text-sm text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         {formatCurrency(lostSalesWith)}
                       </span>
                       {!hasAccess && (
@@ -377,46 +421,46 @@ export default function ROICalculatorWithLead() {
                     </div>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Investimento ValidaHub:</span>
-                    <span className="text-gray-300 font-bold">R$ 47/mês</span>
+                    <span className="text-xs text-gray-400">Investimento ValidaHub:</span>
+                    <span className="text-gray-300 font-semibold text-sm">R$ 47/mês</span>
                   </div>
                 </div>
               </div>
 
               {/* ROI Summary */}
-              <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-2xl p-6 relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <DollarSign className="w-6 h-6 text-green-400" />
-                  <h4 className="text-lg font-bold text-white">Seu retorno</h4>
+              <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4 relative overflow-hidden">
+                <div className="flex items-center gap-2 mb-2">
+                  <DollarSign className="w-4 h-4 text-green-400" />
+                  <h4 className="text-sm font-bold text-white">Seu retorno</h4>
                 </div>
-                <div className="space-y-4">
-                  <div className="text-center py-4 border-b border-gray-700">
-                    <div className={`text-4xl font-bold text-green-400 mb-2 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                <div className="space-y-2">
+                  <div className="text-center py-2 border-b border-gray-700">
+                    <div className={`text-2xl font-bold text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                       {formatCurrency(monthlySavings)}
                     </div>
-                    <div className="text-gray-400">Economia mensal líquida</div>
+                    <div className="text-xs text-gray-400">Economia mensal líquida</div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="text-center">
-                      <div className={`text-2xl font-bold text-white mb-1 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <div className={`text-lg font-bold text-white ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         {roi > 0 ? `${roi.toFixed(0)}%` : '—'}
                       </div>
-                      <div className="text-sm text-gray-400">ROI</div>
+                      <div className="text-xs text-gray-400">ROI</div>
                     </div>
                     <div className="text-center">
-                      <div className={`text-2xl font-bold text-white mb-1 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                      <div className={`text-lg font-bold text-white ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                         {paybackDays < 999 ? `${paybackDays} dias` : '—'}
                       </div>
-                      <div className="text-sm text-gray-400">Payback</div>
+                      <div className="text-xs text-gray-400">Payback</div>
                     </div>
                   </div>
 
                   {monthlySavings > 0 && (
-                    <div className="pt-4 border-t border-gray-700">
-                      <p className="text-center text-sm text-gray-400">
+                    <div className="pt-2 border-t border-gray-700">
+                      <p className="text-center text-xs text-gray-400">
                         Em 1 ano você economiza
-                        <span className={`block text-2xl font-bold text-green-400 mt-1 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
+                        <span className={`block text-lg font-bold text-green-400 ${!hasAccess ? 'filter blur-md select-none' : ''}`}>
                           {formatCurrency(monthlySavings * 12)}
                         </span>
                       </p>
@@ -425,8 +469,8 @@ export default function ROICalculatorWithLead() {
                 </div>
 
                 {!hasAccess && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent flex items-center justify-center">
-                    <Button size="lg" onClick={handleViewResult} className="bg-green-500 hover:bg-green-600">
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-gray-900/95 via-gray-900/80 to-transparent flex items-center justify-center">
+                    <Button size="lg" onClick={handleViewResult} className="bg-green-500 hover:bg-green-600 z-10">
                       <Lock className="mr-2 h-4 w-4" />
                       Ver resultado completo
                     </Button>
@@ -436,7 +480,9 @@ export default function ROICalculatorWithLead() {
 
               {/* CTA */}
               {hasAccess && (
-                <button className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-lg shadow-lg shadow-green-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-green-500/30">
+                <button 
+                  onClick={() => navigateToSection('pricing')}
+                  className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-lg shadow-lg shadow-green-500/20 transition-all duration-200 hover:shadow-xl hover:shadow-green-500/30">
                   Começar a economizar agora
                 </button>
               )}
@@ -446,16 +492,18 @@ export default function ROICalculatorWithLead() {
       </div>
 
       {/* Email Capture Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+      {console.log('Dialog render, dialogOpen:', dialogOpen)}
+      {dialogOpen && (
+        <Dialog 
+          open={true} 
+          onOpenChange={(open) => {
+            console.log('onOpenChange called with:', open)
+            if (!open) {
+              setDialogOpen(false)
+            }
+          }}>
+          <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <button
-              onClick={() => setDialogOpen(false)}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Fechar</span>
-            </button>
             <DialogTitle>Veja seu resultado completo</DialogTitle>
             <DialogDescription>
               Insira seus dados para desbloquear a análise detalhada do ROI
@@ -528,9 +576,28 @@ export default function ROICalculatorWithLead() {
 
           <DialogFooter>
             <Button 
-              onClick={handleEmailSubmit} 
+              type="button"
+              variant="outline" 
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                console.log('Cancelar clicked, current state:', dialogOpen)
+                closeDialog()
+                console.log('Dialog should be closed now')
+              }}
+              disabled={isSubmitting}
+              className="sm:mr-2"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              type="button"
+              onClick={async () => {
+                console.log('Submit clicked')
+                await handleEmailSubmit()
+              }}
               disabled={isSubmitting || !email || !whatsapp || !consent}
-              className="w-full"
+              className="flex-1"
             >
               {isSubmitting ? (
                 <>Processando...</>
@@ -543,7 +610,8 @@ export default function ROICalculatorWithLead() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      )}
     </section>
   )
 }

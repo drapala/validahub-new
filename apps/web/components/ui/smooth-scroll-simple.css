@@ -2,9 +2,7 @@
 
 /* Desktop only */
 @media (min-width: 768px) {
-  html {
-    scroll-behavior: smooth;
-  }
+  /* Removed scroll-behavior: smooth from html */
   
   body {
     overflow-x: hidden;
@@ -14,7 +12,7 @@
     scroll-snap-type: y mandatory;
     overflow-y: scroll;
     height: 100vh;
-    scroll-behavior: smooth;
+    /* Removed scroll-behavior: smooth - using auto scroll */
     scrollbar-width: thin;
     scrollbar-color: #374151 #111827;
   }
