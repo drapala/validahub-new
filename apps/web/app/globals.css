@@ -152,7 +152,7 @@
   }
   
   .card {
-    @apply bg-card border border-border rounded-lg shadow-subtle;
+    @apply bg-card border border-border rounded-lg shadow-sm;
   }
   
   .input {

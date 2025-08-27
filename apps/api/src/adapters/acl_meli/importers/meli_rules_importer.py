@@ -1,4 +1,4 @@
-"""
+    """
 Main orchestrator for importing MELI rules.
 Coordinates the client, mapper, and error translator.
 """

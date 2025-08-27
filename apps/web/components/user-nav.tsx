@@ -13,7 +13,8 @@ import {
 import { User, LogOut, Settings, FileText, CreditCard, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import AuthModal from "@/components/ui/AuthModal";
+// AuthModal is temporarily commented out
+// import AuthModal from "@/components/ui/AuthModal";
 
 export function UserNav() {
   const { data: session, status } = useSession();
@@ -65,12 +66,13 @@ export function UserNav() {
           </Button>
         </div>
 
+        {/* AuthModal temporarily disabled
         <AuthModal
           isOpen={authModalOpen}
           onClose={() => setAuthModalOpen(false)}
           mode={authMode}
           onModeChange={setAuthMode}
-        />
+        /> */}
       </>
     );
   }

@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Button } from './button'
-import AuthModal from './AuthModal'
+// AuthModal is temporarily commented out
+// import AuthModal from './AuthModal'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,15 +16,16 @@ import {
   DropdownMenuTrigger,
 } from './dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from './sheet'
-import { Menu, X, User, LogOut, Settings, FileText, CreditCard } from 'lucide-react'
+import { Menu, X, User, LogOut, Settings, FileText, CreditCard, BookOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { navigateToSection } from '@/lib/navigation'
 
 const navLinks = [
-  { href: '#features', label: 'Features' },
-  { href: '#how-it-works', label: 'Como funciona' },
-  { href: '/pricing', label: 'Preços' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/docs', label: 'Docs' },
+  { href: 'features', label: 'Features', isSection: true },
+  { href: 'data', label: 'Como funciona', isSection: true },
+  { href: 'pricing', label: 'Preços', isSection: true },
+  { href: '/faq', label: 'FAQ', isSection: false },
+  { href: '/docs', label: 'Docs', isSection: false },
 ]
 
 export default function Navbar() {
@@ -55,12 +57,15 @@ export default function Navbar() {
     setMobileMenuOpen(false)
   }
 
-  const scrollToSection = (href: string) => {
-    if (href.startsWith('#')) {
-      const element = document.querySelector(href)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-      }
+  const handleNavClick = (link: typeof navLinks[0]) => {
+    if (link.isSection) {
+      // Se for uma seção, navega para ela
+      navigateToSection(link.href)
+      setMobileMenuOpen(false)
+    } else {
+      // Se for um link externo, usa o router
+      router.push(link.href)
+      setMobileMenuOpen(false)
     }
   }
 
@@ -69,11 +74,12 @@ export default function Navbar() {
   return (
     <>
       <nav
+        data-fixed-header
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
           isScrolled
-            ? 'bg-gray-900/95 backdrop-blur-md border-b border-gray-800 shadow-lg'
-            : 'bg-transparent'
+            ? 'bg-gray-900/90 backdrop-blur-xl border-b border-gray-800 shadow-2xl'
+            : 'bg-gray-900/70 backdrop-blur-lg border-b border-gray-800/50'
         )}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,16 +104,11 @@ export default function Navbar() {
               {navLinks.map((link) => (
                 <button
                   key={link.href}
-                  onClick={() => {
-                    if (link.href.startsWith('#') && isHomePage) {
-                      scrollToSection(link.href)
-                    } else if (link.href.startsWith('#')) {
-                      router.push('/' + link.href)
-                    } else {
-                      router.push(link.href)
-                    }
-                  }}
-                  className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+                  onClick={() => handleNavClick(link)}
+                  className={cn(
+                    "text-gray-300 hover:text-white transition-colors text-sm font-medium",
+                    !link.isSection && "hover:text-green-400"
+                  )}
                 >
                   {link.label}
                 </button>
@@ -115,9 +116,12 @@ export default function Navbar() {
             </div>
 
             {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-4 min-w-[200px] justify-end">
               {status === 'loading' ? (
-                <div className="w-32 h-10 bg-gray-800 animate-pulse rounded-lg" />
+                <div className="flex items-center space-x-4">
+                  <div className="w-20 h-9 bg-gray-800 animate-pulse rounded-lg" />
+                  <div className="w-24 h-9 bg-gray-800 animate-pulse rounded-lg" />
+                </div>
               ) : session ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -185,17 +189,11 @@ export default function Navbar() {
                   {navLinks.map((link) => (
                     <button
                       key={link.href}
-                      onClick={() => {
-                        if (link.href.startsWith('#') && isHomePage) {
-                          scrollToSection(link.href)
-                        } else if (link.href.startsWith('#')) {
-                          router.push('/' + link.href)
-                        } else {
-                          router.push(link.href)
-                        }
-                        setMobileMenuOpen(false)
-                      }}
-                      className="text-gray-300 hover:text-white transition-colors text-lg font-medium text-left"
+                      onClick={() => handleNavClick(link)}
+                      className={cn(
+                        "text-gray-300 hover:text-white transition-colors text-lg font-medium text-left",
+                        !link.isSection && "hover:text-green-400"
+                      )}
                     >
                       {link.label}
                     </button>
@@ -255,12 +253,13 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* AuthModal temporarily disabled
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         mode={authMode}
         onModeChange={setAuthMode}
-      />
+      /> */}
     </>
   )
 }
