@@ -11,6 +11,16 @@ const config: Config = {
     "./lib/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
     "./core/**/*.{ts,tsx}",
+    "../../packages/**/*.{ts,tsx}",
+    "./node_modules/@radix-ui/**/*.{js,ts,tsx}",
+  ],
+  safelist: [
+    // Dynamic color classes
+    { pattern: /(bg|text|border)-(zinc|gray|neutral|green|emerald|purple|red|blue|yellow)-(50|100|200|300|400|500|600|700|800|900|950)/ },
+    // Dynamic opacity/transform classes
+    { pattern: /(opacity|translate|scale|rotate)-(0|5|10|20|25|30|40|50|60|70|75|80|90|95|100)/ },
+    // Dark mode variants
+    { pattern: /dark:(bg|text|border)-(zinc|gray|neutral|green|emerald|purple)-(50|100|200|300|400|500|600|700|800|900|950)/ },
   ],
   theme: {
     container: {

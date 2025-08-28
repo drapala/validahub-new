@@ -47,7 +47,6 @@ export default function ROICalculatorWithLead() {
   const [dialogOpen, setDialogOpen] = useState(false)
   
   const closeDialog = useCallback(() => {
-    console.log('closeDialog called, forcing close')
     setDialogOpen(false)
     // Force update
     setTimeout(() => {
