@@ -4,7 +4,7 @@ Authentication dependencies for API endpoints.
 
 import os
 import jwt
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, status, Request, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials

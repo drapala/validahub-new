@@ -4,13 +4,13 @@ This version removes direct dependency on RuleEngineService.
 """
 
 import time
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 import asyncio
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 
-from core.interfaces.validation import IValidator
-from schemas.validate import (
+from src.core.interfaces.validation import IValidator
+from src.schemas.validate import (
     ValidationResult, 
     ValidationItem,
     ValidationStatus,

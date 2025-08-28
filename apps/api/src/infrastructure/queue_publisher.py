@@ -2,13 +2,13 @@
 Queue publisher abstraction for decoupling from specific queue implementations.
 """
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, Protocol
 from datetime import datetime, timezone
 import uuid
 
-from core.config import QueueConfig
+from src.core.config import QueueConfig
 
 logger = get_logger(__name__)
 

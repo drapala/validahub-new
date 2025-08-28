@@ -10,8 +10,8 @@ from contextlib import asynccontextmanager
 import time
 import contextvars
 
-from core.logging_config import get_logger
-from core.settings import get_settings
+from src.core.logging_config import get_logger
+from src.core.settings import get_settings
 from .events import BaseEvent, EventType, EventSeverity, create_event
 from .emitters import (
     TelemetryEmitter,

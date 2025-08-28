@@ -14,6 +14,7 @@ export default function LandingPage() {
   return (
     <>
       <main className="dark:bg-zinc-950 bg-white">
+        
         <section id="hero" className="min-h-screen">
           <Hero />
         </section>

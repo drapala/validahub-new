@@ -20,7 +20,7 @@ from .job_service_refactored import JobServiceRefactored
 
 # Adapters
 from .job_service_adapter import JobServiceAdapter
-from .rule_engine_service_adapter import RuleEngineServiceAdapter
+# from .rule_engine_service_adapter import RuleEngineServiceAdapter  # Class is RuleEngineService
 
 __all__ = [
     # Legacy
@@ -39,5 +39,5 @@ __all__ = [
     
     # Adapters
     "JobServiceAdapter",
-    "RuleEngineServiceAdapter",
+    # "RuleEngineServiceAdapter",  # Class is RuleEngineService
 ]

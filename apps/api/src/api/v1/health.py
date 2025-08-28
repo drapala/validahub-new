@@ -8,7 +8,7 @@ from sqlalchemy import text
 from src.schemas.validate import HealthStatus
 from src.config import settings
 from src.db.session import get_db_session
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 

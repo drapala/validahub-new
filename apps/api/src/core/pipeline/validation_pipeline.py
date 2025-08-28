@@ -3,12 +3,12 @@ Enhanced validation pipeline using the YAML-based rule engine.
 """
 
 import time
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import List, Dict, Any, Optional
 import pandas as pd
 
-from services.rule_engine_service import RuleEngineService, RuleEngineConfig
-from schemas.validate import (
+from src.services.rule_engine_service import RuleEngineService, RuleEngineConfig
+from src.schemas.validate import (
     ValidationResult, 
     ValidationItem,
     ValidationStatus,

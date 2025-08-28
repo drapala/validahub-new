@@ -9,9 +9,9 @@ from starlette.types import ASGIApp
 import time
 import asyncio
 
-from core.logging_config import get_logger
-from telemetry.telemetry_service import get_telemetry_service
-from telemetry.events import EventType
+from src.core.logging_config import get_logger
+from src.telemetry.telemetry_service import get_telemetry_service
+from src.telemetry.events import EventType
 
 logger = get_logger(__name__)
 

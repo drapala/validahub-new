@@ -4,7 +4,7 @@ Celery tasks for async job processing.
 
 import os
 import json
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 import tempfile
 from typing import Dict, Any, Optional
 from datetime import datetime
@@ -13,13 +13,13 @@ import io
 
 from .celery_app import celery_app, DatabaseTask, update_job_progress
 from ..services.rule_engine_service import RuleEngineService
-from core.pipeline.validation_pipeline import ValidationPipeline
+from src.core.pipeline.validation_pipeline import ValidationPipeline
 from ..services.csv_validation_service import CSVValidationService
 from ..services.storage_service import get_storage_service
 from exceptions import TransientError, MissingParameterError
-from telemetry.job_telemetry import get_job_telemetry
-from telemetry.metrics import MetricsCollector, ValidationMetrics
-from core.config import QueueConfig
+from src.telemetry.job_telemetry import get_job_telemetry
+from src.telemetry.metrics import MetricsCollector, ValidationMetrics
+from src.core.config import QueueConfig
 
 logger = get_logger(__name__)
 

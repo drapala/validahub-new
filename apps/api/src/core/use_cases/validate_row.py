@@ -3,7 +3,7 @@ Use case for single row validation.
 Handles domain logic for row-level validation.
 """
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
 

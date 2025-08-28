@@ -10,7 +10,7 @@ import numpy as np
 from typing import Any, List, Dict, Optional, Union
 from io import StringIO
 
-from core.ports.tabular_data_port import TabularDataPort
+from src.core.ports.tabular_data_port import TabularDataPort
 
 
 class PandasAdapter(TabularDataPort):

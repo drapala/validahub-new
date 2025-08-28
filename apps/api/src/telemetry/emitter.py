@@ -4,7 +4,7 @@ Telemetry emitter interface and implementations.
 
 import json
 import logging
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 import uuid
 import os
 import re

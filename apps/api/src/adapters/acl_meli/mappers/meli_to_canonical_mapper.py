@@ -6,7 +6,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import uuid
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from ..models.canonical_rule import (
     CanonicalRule,
     CanonicalRuleSet,

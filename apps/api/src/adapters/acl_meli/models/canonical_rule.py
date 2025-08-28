@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field, field_validator
-from core.validation import validation_registry
+from src.core.validation import validation_registry
 
 
 class RuleType(str, Enum):

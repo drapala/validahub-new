@@ -1,77 +1,33 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Moon, Sun } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
 
-export default function ThemeToggle() {
-  const [mounted, setMounted] = useState(false)
+export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
+  // Evita problemas de hidratação
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!mounted) return null
-
-  const isDark = theme === 'dark'
+  if (!mounted) {
+    return null
+  }
 
   return (
-    <motion.button
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className={`
-        relative p-2 rounded-lg transition-all duration-300
-        ${isDark 
-          ? 'bg-zinc-900/50 hover:bg-zinc-800/50 border border-zinc-800/50' 
-          : 'bg-purple-50/50 hover:bg-purple-100/50 border border-purple-200/30'
-        }
-      `}
-      whileTap={{ scale: 0.95 }}
-      aria-label={`Mudar para tema ${isDark ? 'claro' : 'escuro'}`}
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className="h-9 w-9"
     >
-      <AnimatePresence mode="wait">
-        {isDark ? (
-          <motion.div
-            key="moon"
-            initial={{ rotate: -90, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: 90, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-          >
-            <Moon className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="sun"
-            initial={{ rotate: 90, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: -90, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-          >
-            <Sun className="h-4 w-4 text-purple-600" strokeWidth={1.5} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Glow sutil no hover */}
-      <AnimatePresence>
-        {isDark ? (
-          <motion.div
-            className="absolute inset-0 rounded-lg bg-emerald-500/10 blur-xl pointer-events-none"
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
-        ) : (
-          <motion.div
-            className="absolute inset-0 rounded-lg bg-purple-500/10 blur-xl pointer-events-none"
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
-        )}
-      </AnimatePresence>
-    </motion.button>
+      <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   )
 }

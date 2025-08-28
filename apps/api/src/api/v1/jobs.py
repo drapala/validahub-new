@@ -2,7 +2,7 @@
 Job queue API endpoints.
 """
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Optional
 from uuid import UUID
 from fastapi import (

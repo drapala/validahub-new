@@ -4,18 +4,18 @@ Follows Single Responsibility Principle.
 """
 
 import uuid
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Optional, Tuple
 from datetime import datetime, timezone
 
-from schemas.job import JobCreate, JobOut
-from models.job import Job, JobStatus
-from core.result import Result, Ok, Err, JobError
-from core.validators.job_validator import JobValidator
-from infrastructure.repositories.job_repository import JobRepository
-from infrastructure.queue_publisher import QueuePublisher
-from telemetry.job_telemetry import get_job_telemetry
-from core.constants import (
+from src.schemas.job import JobCreate, JobOut
+from src.models.job import Job, JobStatus
+from src.core.result import Result, Ok, Err, JobError
+from src.core.validators.job_validator import JobValidator
+from src.infrastructure.repositories.job_repository import JobRepository
+from src.infrastructure.queue_publisher import QueuePublisher
+from src.telemetry.job_telemetry import get_job_telemetry
+from src.core.constants import (
     PARAM_MARKETPLACE,
     PARAM_CATEGORY,
     PARAM_REGION,

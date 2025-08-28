@@ -4,17 +4,17 @@ This version delegates responsibilities to specialized classes.
 """
 
 import copy
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 
-from infrastructure.factories.rule_engine_factory import (
+from src.infrastructure.factories.rule_engine_factory import (
     RuleEngineFactory,
     RuleEngineFactoryConfig
 )
-from infrastructure.loaders.rule_loader import RuleLoader, RuleLoaderConfig
-from infrastructure.mappers.result_mapper import ResultMapper
-from schemas.validate import ValidationItem
+from src.infrastructure.loaders.rule_loader import RuleLoader, RuleLoaderConfig
+from src.infrastructure.mappers.result_mapper import ResultMapper
+from src.schemas.validate import ValidationItem
 
 logger = get_logger(__name__)
 

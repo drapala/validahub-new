@@ -3,18 +3,18 @@ Mapper for converting between rule engine results and API validation items.
 This separates result transformation logic from business logic.
 """
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Optional, Dict, Any, List
 
-from rule_engine import RuleResult
+from src.libs.rule_engine.engine import RuleResult
 
-from schemas.validate import (
+from src.schemas.validate import (
     ValidationItem,
     ValidationStatus,
     ErrorDetail,
     CorrectionDetail
 )
-from core.enums import Severity
+from src.core.enums import Severity
 
 logger = get_logger(__name__)
 

@@ -3,7 +3,7 @@ Shared utilities for use cases.
 """
 
 from typing import Optional, List, Dict, Any
-from core.ports.tabular_data_port import TabularDataPort
+from src.core.ports.tabular_data_port import TabularDataPort
 
 
 class DataFrameUtils:

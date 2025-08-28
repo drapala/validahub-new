@@ -6,7 +6,7 @@ Maps MELI-specific errors to canonical error format.
 from typing import Dict, Any, List, Optional
 from enum import Enum
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from ..models.meli_models import MeliApiError
 
 logger = get_logger(__name__)

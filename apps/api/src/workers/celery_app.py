@@ -6,8 +6,8 @@ import os
 from celery import Celery, Task, signals
 from celery.signals import task_prerun, task_postrun, task_failure, task_retry
 from datetime import datetime
-from infrastructure.logging_config import setup_logging
-from core.logging_config import get_logger
+from src.infrastructure.logging_config import setup_logging
+from src.core.logging_config import get_logger
 from typing import Any, Dict
 import uuid
 

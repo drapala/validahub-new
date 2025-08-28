@@ -38,7 +38,7 @@ def update_logging_imports(content: str, file_path: Path) -> Tuple[str, bool]:
     for i, line in enumerate(lines):
         # Check for existing imports
         if 'from src.core.logging_config import' in line or \
-           'from core.logging_config import' in line or \
+           'from src.core.logging_config import' in line or \
            'from ...core.logging_config import' in line:
             has_get_logger_import = True
         
@@ -97,9 +97,9 @@ def get_import_line(file_path: Path) -> str:
         depth = after_src.count('/') - 1  # -1 for the file itself
         
         if depth == 0:  # Direct child of src
-            return "from core.logging_config import get_logger"
+            return "from src.core.logging_config import get_logger"
         elif depth == 1:  # One level deep
-            return "from core.logging_config import get_logger"
+            return "from src.core.logging_config import get_logger"
         elif depth == 2:  # Two levels deep
             return "from ...core.logging_config import get_logger"
         else:  # Three or more levels deep

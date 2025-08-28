@@ -3,7 +3,7 @@ Factory for creating queue publisher instances based on configuration.
 """
 
 import os
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 import threading
 from typing import Optional
 

@@ -3,13 +3,13 @@ Simple adapter for JobService to implement IJobService interface.
 This adapter only delegates calls, without implementing business logic.
 """
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 from sqlalchemy.orm import Session
 
-from core.interfaces.job_service import IJobService, JobStatus as IJobStatus
-from schemas.job import (
+from src.core.interfaces.job_service import IJobService, JobStatus as IJobStatus
+from src.schemas.job import (
     JobCreate,
     JobOut,
     JobResultOut,
@@ -17,7 +17,7 @@ from schemas.job import (
     JobListResponse,
     JobStatusUpdate
 )
-from infrastructure.queue_publisher import QueuePublisher
+from src.infrastructure.queue_publisher import QueuePublisher
 from .job_service import JobService as LegacyJobService
 
 logger = get_logger(__name__)

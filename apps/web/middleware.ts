@@ -9,9 +9,12 @@ function toBase64(bytes: Uint8Array) {
 
 export function middleware(req: NextRequest) {
   const res = NextResponse.next()
-
+  
   // Gera nonce (Edge-safe)
   const nonce = toBase64(crypto.getRandomValues(new Uint8Array(16)))
+  
+  // Detectar ambiente (localhost = desenvolvimento)
+  const isDev = req.nextUrl.hostname === 'localhost' || req.nextUrl.hostname === '127.0.0.1'
 
   // Domínios externos necessários
   const LOTTIE_HOSTS = [
@@ -26,32 +29,65 @@ export function middleware(req: NextRequest) {
     'https://www.googleapis.com',
     'https://securetoken.googleapis.com',
   ]
+  
+  // CSP diferente para dev e prod
+  let csp: string
+  
+  if (isDev) {
+    // Desenvolvimento: mais permissivo para hot reload e debug
+    csp = [
+      `default-src 'self'`,
+      // Scripts: permite eval e inline para hot reload
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${GOOGLE_HOSTS.join(' ')}`,
+      // Conexões: permite websocket para hot reload
+      `connect-src 'self' ws://localhost:* http://localhost:* ${GOOGLE_HOSTS.join(' ')} ${LOTTIE_HOSTS.join(' ')} https://api.github.com`,
+      // Imagens
+      `img-src 'self' data: https: blob:`,
+      // Estilos
+      `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
+      // Fonts
+      `font-src 'self' data: https://fonts.gstatic.com`,
+      // Workers
+      `worker-src 'self' blob:`,
+      // Frames
+      `frame-src ${GOOGLE_HOSTS.join(' ')}`,
+      // Media
+      `media-src 'self' blob: data:`,
+      // Base e form
+      `base-uri 'self'`,
+      `form-action 'self'`,
+      // Object
+      `object-src 'none'`,
+    ].join('; ')
+  } else {
+    // Produção: restritivo com nonce
+    csp = [
+      `default-src 'self'`,
+      // Scripts: apenas com nonce
+      `script-src 'self' 'nonce-${nonce}' ${GOOGLE_HOSTS.join(' ')}`,
+        // Conexões: apenas HTTPS
+      `connect-src 'self' ${GOOGLE_HOSTS.join(' ')} ${LOTTIE_HOSTS.join(' ')} https://api.github.com`,
+      // Imagens
+      `img-src 'self' data: https: blob:`,
+      // Estilos
+      `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
+      // Fonts
+      `font-src 'self' data: https://fonts.gstatic.com`,
+      // Workers
+      `worker-src 'self' blob:`,
+      // Frames
+      `frame-src ${GOOGLE_HOSTS.join(' ')}`,
+      // Media
+      `media-src 'self' blob: data:`,
+      // Base e form
+      `base-uri 'self'`,
+      `form-action 'self'`,
+      // Object
+      `object-src 'none'`,
+    ].join('; ')
+  }
 
-  const csp = [
-    `default-src 'self'`,
-    // Scripts: Next.js + inline com nonce + Google
-    `script-src 'self' 'nonce-${nonce}' ${GOOGLE_HOSTS.join(' ')}`,
-    // Conexões: APIs próprias, Google Auth, Lottie hosts
-    `connect-src 'self' ${GOOGLE_HOSTS.join(' ')} ${LOTTIE_HOSTS.join(' ')} https://api.github.com`,
-    // Imagens: self, data URLs, HTTPS
-    `img-src 'self' data: https: blob:`,
-    // Estilos: permitir inline (necessário para styled components/emotion)
-    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    // Fonts
-    `font-src 'self' data: https://fonts.gstatic.com`,
-    // Workers e blob URLs (Lottie pode usar)
-    `worker-src 'self' blob:`,
-    // Frames (Google OAuth)
-    `frame-src ${GOOGLE_HOSTS.join(' ')}`,
-    // Media
-    `media-src 'self' blob: data:`,
-    // Base e form
-    `base-uri 'self'`,
-    `form-action 'self'`,
-    // Object
-    `object-src 'none'`,
-  ].join('; ')
-
+  // Sempre adicionar o nonce no header para o Next.js usar
   res.headers.set('x-nonce', nonce)
   res.headers.set('Content-Security-Policy', csp)
 

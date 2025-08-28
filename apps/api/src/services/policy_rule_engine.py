@@ -5,7 +5,7 @@ Policy-based Rule Engine - Validates data using YAML policies.
 import re
 from typing import Dict, List, Any, Optional, Tuple
 from decimal import Decimal
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from .policy_loader import PolicyLoader
 
 logger = get_logger(__name__)

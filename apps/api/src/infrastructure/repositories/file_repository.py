@@ -8,11 +8,11 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
 from sqlalchemy.exc import SQLAlchemyError
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 
 from .base_repository import BaseRepository
-from models.file import File
-from core.result import Result, Ok, Err
+from src.models.file import File
+from src.core.result import Result, Ok, Err
 
 logger = get_logger(__name__)
 

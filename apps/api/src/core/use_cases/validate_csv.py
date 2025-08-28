@@ -4,7 +4,7 @@ Handles domain logic without I/O concerns.
 """
 
 import uuid
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Any, Dict, Optional
 from dataclasses import dataclass
 
