@@ -135,7 +135,7 @@ export default function NavbarRefined() {
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
             <Link
-              href="/login"
+              href="http://localhost:3002/auth/login"
               className="px-4 py-2 text-[13px] font-medium dark:text-zinc-300 dark:hover:text-white text-gray-700 hover:text-gray-900 transition-colors"
             >
               Entrar
@@ -191,7 +191,7 @@ export default function NavbarRefined() {
               
               <div className="mt-4 pt-4 border-t border-zinc-800/50 flex gap-3">
                 <Link
-                  href="/login"
+                  href="http://localhost:3002/auth/login"
                   className="flex-1 py-2.5 text-center text-sm font-medium text-zinc-400 hover:text-white transition-colors"
                   onClick={() => setOpen(false)}
                 >

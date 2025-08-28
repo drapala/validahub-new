@@ -9,7 +9,11 @@ from sqlalchemy import and_, or_, func, desc
 
 from src.db.database import get_db
 from src.models import Job, JobItem, JobStatus, JobChannel, JobType, ErrorSeverity
-from src.middleware.auth import get_current_tenant_id, get_current_user
+from src.middleware.auth import get_current_user
+
+def get_current_tenant_id():
+    """Temporary function to get tenant ID."""
+    return "validahub-id"
 from src.services.auth_service import AuthService
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])

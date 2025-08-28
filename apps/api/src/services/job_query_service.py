@@ -9,7 +9,7 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
 
 from src.schemas.job import JobOut, JobResultOut, JobListQuery, JobListResponse
-from src.models.job import Job, JobStatus, JobResult
+from src.models.job import Job, JobStatus
 from src.core.result import Result, Ok, Err, JobError
 from src.infrastructure.repositories.job_repository import JobRepository
 from src.infrastructure.queue_publisher import QueuePublisher
