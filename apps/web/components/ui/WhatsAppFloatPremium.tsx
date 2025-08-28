@@ -49,9 +49,7 @@ export default function WhatsAppFloatPremium() {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0, opacity: 0 }}
           transition={{ duration: 0.4, type: "spring", stiffness: 260, damping: 20 }}
-          className="fixed z-50 
-                     right-[max(16px,env(safe-area-inset-right))]
-                     bottom-[max(16px,env(safe-area-inset-bottom))]"
+          className="fixed z-50 right-4 bottom-4 md:right-6 md:bottom-6"
         >
           {/* Tooltip Peek */}
           <AnimatePresence>
@@ -61,7 +59,7 @@ export default function WhatsAppFloatPremium() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
                 transition={{ duration: 0.3 }}
-                className="absolute right-[72px] bottom-0 whitespace-nowrap"
+                className="absolute right-[72px] bottom-3 whitespace-nowrap"
               >
                 <div className="rounded-2xl bg-zinc-900 dark:bg-zinc-800 text-white text-sm px-4 py-2.5 shadow-xl">
                   Precisa de ajuda? Fale com a gente.
