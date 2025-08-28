@@ -13,7 +13,8 @@ import {
   Pause,
   ArrowRight,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  ChevronDown
 } from 'lucide-react'
 
 // Real marketplace validation rules with severity levels
@@ -84,6 +85,7 @@ type TabType = 'all' | 'fatal' | 'critical' | 'warning' | 'fixed'
 
 export default function DataProof() {
   const [fixedItems, setFixedItems] = useState<Set<number>>(new Set())
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set())
   const [activeTab, setActiveTab] = useState<TabType>('all')
   const [isSimulating, setIsSimulating] = useState(false)
   const [totalSavings, setTotalSavings] = useState(0)
@@ -129,6 +131,18 @@ export default function DataProof() {
             setTimeout(() => setShowSavingsFlash(false), 2000)
           }
         }
+      }
+      return next
+    })
+  }
+
+  const toggleExpanded = (id: number) => {
+    setExpandedItems(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
       }
       return next
     })
@@ -339,6 +353,7 @@ export default function DataProof() {
                 <AnimatePresence mode="popLayout">
                   {filteredRows.map((row) => {
                     const isFixed = fixedItems.has(row.id)
+                    const isExpanded = expandedItems.has(row.id)
                     return (
                       <motion.div
                         key={row.id}
@@ -348,13 +363,15 @@ export default function DataProof() {
                         exit={{ opacity: 0 }}
                         className="group"
                       >
-                        <button
-                          onClick={() => toggleFix(row.id)}
-                          className="w-full text-left px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 
-                            transition-colors duration-200"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4 flex-1">
+                        <div className="relative">
+                          {/* Main Row */}
+                          <div className="flex items-center px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 
+                            transition-colors duration-200">
+                            {/* Clickable area for fixing */}
+                            <button
+                              onClick={() => toggleFix(row.id)}
+                              className="flex items-center gap-4 flex-1"
+                            >
                               {/* Status Icon */}
                               <div className="relative">
                                 <motion.div
@@ -389,74 +406,143 @@ export default function DataProof() {
                                 </motion.div>
                               </div>
 
-                              {/* Field Info */}
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-1">
-                                  <span className="font-semibold text-zinc-900 dark:text-white">
-                                    {row.field}
-                                  </span>
-                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                    isFixed
-                                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-                                      : row.type === 'fatal'
-                                      ? 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
-                                      : row.type === 'critical'
-                                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
-                                      : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300'
-                                  }`}>
-                                    {isFixed ? 'Corrigido' : row.rule}
-                                  </span>
+                              {/* Field Info - Grid Layout for better alignment */}
+                              <div className="grid grid-cols-[1fr_auto] items-center gap-x-6 flex-1">
+                                <div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="font-semibold text-zinc-900 dark:text-white">
+                                      {row.field}
+                                    </span>
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                      isFixed
+                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                        : row.type === 'fatal'
+                                        ? 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
+                                        : row.type === 'critical'
+                                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+                                        : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300'
+                                    }`}>
+                                      {isFixed ? 'Corrigido' : row.rule}
+                                    </span>
+                                  </div>
+
+                                  {/* Value Display */}
+                                  <div className="mt-1">
+                                    <AnimatePresence mode="wait">
+                                      {!isFixed ? (
+                                        <motion.div
+                                          key="bad"
+                                          initial={{ opacity: 1 }}
+                                          exit={{ opacity: 0, filter: 'blur(4px)' }}
+                                          className="flex items-center gap-2"
+                                        >
+                                          <span className="text-sm text-zinc-600 dark:text-zinc-400 line-through">
+                                            {row.bad}
+                                          </span>
+                                        </motion.div>
+                                      ) : (
+                                        <motion.div
+                                          key="good"
+                                          initial={{ opacity: 0, x: -10 }}
+                                          animate={{ opacity: 1, x: 0 }}
+                                          className="flex items-center gap-2"
+                                        >
+                                          <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+                                            {row.good}
+                                          </span>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
                                 </div>
 
-                                {/* Value Display */}
-                                <div className="flex items-center gap-3">
-                                  <AnimatePresence mode="wait">
-                                    {!isFixed ? (
-                                      <motion.div
-                                        key="bad"
-                                        initial={{ opacity: 1 }}
-                                        exit={{ opacity: 0, filter: 'blur(4px)' }}
-                                        className="flex items-center gap-2"
-                                      >
-                                        <span className="text-sm text-zinc-600 dark:text-zinc-400 line-through">
-                                          {row.bad}
-                                        </span>
-                                      </motion.div>
-                                    ) : (
-                                      <motion.div
-                                        key="good"
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        className="flex items-center gap-2"
-                                      >
-                                        <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
-                                          {row.good}
-                                        </span>
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
+                                {/* Impact/Savings */}
+                                <div className="text-right">
+                                  {isFixed ? (
+                                    <motion.div
+                                      initial={{ opacity: 0, scale: 0.8 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      className="text-sm font-bold text-emerald-600 dark:text-emerald-400"
+                                    >
+                                      +R${row.savings}/dia
+                                    </motion.div>
+                                  ) : (
+                                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
+                                      {row.impact}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                            </div>
+                            </button>
 
-                            {/* Impact/Savings */}
-                            <div className="text-right">
-                              {isFixed ? (
+                            {/* Expand button */}
+                            {isFixed && (
+                              <button
+                                onClick={() => toggleExpanded(row.id)}
+                                className="ml-2 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                aria-label="Ver explicação"
+                              >
                                 <motion.div
-                                  initial={{ opacity: 0, scale: 0.8 }}
-                                  animate={{ opacity: 1, scale: 1 }}
-                                  className="text-sm font-bold text-emerald-600 dark:text-emerald-400"
+                                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                                  transition={{ duration: 0.2 }}
                                 >
-                                  +R${row.savings}/dia
+                                  <ChevronDown className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
                                 </motion.div>
-                              ) : (
-                                <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                                  {row.impact}
-                                </div>
-                              )}
-                            </div>
+                              </button>
+                            )}
                           </div>
-                        </button>
+
+                          {/* Expanded Explanation */}
+                          <AnimatePresence>
+                            {isFixed && isExpanded && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                className="overflow-hidden"
+                              >
+                                <div className="px-6 py-4 bg-emerald-50 dark:bg-emerald-950/20 border-t border-emerald-200 dark:border-emerald-900">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                                        Erro Original
+                                      </h4>
+                                      <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+                                        <strong>Valor:</strong> {row.bad}
+                                      </p>
+                                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                        <strong>Problema:</strong> {row.rule}
+                                      </p>
+                                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+                                        <strong>Impacto:</strong> {row.impact}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                                        Correção Aplicada
+                                      </h4>
+                                      <p className="text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+                                        <strong>Novo valor:</strong> {row.good}
+                                      </p>
+                                      <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                                        <strong>Resultado:</strong> Aprovação garantida
+                                      </p>
+                                      <p className="text-sm text-emerald-700 dark:text-emerald-300 font-semibold mt-1">
+                                        <strong>Ganho:</strong> +R${row.savings}/dia em vendas recuperadas
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-900">
+                                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                      💡 Correção automática baseada nas regras de validação do {row.type === 'fatal' ? 'Mercado Livre' : 'marketplace'}
+                                    </p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       </motion.div>
                     )
                   })}

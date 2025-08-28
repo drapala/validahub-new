@@ -11,7 +11,7 @@ from functools import wraps
 import time
 import random
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from ..models.meli_models import (
     MeliCategory,
     MeliRuleAttribute,

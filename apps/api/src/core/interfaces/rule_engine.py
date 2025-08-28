@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple
 
-from schemas.validate import ValidationItem
+from src.schemas.validate import ValidationItem
 
 
 class IRuleEngineService(ABC):

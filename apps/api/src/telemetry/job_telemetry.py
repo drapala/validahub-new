@@ -3,7 +3,7 @@ Job-specific telemetry helpers.
 """
 
 import time
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 import threading
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone

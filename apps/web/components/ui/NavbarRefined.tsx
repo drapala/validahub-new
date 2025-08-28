@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
-import ThemeToggle from './ThemeToggle'
+import { ThemeToggle } from './ThemeToggle'
 
 const sections = [
   { id: 'hero', label: 'Início' },

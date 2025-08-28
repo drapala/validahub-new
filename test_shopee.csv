@@ -1,4 +1,0 @@
-sku,title,description,price,quantity,weight,image_url,category_id,condition
-,Too Short,Short desc,-10,abc,0,invalid-url,ABC,invalid
-PROD-002,Valid Product Title with Good Length,This is a valid product description that meets the minimum character requirement of 50 characters,29.99,100,500,https://example.com/image.jpg,12345,new
-TOOLONG123456789012345678901234567890123456789012345,This title is way too long and exceeds the maximum allowed character limit for Shopee marketplace titles which is 100 characters maximum,Another short description,999999999,100000,400000,https://example.com/image2.jpg,67890,used

@@ -5,7 +5,7 @@ Loads queue settings from external sources (YAML, env vars).
 
 import os
 import yaml
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Dict, Any, Optional
 from pathlib import Path
 

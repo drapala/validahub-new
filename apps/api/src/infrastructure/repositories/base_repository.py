@@ -6,11 +6,11 @@ Provides a foundation for all repositories.
 from typing import TypeVar, Generic, Optional, List, Type, Any, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 import uuid
 
-from db.base import Base
-from core.result import Result, Ok, Err
+from src.db.base import Base
+from src.core.result import Result, Ok, Err
 
 logger = get_logger(__name__)
 

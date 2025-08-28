@@ -3,7 +3,7 @@ Adapter that provides backward compatibility for RuleEngineService.
 This allows gradual migration to the refactored version.
 """
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
@@ -12,9 +12,9 @@ from .rule_engine_service_refactored import (
     RuleEngineServiceRefactored,
     RuleEngineServiceConfig
 )
-from infrastructure.loaders.rule_loader import RuleLoaderConfig
-from infrastructure.factories.rule_engine_factory import RuleEngineFactoryConfig
-from schemas.validate import ValidationItem
+from src.infrastructure.loaders.rule_loader import RuleLoaderConfig
+from src.infrastructure.factories.rule_engine_factory import RuleEngineFactoryConfig
+from src.schemas.validate import ValidationItem
 
 logger = get_logger(__name__)
 

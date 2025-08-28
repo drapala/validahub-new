@@ -7,11 +7,11 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, func, case, Integer
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 
 from .base_repository import BaseRepository
-from models.validation_result import ValidationResult
-from core.result import Result, Ok, Err
+from src.models.validation_result import ValidationResult
+from src.core.result import Result, Ok, Err
 
 logger = get_logger(__name__)
 

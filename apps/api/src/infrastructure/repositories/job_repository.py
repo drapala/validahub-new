@@ -4,14 +4,14 @@ Isolates database operations from business logic.
 """
 
 import uuid
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, asc, func, exists
 
-from models.job import Job, JobStatus, JobResult
-from core.result import Result, Ok, Err, JobError
+from src.models.job import Job, JobStatus, JobResult
+from src.core.result import Result, Ok, Err, JobError
 
 logger = get_logger(__name__)
 

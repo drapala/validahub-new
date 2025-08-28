@@ -3,13 +3,14 @@ Pure domain service for CSV validation logic.
 Decoupled from infrastructure concerns (queues, storage).
 """
 
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Dict, Any, Optional, Tuple
 import pandas as pd
 import io
 
-from .rule_engine_service import RuleEngineService
-from core.pipeline.validation_pipeline import ValidationPipeline
+# Importing at runtime to avoid circular dependency
+# from .rule_engine_service import RuleEngineService
+# from src.core.pipeline.validation_pipeline import ValidationPipeline
 
 logger = get_logger(__name__)
 
@@ -20,8 +21,11 @@ class CSVValidationService:
     No infrastructure dependencies - only business logic.
     """
     
-    def __init__(self, rule_engine_service: Optional[RuleEngineService] = None):
+    def __init__(self, rule_engine_service: Optional[Any] = None):
         """Initialize with optional rule engine service."""
+        from .rule_engine_service import RuleEngineService
+        from src.core.pipeline.validation_pipeline import ValidationPipeline
+        
         self.rule_engine = rule_engine_service or RuleEngineService()
         self.pipeline = ValidationPipeline(rule_engine_service=self.rule_engine)
     
@@ -66,7 +70,7 @@ class CSVValidationService:
             logger.info(f"Validating CSV with {len(df)} rows for {marketplace}/{category}")
             
             # Convert string to enum if needed
-            from schemas.validate import Marketplace, Category
+            from src.schemas.validate import Marketplace, Category
             try:
                 marketplace_enum = Marketplace[marketplace.upper()] if isinstance(marketplace, str) else marketplace
             except (KeyError, AttributeError):

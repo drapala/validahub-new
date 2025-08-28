@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 from functools import lru_cache
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 

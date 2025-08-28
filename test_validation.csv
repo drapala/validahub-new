@@ -1,5 +1,0 @@
-sku,title,description,price,stock,condition,brand,image_url
-PROD-001,Notebook Dell,Notebook Dell Inspiron com 8GB RAM,2500.00,10,new,Dell,https://example.com/notebook.jpg
-,,,invalid_price,-5,unknown,,,https://invalid.url
-PROD-003,Mouse Gamer com título muito longo que excede o limite permitido de 60 caracteres,Mouse com RGB,45.90,abc,new,Logitech,https://example.com/mouse.jpg
-PROD-004,Teclado,Teclado mecânico,0,25,new,Corsair,https://example.com/teclado.jpg

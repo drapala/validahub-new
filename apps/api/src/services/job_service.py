@@ -3,7 +3,7 @@ Job service with idempotency and CRUD operations.
 """
 
 import uuid
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session

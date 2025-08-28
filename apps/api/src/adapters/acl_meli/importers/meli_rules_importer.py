@@ -9,8 +9,8 @@ import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
 
-from core.logging_config import get_logger
-from core.result import Result, Ok, Err
+from src.core.logging_config import get_logger
+from src.core.result import Result, Ok, Err
 from ..clients.meli_client import MeliClient
 from ..mappers.meli_to_canonical_mapper import MeliToCanonicalMapper
 from ..errors.meli_error_translator import MeliErrorTranslator, CanonicalError

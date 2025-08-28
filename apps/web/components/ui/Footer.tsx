@@ -58,7 +58,7 @@ export default function Footer() {
             {/* Brand & Description */}
             <div className="lg:col-span-1">
               <Link href="/" className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 dark:from-emerald-500 dark:to-green-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20 dark:shadow-emerald-500/20">
                   <CheckCircle2 className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-2xl font-bold text-zinc-900 dark:text-white">ValidaHub</span>
@@ -71,15 +71,15 @@ export default function Footer() {
               {/* Trust Badges */}
               <div className="flex flex-wrap gap-3">
                 <div className="flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
-                  <Shield className="w-3 h-3" />
+                  <Shield className="w-3 h-3 text-purple-600 dark:text-zinc-400" />
                   <span>ISO 27001</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
-                  <Award className="w-3 h-3" />
+                  <Award className="w-3 h-3 text-purple-600 dark:text-zinc-400" />
                   <span>LGPD Compliant</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-full">
-                  <Globe className="w-3 h-3" />
+                  <Globe className="w-3 h-3 text-purple-600 dark:text-zinc-400" />
                   <span>SOC 2 Type II</span>
                 </div>
               </div>
@@ -88,7 +88,7 @@ export default function Footer() {
             {/* Company Legal Info */}
             <div className="lg:col-span-1">
               <h3 className="text-zinc-900 dark:text-white font-semibold mb-4 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-emerald-500" />
+                <Building2 className="w-4 h-4 text-purple-600 dark:text-emerald-500" />
                 Informações Legais
               </h3>
               <div className="space-y-3 text-sm">
@@ -116,20 +116,20 @@ export default function Footer() {
             {/* Contact Info */}
             <div className="lg:col-span-1">
               <h3 className="text-zinc-900 dark:text-white font-semibold mb-4 flex items-center gap-2">
-                <Phone className="w-4 h-4 text-emerald-500" />
+                <Phone className="w-4 h-4 text-purple-600 dark:text-emerald-500" />
                 Contato Direto
               </h3>
               <div className="space-y-3">
                 <a 
                   href="mailto:contato@validahub.com" 
-                  className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-emerald-400 transition-colors"
                 >
                   <Mail className="w-4 h-4" />
                   <span>contato@validahub.com</span>
                 </a>
                 <a 
                   href="mailto:suporte@validahub.com" 
-                  className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-emerald-400 transition-colors"
                 >
                   <Mail className="w-4 h-4" />
                   <span>suporte@validahub.com</span>
@@ -138,7 +138,7 @@ export default function Footer() {
                   href="https://wa.me/5511999999999" 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-emerald-400 transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                   <span>WhatsApp Business</span>
@@ -151,7 +151,7 @@ export default function Footer() {
                   href="https://github.com/drapala"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all"
+                  className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-purple-500 hover:text-white dark:hover:bg-emerald-500 transition-all"
                   aria-label="GitHub"
                 >
                   <Github className="w-4 h-4" />
@@ -160,7 +160,7 @@ export default function Footer() {
                   href="https://linkedin.com/company/validahub"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all"
+                  className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-purple-500 hover:text-white dark:hover:bg-emerald-500 transition-all"
                   aria-label="LinkedIn"
                 >
                   <Linkedin className="w-4 h-4" />
@@ -169,7 +169,7 @@ export default function Footer() {
                   href="https://twitter.com/validahub"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all"
+                  className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-purple-500 hover:text-white dark:hover:bg-emerald-500 transition-all"
                   aria-label="Twitter"
                 >
                   <Twitter className="w-4 h-4" />
@@ -180,42 +180,28 @@ export default function Footer() {
         </div>
 
 
-        {/* Bottom section */}
+        {/* Bottom section - single line */}
         <div className="pt-8 border-t border-zinc-200/60 dark:border-zinc-800">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-sm text-zinc-500 dark:text-zinc-400">
-              <p className="font-medium">
-                © {currentYear} Drapala Technology Solutions Ltda
-              </p>
-              <span className="hidden md:inline">•</span>
-              <p>CNPJ: 57.508.298/0001-62</p>
-              <span className="hidden md:inline">•</span>
-              <p>Todos os direitos reservados</p>
-            </div>
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4 text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="text-center lg:text-left">
+              © {currentYear} Drapala Technology Solutions Ltda • CNPJ: 57.508.298/0001-62 • Todos os direitos reservados
+            </p>
             
             {/* Compliance & Security */}
-            <div className="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
-                <Shield className="w-3 h-3 text-green-500" />
+                <Shield className="w-3 h-3 text-purple-500 dark:text-green-500" />
                 SSL Secured
               </span>
               <span className="flex items-center gap-1">
-                <Award className="w-3 h-3 text-blue-500" />
+                <Award className="w-3 h-3 text-purple-500 dark:text-blue-500" />
                 PCI DSS
               </span>
               <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                <CheckCircle2 className="w-3 h-3 text-purple-500 dark:text-emerald-500" />
                 99.9% SLA
               </span>
             </div>
-          </div>
-          
-          {/* Final disclaimer */}
-          <div className="mt-6 text-center text-xs text-zinc-400 dark:text-zinc-500">
-            <p>
-              ValidaHub® é uma marca registrada da Drapala Technology Solutions Ltda. 
-              Mercado Livre®, Amazon®, Shopee® são marcas registradas de suas respectivas empresas.
-            </p>
           </div>
         </div>
       </div>

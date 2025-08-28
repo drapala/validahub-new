@@ -7,7 +7,7 @@ transforming their specific formats into canonical models.
 
 # Bootstrap validation registry with built-in validators
 from .models.canonical_rule import DataType
-from core.validation.validators_builtin import register_builtin_validators
+from src.core.validation.validators_builtin import register_builtin_validators
 
 # Register standard validators for DataTypes
 register_builtin_validators(DataType)

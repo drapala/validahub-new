@@ -5,7 +5,7 @@ Abstracts file download/upload operations from business logic.
 
 import os
 import json
-from core.logging_config import get_logger
+from src.core.logging_config import get_logger
 import hashlib
 from typing import Optional, Dict, Any
 from datetime import datetime

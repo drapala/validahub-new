@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from schemas.validation import ValidationResult
+from src.schemas.validation import ValidationResult
 
 
 class ValidationServicePort(ABC):

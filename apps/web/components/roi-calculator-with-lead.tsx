@@ -490,7 +490,7 @@ export default function ROICalculatorWithLead() {
                   p-5 md:p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <DollarSign className="w-4 h-4 dark:text-emerald-400 text-emerald-600" />
-                    <h4 className="text-sm font-semibold dark:text-zinc-200 text-zinc-700">Seu retorno</h4>
+                    <h4 className="text-sm font-semibold dark:text-zinc-300 text-zinc-700">Seu retorno</h4>
                   </div>
                   
                   <div className="space-y-3">
@@ -503,7 +503,7 @@ export default function ROICalculatorWithLead() {
                           <div className="absolute inset-0 rounded-lg backdrop-blur-[2px] bg-white/55 dark:bg-black/35" />
                         )}
                       </div>
-                      <div className="text-xs dark:text-zinc-500 text-zinc-600 mt-1">Economia mensal líquida</div>
+                      <div className="text-xs dark:text-zinc-400 text-zinc-600 mt-1">Economia mensal líquida</div>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
@@ -516,7 +516,7 @@ export default function ROICalculatorWithLead() {
                             <div className="absolute inset-0 rounded backdrop-blur-[2px] bg-white/55 dark:bg-black/35" />
                           )}
                         </div>
-                        <div className="text-xs dark:text-zinc-500 text-zinc-600 mt-1">ROI</div>
+                        <div className="text-xs dark:text-zinc-400 text-zinc-600 mt-1">ROI</div>
                       </div>
                       <div className="text-center">
                         <div className="relative">
@@ -527,13 +527,13 @@ export default function ROICalculatorWithLead() {
                             <div className="absolute inset-0 rounded backdrop-blur-[2px] bg-white/55 dark:bg-black/35" />
                           )}
                         </div>
-                        <div className="text-xs dark:text-zinc-500 text-zinc-600 mt-1">Payback</div>
+                        <div className="text-xs dark:text-zinc-400 text-zinc-600 mt-1">Payback</div>
                       </div>
                     </div>
 
                     {monthlySavings > 0 && (
                       <div className="pt-3 mt-3 border-t border-zinc-200/70 dark:border-zinc-700/70">
-                        <p className="text-center text-xs dark:text-zinc-500 text-zinc-600">
+                        <p className="text-center text-xs dark:text-zinc-400 text-zinc-600">
                           Em 1 ano você economiza
                         </p>
                         <div className="relative mt-1">
