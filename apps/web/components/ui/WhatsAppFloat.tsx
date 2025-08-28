@@ -1,48 +1,56 @@
 'use client'
 
+import { MessageCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-
-const WA_NUMBER = '5512992442448'
-const WA_URL = 
-  `https://wa.me/${WA_NUMBER}?text=` +
-  encodeURIComponent('Oi, quero tirar uma dúvida sobre o ValidaHub')
 
 export default function WhatsAppFloat() {
-  const [mounted, setMounted] = useState(false)
-
+  const [isVisible, setIsVisible] = useState(false)
+  
   useEffect(() => {
-    setMounted(true)
+    // Aparece após 2 segundos
+    const timer = setTimeout(() => setIsVisible(true), 2000)
+    return () => clearTimeout(timer)
   }, [])
-
-  if (!mounted) return null
-
+  
+  const handleClick = () => {
+    // Número do WhatsApp com mensagem pré-definida
+    const phoneNumber = '5511999999999' // Substitua pelo número real
+    const message = encodeURIComponent('Olá! Vi o ValidaHub e gostaria de saber mais sobre a plataforma.')
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank')
+  }
+  
+  if (!isVisible) return null
+  
   return (
-    <div className="fixed right-4 bottom-24 md:bottom-24 z-40">
-      {/* WhatsApp Button */}
-      <motion.a
-        id="vh-wa-btn"
-        href={WA_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Fale com um especialista no WhatsApp"
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#25D366] focus:ring-offset-gray-900 relative group"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        {/* WhatsApp Icon SVG */}
-        <svg
-          className="w-7 h-7"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-        </svg>
+    <button
+      onClick={handleClick}
+      className="fixed bottom-6 right-6 z-50 group animate-in fade-in slide-in-from-bottom-5 duration-500"
+      aria-label="Conversar no WhatsApp"
+    >
+      {/* Ícone pulsante */}
+      <div className="relative">
+        {/* Pulse rings */}
+        <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-25" />
+        <div className="absolute inset-0 bg-green-500 rounded-full animate-ping animation-delay-200 opacity-20" />
         
-        {/* Pulse animation */}
-        <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />
-      </motion.a>
-    </div>
+        {/* Main button */}
+        <div className="relative w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-full shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+          <MessageCircle className="w-7 h-7 text-white fill-white" />
+        </div>
+        
+        {/* Badge "Atendimento" */}
+        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+          Online
+        </div>
+      </div>
+      
+      {/* Tooltip on hover */}
+      <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+        <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl">
+          Fale conosco no WhatsApp
+          <div className="absolute top-full right-6 w-0 h-0 border-t-4 border-t-gray-900 border-x-4 border-x-transparent" />
+        </div>
+      </div>
+    </button>
   )
 }

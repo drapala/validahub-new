@@ -1,4 +1,5 @@
-import Navbar from '@/components/ui/Navbar'
+import NavbarRefined from '@/components/ui/NavbarRefined'
+import StickyPromoBar from '@/components/ui/StickyPromoBar'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -31,8 +32,11 @@ export default function MarketingLayout({
 }) {
   return (
     <>
-      <Navbar />
-      {children}
+      <StickyPromoBar />
+      <NavbarRefined />
+      <div className="pt-16 min-h-screen dark:bg-zinc-950 bg-white">
+        {children}
+      </div>
     </>
   )
 }

@@ -14,17 +14,18 @@ export default function CTA() {
   const router = useRouter()
 
   const handleStartNow = () => {
-    if (session) {
-      router.push('/upload')
-    } else {
-      setAuthModalOpen(true)
+    // Scroll suave para a seção de demonstração
+    const dataSection = document.querySelector('[data-section="data"]')
+    if (dataSection) {
+      dataSection.scrollIntoView({ behavior: 'smooth' })
     }
   }
 
   return (
     <>
-      <section className="py-20 bg-gradient-to-r from-green-500/10 via-gray-900 to-green-500/10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-transparent to-green-500/10" />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
               A escolha é simples:

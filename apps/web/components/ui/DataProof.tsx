@@ -1,385 +1,514 @@
 'use client'
 
-import React from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, AlertCircle, AlertTriangle, ChevronRight, ChevronDown, ArrowRight } from "lucide-react";
+import React, { useState, useEffect, useRef } from 'react'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { 
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle, 
+  AlertTriangle, 
+  Play,
+  Pause,
+  ArrowRight,
+  Sparkles,
+  TrendingUp
+} from 'lucide-react'
 
 // Real marketplace validation rules with severity levels
-const RAW_ROWS = [
+const VALIDATION_RULES = [
   {
-    field: "EAN/GTIN",
-    bad: "789012345678",
-    good: "7890123456789",
-    type: "fatal",
-    rule: "Dígito verificador inválido",
-    impact: "Bloqueio garantido"
+    id: 1,
+    field: 'EAN/GTIN',
+    bad: '789012345678',
+    good: '7890123456789',
+    type: 'fatal' as const,
+    rule: 'Dígito verificador inválido',
+    impact: 'Bloqueio garantido',
+    savings: 42 // R$/dia recuperados
   },
   {
-    field: "Categoria",
-    bad: "Eletrônicos > Sem categoria",
-    good: "MLB1002 - Celulares",
-    type: "fatal",
-    rule: "Categoria não mapeada no marketplace",
-    impact: "Rejeição automática"
+    id: 2,
+    field: 'Categoria',
+    bad: 'Eletrônicos > Sem categoria',
+    good: 'MLB1002 - Celulares',
+    type: 'fatal' as const,
+    rule: 'Categoria não mapeada',
+    impact: 'Rejeição automática',
+    savings: 38
   },
   {
-    field: "Título",
-    bad: "CELULAR SAMSUNG COMPRE JÁ!!! PROMOÇÃO!!!",
-    good: "Samsung Galaxy A54 5G 128GB",
-    type: "critical",
-    rule: "Termos promocionais proibidos",
-    impact: "35% de rejeição"
+    id: 3,
+    field: 'Título',
+    bad: 'CELULAR SAMSUNG PROMOÇÃO!!!',
+    good: 'Samsung Galaxy A54 5G 128GB',
+    type: 'critical' as const,
+    rule: 'Termos promocionais proibidos',
+    impact: '35% de rejeição',
+    savings: 21
   },
   {
-    field: "Preço",
-    bad: "R$ 2,499.00",
-    good: "R$ 2.499,00",
-    type: "critical",
-    rule: "Formato USD incompatível",
-    impact: "28% de falha"
+    id: 4,
+    field: 'Preço',
+    bad: 'R$ 2,499.00',
+    good: 'R$ 2.499,00',
+    type: 'critical' as const,
+    rule: 'Formato USD incompatível',
+    impact: '28% de falha',
+    savings: 18
   },
   {
-    field: "Estoque",
-    bad: "1 unidade",
-    good: "25 unidades",
-    type: "warning",
-    rule: "Quantidade abaixo do ideal",
-    impact: "-40% ranking"
+    id: 5,
+    field: 'Estoque',
+    bad: '1 unidade',
+    good: '25 unidades',
+    type: 'warning' as const,
+    rule: 'Quantidade abaixo do ideal',
+    impact: '-40% ranking',
+    savings: 8
   },
   {
-    field: "Descrição",
-    bad: "Celular novo na caixa.",
-    good: "Smartphone 6.4\", 50MP, 6GB RAM",
-    type: "warning",
-    rule: "Descrição muito curta",
-    impact: "-25% conversão"
+    id: 6,
+    field: 'Descrição',
+    bad: 'Celular novo.',
+    good: 'Smartphone 6.4", 50MP, 6GB RAM',
+    type: 'warning' as const,
+    rule: 'Descrição muito curta',
+    impact: '-25% conversão',
+    savings: 5
   }
-] as const;
+]
 
-type TabType = 'all' | 'fatal' | 'critical' | 'warning' | 'fixed';
+type TabType = 'all' | 'fatal' | 'critical' | 'warning' | 'fixed'
 
 export default function DataProof() {
-  const [states, setStates] = React.useState<boolean[]>(() => RAW_ROWS.map(() => false));
-  const [activeTab, setActiveTab] = React.useState<TabType>('all');
-  const [expandedRow, setExpandedRow] = React.useState<number | null>(null);
-  const [showFixed, setShowFixed] = React.useState(true);
-  const [hoveredRow, setHoveredRow] = React.useState<number | null>(null);
-
-  const handleScrollToPricing = () => {
-    const pricingSection = document.querySelector('[data-section="pricing"]');
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const fixedCount = states.filter(s => s).length;
-  const allFixed = fixedCount === RAW_ROWS.length;
+  const [fixedItems, setFixedItems] = useState<Set<number>>(new Set())
+  const [activeTab, setActiveTab] = useState<TabType>('all')
+  const [isSimulating, setIsSimulating] = useState(false)
+  const [totalSavings, setTotalSavings] = useState(0)
+  const [showSavingsFlash, setShowSavingsFlash] = useState(false)
+  const [lastSavingsAmount, setLastSavingsAmount] = useState(0)
   
+  const sectionRef = useRef(null)
+  const isInView = useInView(sectionRef, { once: false, margin: "-200px" })
+
+  // Auto-start simulation when in view
+  useEffect(() => {
+    if (isInView && fixedItems.size === 0) {
+      setTimeout(() => startSimulation(), 500)
+    }
+  }, [isInView])
+
   // Count by type
   const counts = {
-    fatal: RAW_ROWS.filter(r => r.type === 'fatal' && !states[RAW_ROWS.indexOf(r)]).length,
-    critical: RAW_ROWS.filter(r => r.type === 'critical' && !states[RAW_ROWS.indexOf(r)]).length,
-    warning: RAW_ROWS.filter(r => r.type === 'warning' && !states[RAW_ROWS.indexOf(r)]).length,
-    fixed: fixedCount
-  };
+    fatal: VALIDATION_RULES.filter(r => r.type === 'fatal' && !fixedItems.has(r.id)).length,
+    critical: VALIDATION_RULES.filter(r => r.type === 'critical' && !fixedItems.has(r.id)).length,
+    warning: VALIDATION_RULES.filter(r => r.type === 'warning' && !fixedItems.has(r.id)).length,
+    fixed: fixedItems.size
+  }
 
-  const onToggle = (idx: number) => {
-    setStates(prev => {
-      const next = [...prev];
-      next[idx] = !next[idx];
-      return next;
-    });
-  };
+  const toggleFix = (id: number) => {
+    setFixedItems(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+        const rule = VALIDATION_RULES.find(r => r.id === id)
+        if (rule) {
+          setTotalSavings(current => Math.max(0, current - rule.savings))
+        }
+      } else {
+        next.add(id)
+        const rule = VALIDATION_RULES.find(r => r.id === id)
+        if (rule) {
+          setTotalSavings(current => current + rule.savings)
+          // Show flash on 2nd and 4th fix
+          if (next.size === 2 || next.size === 4) {
+            setLastSavingsAmount(rule.savings)
+            setShowSavingsFlash(true)
+            setTimeout(() => setShowSavingsFlash(false), 2000)
+          }
+        }
+      }
+      return next
+    })
+  }
+
+  const startSimulation = () => {
+    if (isSimulating) {
+      setIsSimulating(false)
+      return
+    }
+
+    setIsSimulating(true)
+    setFixedItems(new Set())
+    setTotalSavings(0)
+
+    VALIDATION_RULES.forEach((rule, index) => {
+      setTimeout(() => {
+        toggleFix(rule.id)
+        if (index === VALIDATION_RULES.length - 1) {
+          setTimeout(() => setIsSimulating(false), 300)
+        }
+      }, (index + 1) * 600)
+    })
+  }
+
+  const resetAll = () => {
+    setFixedItems(new Set())
+    setTotalSavings(0)
+    setIsSimulating(false)
+  }
 
   // Filter rows based on active tab
   const getFilteredRows = () => {
-    if (activeTab === 'all') return RAW_ROWS;
-    if (activeTab === 'fixed') return RAW_ROWS.filter((_, i) => states[i]);
-    return RAW_ROWS.filter(r => r.type === activeTab && !states[RAW_ROWS.indexOf(r)]);
-  };
+    if (activeTab === 'all') return VALIDATION_RULES
+    if (activeTab === 'fixed') return VALIDATION_RULES.filter(r => fixedItems.has(r.id))
+    return VALIDATION_RULES.filter(r => 
+      r.type === activeTab && !fixedItems.has(r.id)
+    )
+  }
 
-  const visibleRows = showFixed ? getFilteredRows() : getFilteredRows().filter((_, i) => !states[i]);
-
-  const getIcon = (type: string, fixed: boolean) => {
-    if (fixed) return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-    if (type === 'fatal') return <XCircle className="w-4 h-4 text-red-500" />;
-    if (type === 'critical') return <AlertCircle className="w-4 h-4 text-orange-400" />;
-    return <AlertTriangle className="w-4 h-4 text-yellow-400" />;
-  };
-
-  const getStatusText = (type: string, fixed: boolean) => {
-    if (fixed) return "OK";
-    if (type === 'fatal') return "Fatal";
-    if (type === 'critical') return "Crítico";
-    return "Alerta";
-  };
-
-  const tabs = [
-    { id: 'all', label: 'Todos', count: RAW_ROWS.length },
-    { id: 'fatal', label: 'Fatais', count: counts.fatal, color: 'text-red-400' },
-    { id: 'critical', label: 'Críticos', count: counts.critical, color: 'text-orange-400' },
-    { id: 'warning', label: 'Alertas', count: counts.warning, color: 'text-yellow-400' },
-    { id: 'fixed', label: 'Corrigidos', count: counts.fixed, color: 'text-green-400' }
-  ];
+  const filteredRows = getFilteredRows()
 
   return (
-    <>
-      <div className="min-h-[500px] w-full text-neutral-100 p-6 md:p-10" data-section="data">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center mb-4 relative">
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-wide">
-              Validação em <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">tempo real</span>
-            </h2>
-            <p className="mt-3 text-base text-neutral-400 font-medium">
-              Clique para simular correções
-            </p>
-            {/* Linha de conexão visual */}
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24 h-0.5 bg-gradient-to-r from-transparent via-green-500/50 to-transparent" />
+    <section 
+      ref={sectionRef}
+      className="py-20 relative overflow-hidden bg-white dark:bg-zinc-950"
+      id="data"
+      data-section="data"
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          
+          {/* Header */}
+          <div className="text-center mb-12">
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl sm:text-5xl font-bold text-zinc-900 dark:text-white mb-4"
+            >
+              Validação em tempo real
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-zinc-600 dark:text-zinc-300 max-w-2xl mx-auto"
+            >
+              Clique em uma linha ou rode a simulação para ver como corrigimos erros 
+              e quanto isso te devolve por mês
+            </motion.p>
           </div>
 
-          <Card className="bg-neutral-900/30 border-neutral-800/40 shadow-xl overflow-hidden relative mt-6">
-            {/* Gradiente superior conectando ao título */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-green-500/30 to-transparent" />
-            {/* Header with tabs */}
-            <CardHeader className="pb-0 pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-sm">
-                  {allFixed ? (
-                    <>
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                      <span className="font-medium text-green-400">Apto para publicar</span>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex gap-4">
-                        {counts.fatal > 0 && (
-                          <span className="text-red-400">{counts.fatal} Fatais</span>
-                        )}
-                        {counts.critical > 0 && (
-                          <span className="text-orange-400">{counts.critical} Críticos</span>
-                        )}
-                        {counts.warning > 0 && (
-                          <span className="text-yellow-400">{counts.warning} Alertas</span>
-                        )}
-                      </div>
-                    </>
+          {/* Main Card */}
+          <Card className="relative overflow-hidden border-zinc-200 dark:border-zinc-800 
+            bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md shadow-xl">
+            
+            {/* Savings Flash */}
+            <AnimatePresence>
+              {showSavingsFlash && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: -20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                  className="absolute top-4 right-4 z-20"
+                >
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full 
+                    bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800">
+                    <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                      +R${lastSavingsAmount}/dia recuperado
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <CardHeader className="pb-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                {/* Progress Bar */}
+                <div className="flex-1 max-w-md">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Progresso da correção
+                    </span>
+                    <span className="text-sm font-bold tabular-nums text-zinc-900 dark:text-white">
+                      {fixedItems.size}/{VALIDATION_RULES.length} corrigidos
+                    </span>
+                  </div>
+                  <div className="relative h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(fixedItems.size / VALIDATION_RULES.length) * 100}%` }}
+                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-emerald-400"
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3">
+                  <Button
+                    onClick={startSimulation}
+                    variant="default"
+                    className="bg-violet-600 dark:bg-emerald-600 hover:bg-violet-700 dark:hover:bg-emerald-700 text-white"
+                    disabled={isSimulating && fixedItems.size > 0}
+                  >
+                    {isSimulating ? (
+                      <>
+                        <Pause className="w-4 h-4 mr-2" />
+                        Pausar
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 mr-2" />
+                        Simular correções ({6 - fixedItems.size})
+                      </>
+                    )}
+                  </Button>
+                  {fixedItems.size > 0 && (
+                    <Button
+                      onClick={resetAll}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Resetar
+                    </Button>
                   )}
                 </div>
-                {counts.fixed > 0 && !allFixed && (
-                  <button
-                    onClick={() => setShowFixed(!showFixed)}
-                    className="text-xs text-neutral-500 hover:text-neutral-300 flex items-center gap-1"
-                  >
-                    {showFixed ? 'Esconder' : 'Mostrar'} corrigidos ({counts.fixed})
-                    {showFixed ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                  </button>
-                )}
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-1 border-b border-neutral-800/40 mt-2">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as TabType)}
-                    className={`px-3 py-2 text-xs font-medium transition-colors relative ${
-                      activeTab === tab.id 
-                        ? 'text-neutral-200' 
-                        : 'text-neutral-500 hover:text-neutral-300'
-                    }`}
-                  >
-                    <span className={tab.color}>{tab.label}</span>
-                    {tab.count > 0 && (
-                      <span className="ml-1.5 text-neutral-600">({tab.count})</span>
-                    )}
-                    {activeTab === tab.id && (
-                      <motion.div 
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500"
-                        transition={{ duration: 0.2 }}
-                      />
-                    )}
-                  </button>
-                ))}
+              <div className="flex items-center gap-1 mt-6 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'all'
+                      ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                  }`}
+                >
+                  Todos
+                </button>
+                <button
+                  onClick={() => setActiveTab('fatal')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'fatal'
+                      ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                  }`}
+                >
+                  Fatais ({counts.fatal})
+                </button>
+                <button
+                  onClick={() => setActiveTab('critical')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'critical'
+                      ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                  }`}
+                >
+                  Críticos ({counts.critical})
+                </button>
+                <button
+                  onClick={() => setActiveTab('warning')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'warning'
+                      ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                  }`}
+                >
+                  Alertas ({counts.warning})
+                </button>
+                <button
+                  onClick={() => setActiveTab('fixed')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeTab === 'fixed'
+                      ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                  }`}
+                >
+                  Corrigidos ({counts.fixed})
+                </button>
               </div>
             </CardHeader>
 
             <CardContent className="p-0">
-              {/* Compact table */}
-              <div className="divide-y divide-neutral-800/20">
-                <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs text-neutral-500 font-medium uppercase tracking-wider">
-                  <div className="col-span-3">Campo</div>
-                  <div className="col-span-5">Valor</div>
-                  <div className="col-span-2">Status</div>
-                  <div className="col-span-1"></div>
-                  <div className="col-span-1"></div>
-                </div>
-
+              <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
                 <AnimatePresence mode="popLayout">
-                  {visibleRows.length > 0 ? (
-                    visibleRows.map((r, i) => {
-                      const idx = RAW_ROWS.indexOf(r);
-                      const isFixed = states[idx];
-                      const isExpanded = expandedRow === idx;
-                      
-                      return (
-                        <motion.div
-                          key={r.field}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.2 }}
+                  {filteredRows.map((row) => {
+                    const isFixed = fixedItems.has(row.id)
+                    return (
+                      <motion.div
+                        key={row.id}
+                        layout
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="group"
+                      >
+                        <button
+                          onClick={() => toggleFix(row.id)}
+                          className="w-full text-left px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 
+                            transition-colors duration-200"
                         >
-                          <div 
-                            className={`grid grid-cols-12 gap-2 px-4 py-2 cursor-pointer transition-all duration-200 relative group ${
-                              isFixed 
-                                ? 'opacity-60 border-l-4 border-green-500' 
-                                : 'hover:shadow-[0_0_12px_rgba(34,197,94,0.3)] hover:bg-green-500/5 border-l-4 border-transparent hover:border-green-500/50'
-                            }`}
-                            onClick={() => onToggle(idx)}
-                            onMouseEnter={() => setHoveredRow(idx)}
-                            onMouseLeave={() => setHoveredRow(null)}
-                          >
-                            <div className="col-span-3 text-sm font-medium text-neutral-300">
-                              {r.field}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4 flex-1">
+                              {/* Status Icon */}
+                              <div className="relative">
+                                <motion.div
+                                  animate={{
+                                    scale: isFixed ? [1, 1.2, 1] : 1,
+                                    rotate: isFixed ? [0, 180, 360] : 0
+                                  }}
+                                  transition={{ duration: 0.5 }}
+                                >
+                                  {isFixed ? (
+                                    <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-950 
+                                      flex items-center justify-center">
+                                      <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                    </div>
+                                  ) : (
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                      row.type === 'fatal'
+                                        ? 'bg-red-100 dark:bg-red-950'
+                                        : row.type === 'critical'
+                                        ? 'bg-amber-100 dark:bg-amber-950'
+                                        : 'bg-yellow-100 dark:bg-yellow-950'
+                                    }`}>
+                                      {row.type === 'fatal' ? (
+                                        <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                                      ) : row.type === 'critical' ? (
+                                        <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                      ) : (
+                                        <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                                      )}
+                                    </div>
+                                  )}
+                                </motion.div>
+                              </div>
+
+                              {/* Field Info */}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-1">
+                                  <span className="font-semibold text-zinc-900 dark:text-white">
+                                    {row.field}
+                                  </span>
+                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                    isFixed
+                                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                      : row.type === 'fatal'
+                                      ? 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300'
+                                      : row.type === 'critical'
+                                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+                                      : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300'
+                                  }`}>
+                                    {isFixed ? 'Corrigido' : row.rule}
+                                  </span>
+                                </div>
+
+                                {/* Value Display */}
+                                <div className="flex items-center gap-3">
+                                  <AnimatePresence mode="wait">
+                                    {!isFixed ? (
+                                      <motion.div
+                                        key="bad"
+                                        initial={{ opacity: 1 }}
+                                        exit={{ opacity: 0, filter: 'blur(4px)' }}
+                                        className="flex items-center gap-2"
+                                      >
+                                        <span className="text-sm text-zinc-600 dark:text-zinc-400 line-through">
+                                          {row.bad}
+                                        </span>
+                                      </motion.div>
+                                    ) : (
+                                      <motion.div
+                                        key="good"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="flex items-center gap-2"
+                                      >
+                                        <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+                                          {row.good}
+                                        </span>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              </div>
                             </div>
-                            <div className="col-span-5 text-sm text-neutral-400 truncate">
-                              {isFixed ? r.good : r.bad}
-                            </div>
-                            <div className="col-span-2 flex items-center gap-1.5">
-                              {getIcon(r.type, isFixed)}
-                              <span className={`text-xs ${
-                                isFixed ? 'text-green-500' : 
-                                r.type === 'fatal' ? 'text-red-500' :
-                                r.type === 'critical' ? 'text-orange-400' :
-                                'text-yellow-400'
-                              }`}>
-                                {getStatusText(r.type, isFixed)}
-                              </span>
-                            </div>
-                            {/* Hover action indicator */}
-                            <div className="col-span-1 flex items-center justify-end gap-1">
-                              {hoveredRow === idx && !isFixed && (
+
+                            {/* Impact/Savings */}
+                            <div className="text-right">
+                              {isFixed ? (
                                 <motion.div
                                   initial={{ opacity: 0, scale: 0.8 }}
                                   animate={{ opacity: 1, scale: 1 }}
-                                  exit={{ opacity: 0, scale: 0.8 }}
-                                  className="flex items-center gap-1 md:inline-flex text-xs text-green-400 font-medium whitespace-nowrap mr-2"
+                                  className="text-sm font-bold text-emerald-600 dark:text-emerald-400"
                                 >
-                                  <span>✓</span>
-                                  <span className="hidden md:inline">Corrigir</span>
+                                  +R${row.savings}/dia
                                 </motion.div>
+                              ) : (
+                                <div className="text-sm text-zinc-500 dark:text-zinc-400">
+                                  {row.impact}
+                                </div>
                               )}
                             </div>
-                            <div className="col-span-1 flex justify-end">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setExpandedRow(isExpanded ? null : idx);
-                                }}
-                                className="p-1 hover:bg-neutral-700/50 rounded transition-all duration-200"
-                                aria-label={isExpanded ? "Fechar detalhes" : "Expandir detalhes"}
-                              >
-                                <ChevronRight className={`w-4 h-4 transition-all duration-200 ${
-                                  isExpanded ? 'rotate-90 text-green-400' : 'text-neutral-400 hover:text-neutral-200'
-                                }`} />
-                              </button>
-                            </div>
                           </div>
-                          
-                          {/* Expanded detail row */}
-                          <AnimatePresence>
-                            {isExpanded && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="overflow-hidden"
-                              >
-                                <div className="px-4 py-3 bg-neutral-800/20 border-l-2 border-green-500/30 ml-4">
-                                  <div className="grid grid-cols-2 gap-4 text-xs">
-                                    <div>
-                                      <p className="text-neutral-500 mb-1 font-medium">Antes</p>
-                                      <p className="text-red-400/80 line-through">{r.bad}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-neutral-500 mb-1 font-medium">Depois</p>
-                                      <p className="text-green-400 font-medium">{r.good}</p>
-                                    </div>
-                                  </div>
-                                  <div className="mt-3 pt-3 border-t border-neutral-800/50 space-y-1">
-                                    <p className="text-xs">
-                                      <span className="text-neutral-500">Regra:</span>
-                                      <span className="text-neutral-300 ml-1">{r.rule}</span>
-                                    </p>
-                                    <p className="text-xs">
-                                      <span className="text-neutral-500">Impacto:</span>
-                                      <span className={`ml-1 font-medium ${
-                                        r.type === 'fatal' ? 'text-red-400' : 
-                                        r.type === 'critical' ? 'text-orange-400' : 
-                                        'text-yellow-400'
-                                      }`}>{r.impact}</span>
-                                    </p>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                      );
-                    })
-                  ) : (
-                    <div className="py-8 text-center text-neutral-500 text-sm">
-                      Nenhum item nesta categoria
-                    </div>
-                  )}
+                        </button>
+                      </motion.div>
+                    )
+                  })}
                 </AnimatePresence>
               </div>
 
-              {/* Footer with progress */}
-              <div className="px-4 py-3 border-t border-neutral-800/40">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-1 w-24 bg-neutral-800 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-green-500 to-emerald-400"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(fixedCount / RAW_ROWS.length) * 100}%` }}
-                        transition={{ duration: 0.3 }}
-                      />
+              {/* Footer with Total Savings and CTAs */}
+              <div className="px-6 py-4 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                        Total economizado
+                      </div>
+                      <div className="text-2xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                        R${totalSavings}/dia
+                      </div>
                     </div>
-                    <span className="text-xs text-neutral-500">
-                      {fixedCount}/{RAW_ROWS.length} corrigidos
-                    </span>
+                    {totalSavings > 0 && (
+                      <div className="text-sm text-zinc-500 dark:text-zinc-400">
+                        = R${(totalSavings * 30).toLocaleString('pt-BR')}/mês
+                      </div>
+                    )}
                   </div>
-                  
-                  {allFixed ? (
-                    <Button 
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-500 text-white border-0 text-xs h-7 px-3"
-                      onClick={handleScrollToPricing}
-                    >
-                      Validar meu CSV
-                    </Button>
-                  ) : (
-                    <button
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
                       onClick={() => {
-                        setStates(RAW_ROWS.map(() => true));
+                        const section = document.querySelector('[data-section="features"]')
+                        section?.scrollIntoView({ behavior: 'smooth' })
                       }}
-                      className="text-xs text-green-400 hover:text-green-300"
                     >
-                      Corrigir tudo →
-                    </button>
-                  )}
+                      Ver todas as regras
+                    </Button>
+                    <Button
+                      className="bg-violet-600 dark:bg-emerald-600 hover:bg-violet-700 dark:hover:bg-emerald-700 text-white"
+                      onClick={() => {
+                        const section = document.querySelector('[data-section="calculator"]')
+                        section?.scrollIntoView({ behavior: 'smooth' })
+                      }}
+                    >
+                      Validar meu CSV agora
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
-    </>
-  );
+    </section>
+  )
 }

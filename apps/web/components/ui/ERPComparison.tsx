@@ -1,23 +1,23 @@
 'use client'
 
 import { Shield, AlertTriangle, CheckCircle, X } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 export default function ERPComparison() {
   return (
-    <section className="py-24 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
+    <section className="py-24 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
+      <div className="absolute inset-0 bg-grid-white/[0.01] bg-[size:80px_80px]" />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-6xl mx-auto">
           {/* Section header */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full mb-6">
-              <AlertTriangle className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-yellow-400 font-medium">
-                A verdade que ninguém te conta
-              </span>
-            </div>
+            <Badge variant="outline" className="mb-6 px-4 py-2 bg-yellow-500/10 border-yellow-500/20 text-yellow-400">
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              A verdade que ninguém te conta
+            </Badge>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
               ERPs <span className="text-red-400">integram</span>, mas 
@@ -33,7 +33,8 @@ export default function ERPComparison() {
           {/* Comparison grid */}
           <div className="grid md:grid-cols-2 gap-8 mb-16">
             {/* ERP Column */}
-            <div className="bg-gradient-to-b from-red-950/20 to-red-950/10 border border-red-500/20 rounded-2xl p-8">
+            <Card className="bg-gradient-to-b from-red-950/20 to-red-950/10 border-red-500/20">
+              <CardContent className="p-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center">
                   <X className="w-6 h-6 text-red-400" />
@@ -74,10 +75,12 @@ export default function ERPComparison() {
                   </span>
                 </li>
               </ul>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* ValidaHub Column */}
-            <div className="bg-gradient-to-b from-green-950/20 to-green-950/10 border border-green-500/20 rounded-2xl p-8">
+            <Card className="bg-gradient-to-b from-green-950/20 to-green-950/10 border-green-500/20">
+              <CardContent className="p-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center">
                   <Shield className="w-6 h-6 text-green-400" />
@@ -118,7 +121,8 @@ export default function ERPComparison() {
                   </span>
                 </li>
               </ul>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Bottom CTA */}
