@@ -190,7 +190,7 @@ class SecuritySettings(BaseSettings):
     access_token_expire_minutes: int = Field(default=30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     refresh_token_expire_days: int = Field(default=7, env="REFRESH_TOKEN_EXPIRE_DAYS")
     cors_origins: List[str] = Field(
-        default=["http://localhost:3000", "http://localhost:3001"],
+        default=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
         env="CORS_ORIGINS"
     )
     cors_allow_credentials: bool = Field(default=True, env="CORS_ALLOW_CREDENTIALS")

@@ -8,6 +8,7 @@ from src.infrastructure.logging_config import setup_logging
 from src.core.logging_config import get_logger
 # from src.db.base import engine, Base  # Commented for testing
 from src.api.v1 import health, validation, jobs
+from src.routers import auth
 from src.middleware.correlation import (
     CorrelationMiddleware,
     RateLimitMiddleware,
@@ -81,6 +82,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router)  # Health endpoints (no prefix)
+app.include_router(auth.router)  # Authentication endpoints
 app.include_router(validation.router)  # Validation endpoints with YAML rule engine
 app.include_router(jobs.router)  # Job queue endpoints
 
