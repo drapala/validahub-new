@@ -1,16 +1,36 @@
 # ValidaHub 🚀
 
-[![CI/CD](https://github.com/drapala/validahub-new/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/drapala/validahub-new/actions)
-[![codecov](https://codecov.io/gh/drapala/validahub-new/branch/main/graph/badge.svg)](https://codecov.io/gh/drapala/validahub-new)
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
-![Node](https://img.shields.io/badge/node-20+-green.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)
-![License](https://img.shields.io/badge/license-Proprietary-red.svg)
+<div align="center">
+  
+  ### 🌟 **[Live Demo](https://validahub-new-web-vlbl.vercel.app/)** 🌟
+  
+  [![Live Preview](https://img.shields.io/badge/🔴_LIVE-Demo_Online-brightgreen?style=for-the-badge&logo=vercel)](https://validahub-new-web-vlbl.vercel.app/)
+  [![Visit Now](https://img.shields.io/badge/Visit-ValidaHub-green?style=for-the-badge&logo=rocket&logoColor=white)](https://validahub-new-web-vlbl.vercel.app/)
+  
+  <br/>
+  
+  [![CI/CD](https://github.com/drapala/validahub-new/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/drapala/validahub-new/actions)
+  [![codecov](https://codecov.io/gh/drapala/validahub-new/branch/main/graph/badge.svg)](https://codecov.io/gh/drapala/validahub-new)
+  ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
+  ![Node](https://img.shields.io/badge/node-20+-green.svg)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)
+  ![License](https://img.shields.io/badge/license-Proprietary-red.svg)
+  
+</div>
 
 **Intelligent CSV validation and correction for e-commerce.**  
 ValidaHub processes large product catalogs asynchronously, applies marketplace-specific rules, and auto-corrects errors with full observability.
 
 > *ValidaHub é uma plataforma escalável para validação e correção inteligente de planilhas CSV de e-commerce. Já integra Mercado Livre, Shopee e Amazon, com processamento assíncrono e telemetria completa.*
+
+<div align="center">
+  <br/>
+  <a href="https://validahub-new-web-vlbl.vercel.app/" target="_blank">
+    <img src="https://img.shields.io/badge/🚀_Experience_the_Platform-Click_Here-FF6B6B?style=for-the-badge" alt="Try ValidaHub Now" />
+  </a>
+  <br/>
+  <br/>
+</div>
 
 ---
 
