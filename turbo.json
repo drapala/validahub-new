@@ -1,46 +1,18 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
-  "globalDependencies": ["**/.env.*local"],
-  "tasks": {
-    "dev": {
-      "cache": false,
-      "persistent": true
+  "pipeline": {
+    "dev": { 
+      "cache": false, 
+      "dependsOn": ["^dev"] 
     },
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "env": ["NEXT_PUBLIC_*", "DATABASE_URL", "REDIS_URL"]
+    "build": { 
+      "dependsOn": ["^build"], 
+      "outputs": [".next/**", "dist/**"] 
     },
-    "start": {
-      "dependsOn": ["build"],
-      "cache": false
-    },
-    "lint": {
-      "outputs": []
-    },
-    "typecheck": {
-      "outputs": []
-    },
-    "test": {
-      "outputs": [],
-      "cache": false
-    },
-    "test:ci": {
-      "outputs": [],
-      "cache": false,
-      "dependsOn": []
-    },
-    "clean": {
-      "cache": false
-    },
-    "db:migrate": {
-      "cache": false,
-      "outputs": []
-    },
-    "db:generate": {
-      "cache": false,
-      "outputs": []
+    "lint": {},
+    "typecheck": {},
+    "clean": { 
+      "cache": false 
     }
   }
 }
