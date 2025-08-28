@@ -8,7 +8,7 @@ from datetime import datetime
 from uuid import UUID
 import enum
 
-from src.models.job import JobStatus, JobPriority
+from src.models.job import JobStatus  # JobPriority removed
 
 
 class JobPlan(str, enum.Enum):
@@ -25,7 +25,7 @@ class JobCreate(BaseModel):
     task: str = Field(..., description="Task name to execute", min_length=1, max_length=100)
     params: Dict[str, Any] = Field(default={}, description="Task parameters")
     priority: Optional[int] = Field(
-        default=JobPriority.NORMAL.value,
+        default=5,  # Normal priority
         ge=1, 
         le=10,
         description="Job priority (1-10)"

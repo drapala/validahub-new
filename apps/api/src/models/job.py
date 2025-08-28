@@ -1,11 +1,12 @@
 """
-SQLAlchemy models for job queue system.
+SQLAlchemy models for validation job processing.
 """
 
 from sqlalchemy import (
     Column, String, DateTime, Enum as SQLEnum, Text, Integer, 
-    JSON, UniqueConstraint, Index, Float, text
+    JSON, UniqueConstraint, Index, Float, text, ForeignKey
 )
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.inspection import inspect
@@ -18,141 +19,224 @@ from src.models.utils import get_table_args
 
 
 class JobStatus(str, enum.Enum):
-    """Job status enumeration."""
-    QUEUED = "queued"
-    RUNNING = "running"
-    SUCCEEDED = "succeeded"
+    """Job processing status."""
+    PENDING = "pending"
+    PROCESSING = "processing"
+    SUCCESS = "success"
     FAILED = "failed"
+    REVIEW = "review"
     CANCELLED = "cancelled"
-    EXPIRED = "expired"
-    RETRYING = "retrying"
 
 
-class JobPriority(int, enum.Enum):
-    """Job priority levels."""
-    LOW = 1
-    NORMAL = 5
-    HIGH = 7
-    CRITICAL = 10
+class JobChannel(str, enum.Enum):
+    """E-commerce channels."""
+    MERCADO_LIVRE = "mercado_livre"
+    AMAZON = "amazon"
+    B2W = "b2w"
+    MAGALU = "magalu"
+    SHOPEE = "shopee"
+    VIA = "via"
+    CASAS_BAHIA = "casas_bahia"
+
+
+class JobType(str, enum.Enum):
+    """Job types."""
+    CATALOG_UPLOAD = "catalog_upload"
+    PRICE_UPDATE = "price_update"
+    STOCK_UPDATE = "stock_update"
+    FULL_SYNC = "full_sync"
+    VALIDATION_ONLY = "validation_only"
+
+
+class ErrorSeverity(str, enum.Enum):
+    """Error severity levels."""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
 
 
 class Job(Base):
-    """Job queue model for async task tracking."""
+    """Job entity for validation processing."""
     
     __tablename__ = "jobs"
     
     # Primary key
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     
-    # User/tenant info
-    user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
-    organization_id = Column(UUID(as_uuid=True), index=True)
+    # Multi-tenant
+    tenant_id = Column(String, ForeignKey("tenants.id"), nullable=False, index=True)
     
-    # Job definition
-    task_name = Column(String(100), nullable=False, index=True)
-    queue = Column(String(50), nullable=False, default="queue:free")
-    priority = Column(Integer, default=JobPriority.NORMAL.value)
-    status = Column(
-        SQLEnum(JobStatus, values_callable=lambda x: [e.value for e in x]), 
-        nullable=False, 
-        default=JobStatus.QUEUED,
-        index=True
-    )
+    # Seller info
+    seller_id = Column(String, index=True, nullable=False)
+    seller_name = Column(String, nullable=False)
     
-    # Job data
-    params_json = Column(JSON, nullable=False, default={})
-    result_ref = Column(String(500))  # S3 URI or similar
-    error = Column(Text)
+    # Job classification
+    channel = Column(SQLEnum(JobChannel), nullable=False)
+    type = Column(SQLEnum(JobType), nullable=False)
+    status = Column(SQLEnum(JobStatus), default=JobStatus.PENDING, nullable=False, index=True)
     
-    # Progress tracking
-    progress = Column(Float, default=0.0)  # 0-100
-    message = Column(Text)  # Current status message
+    # Processing metrics
+    total_items = Column(Integer, default=0)
+    processed_items = Column(Integer, default=0)
+    success_items = Column(Integer, default=0)
+    failed_items = Column(Integer, default=0)
+    warning_items = Column(Integer, default=0)
+    
+    # Performance
+    duration_ms = Column(Integer)
+    avg_item_time_ms = Column(Float)
+    p95_time_ms = Column(Float)
+    p99_time_ms = Column(Float)
+    
+    # Error tracking
+    error_count = Column(Integer, default=0)
+    warning_count = Column(Integer, default=0)
+    severity = Column(SQLEnum(ErrorSeverity))
+    last_error = Column(Text)
+    
+    # File info
+    file_name = Column(String)
+    file_size_bytes = Column(Integer)
+    file_url = Column(String)
     
     # Idempotency
     idempotency_key = Column(String(255), index=True)
-    
-    # Correlation
-    correlation_id = Column(String(100), index=True)
-    
-    # Celery integration
-    celery_task_id = Column(String(255), unique=True, index=True)
-    
-    # Retry tracking
-    retry_count = Column(Integer, default=0)
-    max_retries = Column(Integer, default=3)
+    reprocess_count = Column(Integer, default=0)
+    parent_job_id = Column(String, ForeignKey("jobs.id"))
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     started_at = Column(DateTime(timezone=True))
-    finished_at = Column(DateTime(timezone=True))
-    expires_at = Column(DateTime(timezone=True))
+    completed_at = Column(DateTime(timezone=True))
     
     # Metadata
     job_metadata = Column(JSON, default={})
     
+    # Relationships
+    tenant = relationship("Tenant", backref="jobs")
+    items = relationship("JobItem", back_populates="job", cascade="all, delete-orphan")
+    parent_job = relationship("Job", remote_side=[id], backref="reprocessed_jobs")
+    
     # Constraints
     __table_args__ = (
-        # Create a partial unique constraint that only applies when idempotency_key is not NULL
-        # NOTE: This uses PostgreSQL-specific partial index syntax (postgresql_where).
-        # Database portability consideration: If migrating to another database system,
-        # this constraint will need to be reimplemented using that database's equivalent
-        # feature (e.g., filtered index in SQL Server, function-based index in Oracle,
-        # or application-level enforcement for databases without partial index support).
+        Index('idx_jobs_tenant_created', 'tenant_id', 'created_at'),
+        Index('idx_jobs_tenant_status', 'tenant_id', 'status'),
+        Index('idx_jobs_tenant_seller', 'tenant_id', 'seller_id'),
         Index(
-            'uq_user_idempotency_nonnull',
-            'user_id',
+            'uq_tenant_idempotency',
+            'tenant_id',
             'idempotency_key',
             unique=True,
             postgresql_where=text('idempotency_key IS NOT NULL')
         ),
-        Index('ix_jobs_user_status', 'user_id', 'status'),
-        Index('ix_jobs_created_at_desc', created_at.desc()),
         {'extend_existing': True}
     )
     
     @property
-    def is_terminal(self) -> bool:
-        """Check if job is in a terminal state."""
-        return self.status in [
-            JobStatus.SUCCEEDED,
-            JobStatus.FAILED,
-            JobStatus.CANCELLED,
-            JobStatus.EXPIRED
-        ]
+    def success_rate(self) -> float:
+        """Calculate success rate."""
+        if self.total_items == 0:
+            return 0.0
+        return (self.success_items / self.total_items) * 100
+    
+    @property
+    def is_complete(self) -> bool:
+        """Check if job is complete."""
+        return self.status in [JobStatus.SUCCESS, JobStatus.FAILED, JobStatus.CANCELLED]
     
     def to_dict(self):
-        """Convert to dictionary using SQLAlchemy inspection."""
-        result = {}
-        for column in inspect(self).mapper.column_attrs:
-            value = getattr(self, column.key)
-            # Handle special types
-            if isinstance(value, uuid.UUID):
-                result[column.key] = str(value)
-            elif isinstance(value, datetime):
-                result[column.key] = value.isoformat()
-            elif isinstance(value, enum.Enum):
-                result[column.key] = value.value
-            else:
-                result[column.key] = value
-        
-        # For backward compatibility, rename some fields
-        if "params_json" in result:
-            result["params"] = result.pop("params_json")
-        if "job_metadata" in result:
-            result["metadata"] = result.pop("job_metadata")
-        
-        return result
+        """Convert to dictionary."""
+        return {
+            "id": self.id,
+            "tenant_id": self.tenant_id,
+            "seller_id": self.seller_id,
+            "seller_name": self.seller_name,
+            "channel": self.channel.value if self.channel else None,
+            "type": self.type.value if self.type else None,
+            "status": self.status.value if self.status else None,
+            "total_items": self.total_items,
+            "processed_items": self.processed_items,
+            "success_items": self.success_items,
+            "failed_items": self.failed_items,
+            "warning_items": self.warning_items,
+            "success_rate": self.success_rate,
+            "duration_ms": self.duration_ms,
+            "error_count": self.error_count,
+            "warning_count": self.warning_count,
+            "severity": self.severity.value if self.severity else None,
+            "file_name": self.file_name,
+            "file_size_bytes": self.file_size_bytes,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "started_at": self.started_at.isoformat() if self.started_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "reprocess_count": self.reprocess_count,
+        }
 
 
-class JobResult(Base):
-    """Separate table for large job results (optional)."""
+class JobItem(Base):
+    """Individual item within a job."""
     
-    __tablename__ = "job_results"
-    __table_args__ = get_table_args()
+    __tablename__ = "job_items"
     
-    job_id = Column(UUID(as_uuid=True), primary_key=True)
-    result_json = Column(JSON)
-    object_uri = Column(String(500))  # S3/GCS URI for large results
-    size_bytes = Column(Integer)
+    # Primary key
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    
+    # Foreign key
+    job_id = Column(String, ForeignKey("jobs.id"), nullable=False, index=True)
+    
+    # Item data
+    sku = Column(String, nullable=False, index=True)
+    title = Column(String)
+    status = Column(SQLEnum(JobStatus), default=JobStatus.PENDING, nullable=False)
+    
+    # Validation details
+    field_errors = Column(JSON, default=list)
+    business_errors = Column(JSON, default=list)
+    warnings = Column(JSON, default=list)
+    suggestions = Column(JSON, default=list)
+    
+    # Error categorization
+    error_codes = Column(JSON, default=list)
+    error_categories = Column(JSON, default=list)
+    
+    # Data tracking
+    original_data = Column(JSON)
+    corrected_data = Column(JSON)
+    corrections_applied = Column(JSON, default=list)
+    
+    # Performance
+    processing_time_ms = Column(Integer)
+    
+    # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    job = relationship("Job", back_populates="items")
+    
+    # Constraints
+    __table_args__ = (
+        Index('idx_job_items_job_status', 'job_id', 'status'),
+        Index('idx_job_items_job_sku', 'job_id', 'sku'),
+        {'extend_existing': True}
+    )
+    
+    def to_dict(self):
+        """Convert to dictionary."""
+        return {
+            "id": self.id,
+            "job_id": self.job_id,
+            "sku": self.sku,
+            "title": self.title,
+            "status": self.status.value if self.status else None,
+            "field_errors": self.field_errors,
+            "business_errors": self.business_errors,
+            "warnings": self.warnings,
+            "suggestions": self.suggestions,
+            "error_codes": self.error_codes,
+            "error_categories": self.error_categories,
+            "processing_time_ms": self.processing_time_ms,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
