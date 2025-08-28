@@ -3,28 +3,8 @@
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 const isDev = process.env.NODE_ENV === 'development';
 
-// Enhanced CSP for authentication security
-const cspHeader = `
-    default-src 'self';
-    connect-src 'self' ${apiBaseUrl} https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com;
-    script-src 'self' ${isDev ? "'unsafe-eval' 'unsafe-inline'" : "'nonce-{NONCE}'"} https://accounts.google.com https://apis.google.com;
-    style-src 'self' 'unsafe-inline' https://accounts.google.com https://fonts.googleapis.com;
-    img-src 'self' blob: data: https://*.googleusercontent.com https://accounts.google.com;
-    font-src 'self' https://fonts.gstatic.com;
-    frame-src 'self' https://accounts.google.com https://content.googleapis.com;
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self' https://accounts.google.com;
-    frame-ancestors 'none';
-    block-all-mixed-content;
-    ${!isDev ? 'upgrade-insecure-requests;' : ''}
-`;
-
+// Security headers (CSP now handled by middleware for nonce support)
 const securityHeaders = [
-  {
-    key: 'Content-Security-Policy',
-    value: cspHeader.replace(/\s{2,}/g, ' ').trim(),
-  },
   {
     key: 'Referrer-Policy',
     value: 'strict-origin-when-cross-origin',

@@ -1,6 +1,8 @@
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Inter } from 'next/font/google';
+import { headers } from 'next/headers';
+import Script from 'next/script';
 
 // Otimização de fonte com next/font
 const inter = Inter({ 
@@ -22,8 +24,16 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const nonce = headers().get('x-nonce') ?? '';
+  
   return (
     <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
+      <head>
+        {/* Se houver scripts inline essenciais, adicione com nonce aqui */}
+        {/* <Script id="boot" nonce={nonce} strategy="beforeInteractive">
+          {`window.__VH__ = {}`}
+        </Script> */}
+      </head>
       <body className={`${inter.className} antialiased min-h-screen dark:bg-zinc-950 bg-white dark:text-zinc-50 text-gray-900 transition-colors`}>
         <Providers>
           {children}
