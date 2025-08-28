@@ -219,7 +219,7 @@ export default function Pricing() {
                 <button
                   className={`px-6 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
                     cycle === 'monthly'
-                      ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm'
+                      ? 'bg-purple-600 dark:bg-emerald-600 text-white shadow-sm'
                       : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
                   }`}
                   onClick={() => setCycle('monthly')}
@@ -229,7 +229,7 @@ export default function Pricing() {
                 <button
                   className={`px-6 py-2 rounded-xl font-medium text-sm transition-all duration-200 ${
                     cycle === 'yearly'
-                      ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm'
+                      ? 'bg-purple-600 dark:bg-emerald-600 text-white shadow-sm'
                       : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200'
                   }`}
                   onClick={() => setCycle('yearly')}
