@@ -106,12 +106,12 @@ export default function NavbarPremium() {
               ))}
             </div>
 
-            <Link
-              href="/login"
+            <a
+              href="http://localhost:3002/auth/login"
               className="px-4 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors"
             >
               Entrar
-            </Link>
+            </a>
             <Link
               href="/signup"
               className="relative group overflow-hidden rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 px-5 py-1.5 text-sm font-semibold text-black transition-all hover:shadow-lg hover:shadow-emerald-400/25"
@@ -179,13 +179,13 @@ export default function NavbarPremium() {
           </div>
           <div className="my-3 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
           <div className="flex gap-2">
-            <Link 
-              href="/login" 
+            <a 
+              href="http://localhost:3002/auth/login" 
               className="flex-1 rounded-xl border border-white/10 px-4 py-2.5 text-center text-zinc-300 hover:bg-white/5 transition-colors"
               onClick={() => setOpen(false)}
             >
               Entrar
-            </Link>
+            </a>
             <Link
               href="/signup"
               className="flex-1 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 px-4 py-2.5 text-black text-center font-semibold hover:shadow-lg hover:shadow-emerald-400/25 transition-all"

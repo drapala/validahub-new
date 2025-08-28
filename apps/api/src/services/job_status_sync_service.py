@@ -30,18 +30,19 @@ class JobStatusSyncService:
     
     # Status mapping from queue backend to JobStatus enum
     STATUS_MAP = {
-        'queued': JobStatus.QUEUED,
-        'pending': JobStatus.QUEUED,
-        'processing': JobStatus.RUNNING,
-        'running': JobStatus.RUNNING,
-        'completed': JobStatus.SUCCEEDED,
-        'success': JobStatus.SUCCEEDED,
+        'queued': JobStatus.PENDING,
+        'pending': JobStatus.PENDING,
+        'processing': JobStatus.PROCESSING,
+        'running': JobStatus.PROCESSING,
+        'completed': JobStatus.SUCCESS,
+        'success': JobStatus.SUCCESS,
         'failed': JobStatus.FAILED,
         'error': JobStatus.FAILED,
         'cancelled': JobStatus.CANCELLED,
         'revoked': JobStatus.CANCELLED,
-        'retrying': JobStatus.RETRYING,
-        'retry': JobStatus.RETRYING
+        'retrying': JobStatus.PROCESSING,
+        'retry': JobStatus.PROCESSING,
+        'review': JobStatus.REVIEW
     }
     
     def __init__(

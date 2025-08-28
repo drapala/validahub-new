@@ -40,7 +40,7 @@ def upgrade() -> None:
     # Create telemetry_events table with partitioning by created_at
     op.execute("""
         CREATE TABLE telemetry_events (
-            event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            event_id UUID DEFAULT gen_random_uuid(),
             event_name VARCHAR(100) NOT NULL,
             version VARCHAR(10) NOT NULL DEFAULT 'v1',
             timestamp TIMESTAMPTZ NOT NULL,
@@ -64,7 +64,10 @@ def upgrade() -> None:
             -- Event payload
             payload JSONB NOT NULL,
             metrics JSONB,
-            error JSONB
+            error JSONB,
+            
+            -- Primary key must include partition key for partitioned tables
+            PRIMARY KEY (event_id, created_at)
         ) PARTITION BY RANGE (created_at);
     """)
     

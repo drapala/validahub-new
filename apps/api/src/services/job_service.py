@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
 from fastapi import HTTPException, status
 
-from src.models.job import Job, JobStatus, JobResult
+from src.models.job import Job, JobStatus
 from src.schemas.job import (
     JobCreate, JobOut, JobResultOut, JobListQuery, 
     JobListResponse, JobStatusUpdate, JobPlan

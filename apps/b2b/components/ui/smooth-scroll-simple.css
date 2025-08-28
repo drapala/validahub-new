@@ -1,0 +1,65 @@
+/* CSS Scroll Snap - Simples e funcional */
+
+/* Desktop only */
+@media (min-width: 768px) {
+  /* Removed scroll-behavior: smooth from html */
+  
+  body {
+    overflow-x: hidden;
+  }
+
+  #snap-container {
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+    height: 100vh;
+    /* Removed scroll-behavior: smooth - using auto scroll */
+    scrollbar-width: thin;
+    scrollbar-color: #374151 #111827;
+  }
+
+  #snap-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #snap-container::-webkit-scrollbar-track {
+    background: #111827;
+  }
+
+  #snap-container::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    border-radius: 4px;
+  }
+
+  #snap-container::-webkit-scrollbar-thumb:hover {
+    background-color: #4b5563;
+  }
+
+  .snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Padding para compensar promo bar + navbar fixa */
+    scroll-margin-top: 100px;
+  }
+
+  /* Ensure sections fill their min-height properly */
+  .snap-section > * {
+    width: 100%;
+  }
+}
+
+/* Mobile - scroll normal */
+@media (max-width: 767px) {
+  #snap-container {
+    scroll-snap-type: none;
+    overflow-y: auto;
+    height: auto;
+  }
+
+  .snap-section {
+    min-height: auto;
+  }
+}

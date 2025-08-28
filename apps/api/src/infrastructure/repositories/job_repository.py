@@ -10,7 +10,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, asc, func, exists
 
-from src.models.job import Job, JobStatus, JobResult
+from src.models.job import Job, JobStatus
 from src.core.result import Result, Ok, Err, JobError
 
 logger = get_logger(__name__)
@@ -304,7 +304,7 @@ class JobRepository:
             logger.error(f"Failed to delete old jobs: {e}")
             return Err(JobError.DATABASE_ERROR)
     
-    def find_result_by_job_id(self, job_id: uuid.UUID) -> Optional[JobResult]:
+    def find_result_by_job_id(self, job_id: uuid.UUID) -> Optional[Dict[str, Any]]:
         """
         Find job result by job ID.
         

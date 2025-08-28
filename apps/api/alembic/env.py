@@ -12,7 +12,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 # Import our models
 from src.db.base import Base
-from src.models import User, Job, File
+# Import ALL models to ensure they're registered with metadata
+from src.models import Tenant, User, ApiKey, Job, File
 from src.config import settings
 
 # this is the Alembic Config object, which provides
